@@ -1,18 +1,17 @@
 import { createBrowserRouter } from 'react-router-dom';
-import App from './App'; // Ce sera notre Layout principal (Root)
+import App from './App';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import RequireAuth from './components/RequireAuth';
 
 export const router = createBrowserRouter([
    {
       path: "/",
-      element: <App />, // App contient le Layout (Navbar + Outlet)
-      // ErrorElement gérera les plantages (404, erreurs API) globalement
-      // errorElement: <ErrorPage />, 
+      element: <App />,
       children: [
          {
-            index: true, // Correspond au path "/" exact
+            index: true,
             element: <Home />,
          },
          {
@@ -21,7 +20,11 @@ export const router = createBrowserRouter([
          },
          {
             path: "dashboard",
-            element: <Dashboard />,
+            element: (
+               <RequireAuth>
+                  <Dashboard />
+               </RequireAuth>
+            ),
          },
       ],
    },
