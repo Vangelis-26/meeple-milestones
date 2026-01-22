@@ -120,6 +120,28 @@ export default function Dashboard() {
       }
    };
 
+   const removeGame = async (gameId) => {
+      if (!window.confirm("Veux-tu vraiment retirer ce jeu de ton défi ?")) return;
+
+      // Mise à jour optimiste (On l'enlève de l'écran tout de suite)
+      setItems(current => current.filter(item => item.game_id !== gameId));
+
+      try {
+         const { error } = await supabase
+            .from('challenge_items')
+            .delete()
+            .eq('challenge_id', CHALLENGE_ID)
+            .eq('game_id', gameId);
+
+         if (error) throw error;
+
+      } catch (error) {
+         console.error("Erreur suppression:", error);
+         alert("Impossible de supprimer le jeu.");
+         fetchChallenge();
+      }
+   };
+
    // On calcule la liste des IDs BGG déjà présents pour la modale
    const existingBggIds = items.map(item => item.game.bgg_id);
 
@@ -138,6 +160,7 @@ export default function Dashboard() {
             loading={loading}
             onAddClick={() => setIsModalOpen(true)}
             onUpdateProgress={updateProgress}
+            onRemoveGame={removeGame}
          />
 
          {/* Bouton Flottant */}
