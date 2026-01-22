@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { searchGames } from '../services/bgg';
 import { supabase } from '../services/supabase';
+import ChallengeGrid from '../components/ChallengeGrid';
 
 export default function Dashboard() {
    const [query, setQuery] = useState('');
@@ -21,6 +22,7 @@ export default function Dashboard() {
          const data = await searchGames(query);
          setResults(data);
          if (data.length === 0) setError("Aucun jeu trouvé.");
+         // eslint-disable-next-line no-unused-vars
       } catch (err) {
          setError("Erreur critique lors de la recherche.");
       } finally {
@@ -30,6 +32,7 @@ export default function Dashboard() {
 
    const addToCollection = async (gameBgg) => {
       const MY_CHALLENGE_ID = 1;
+      // eslint-disable-next-line no-unused-vars
       const { user } = supabase.auth.getUser();
 
       if (!confirm(`Ajouter ${gameBgg.name} à ton Challenge ?`)) return;
@@ -95,18 +98,17 @@ export default function Dashboard() {
             </button>
          </form>
 
-         {/* Zone de feedback */}
+         {/* Zone de feedback (Erreur) */}
          {error && (
             <div className="p-4 bg-yellow-50 text-yellow-800 rounded mb-4 border border-yellow-200">
                {error}
             </div>
          )}
 
-         {/* Grille de résultats */}
+         {/* Grille de résultats de recherche (Celle qui affiche Catan, Azul...) */}
          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {results.map((game) => (
                <div key={game.bgg_id} className="flex items-center p-4 bg-white border rounded shadow-sm hover:shadow-md transition">
-                  {/* Placeholder pour l'image (car la recherche simple ne la donne pas) */}
                   <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 font-bold text-xs mr-4 shrink-0">
                      {game.year || '?'}
                   </div>
@@ -118,13 +120,23 @@ export default function Dashboard() {
 
                   <button
                      className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200 transition"
-                     onClick={() => addToCollection(game)} // <--- C'est ici
+                     onClick={() => addToCollection(game)}
                   >
                      Ajouter
                   </button>
                </div>
             ))}
          </div>
+
+         {/* 👇 C'EST ICI QU'ON AJOUTE LA SÉPARATION ET LA GRILLE 👇 */}
+
+         <hr className="my-12 border-gray-200" />
+
+         {/* Notre nouveau composant qui affiche "Mes Jeux" */}
+         <ChallengeGrid />
+
+         {/* 👆 FIN DE L'AJOUT 👆 */}
+
       </div>
    );
 }
