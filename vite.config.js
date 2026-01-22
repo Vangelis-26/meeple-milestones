@@ -1,7 +1,19 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+   plugins: [react()],
+   server: {
+      proxy: {
+         '/api/bgg': {
+            target: 'https://boardgamegeek.com/xmlapi2',
+            changeOrigin: true,
+            rewrite: (path) => path.replace(/^\/api\/bgg/, ''),
+            secure: false,
+            headers: {
+               'User-Agent': 'MeepleAndMilestones/0.1',
+            },
+         },
+      },
+   },
 })
