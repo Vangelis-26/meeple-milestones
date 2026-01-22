@@ -1,141 +1,121 @@
-import { useState } from 'react';
-import { searchGames } from '../services/bgg';
-import { supabase } from '../services/supabase';
+import { useState, useEffect } from 'react';
 import ChallengeGrid from '../components/ChallengeGrid';
+import AddGameModal from '../components/AddGameModal';
+import { supabase } from '../services/supabase';
+import { getGameDetails } from '../services/bgg';
 
 export default function Dashboard() {
-   const [query, setQuery] = useState('');
-   const [results, setResults] = useState([]);
-   const [loading, setLoading] = useState(false);
-   const [error, setError] = useState(null);
+   const [isModalOpen, setIsModalOpen] = useState(false);
+   const [items, setItems] = useState([]);
+   const [loading, setLoading] = useState(true);
 
-   // Fonction déclenchée quand on soumet le formulaire
-   const handleSearch = async (e) => {
-      e.preventDefault();
-      if (query.length < 3) return;
+   // ID du challenge (toujours 1 pour l'instant)
+   const CHALLENGE_ID = 1;
 
-      setLoading(true);
-      setError(null);
-      setResults([]);
-
+   // Fonction pour charger les données (déplacée ici)
+   const fetchChallenge = async () => {
       try {
-         const data = await searchGames(query);
-         setResults(data);
-         if (data.length === 0) setError("Aucun jeu trouvé.");
-         // eslint-disable-next-line no-unused-vars
-      } catch (err) {
-         setError("Erreur critique lors de la recherche.");
+         const { data, error } = await supabase
+            .from('challenge_items')
+            .select(`
+          game_id, 
+          progress,
+          target,
+          game:games (id, bgg_id, name, thumbnail_url)
+        `)
+            .eq('challenge_id', CHALLENGE_ID);
+
+         if (error) throw error;
+         setItems(data || []);
+      } catch (error) {
+         console.error("Erreur chargement:", error);
       } finally {
          setLoading(false);
       }
    };
 
+   // Chargement initial
+   useEffect(() => {
+      fetchChallenge();
+   }, []);
+
    const addToCollection = async (gameBgg) => {
-      const MY_CHALLENGE_ID = 1;
-      // eslint-disable-next-line no-unused-vars
-      const { user } = supabase.auth.getUser();
-
-      if (!confirm(`Ajouter ${gameBgg.name} à ton Challenge ?`)) return;
-
       try {
-         // 1. Upsert dans le catalogue GLOBAL (comme avant)
+         // 1. Appel BGG Details (Images)
+         const details = await getGameDetails(gameBgg.bgg_id);
+
+         // 2. Upsert Games
          const { data: gameData, error: gameError } = await supabase
             .from('games')
             .upsert({
                bgg_id: gameBgg.bgg_id,
                name: gameBgg.name,
+               thumbnail_url: details.thumbnail_url,
             }, { onConflict: 'bgg_id' })
             .select()
             .single();
 
          if (gameError) throw gameError;
 
-         // 2. Insert dans TON challenge (La nouveauté)
+         // 3. Insert Link
          const { error: linkError } = await supabase
             .from('challenge_items')
             .insert({
-               challenge_id: MY_CHALLENGE_ID,
-               game_id: gameData.id, // On utilise l'ID interne de notre base
+               challenge_id: CHALLENGE_ID,
+               game_id: gameData.id,
                progress: 0,
                target: 10
             });
 
          if (linkError) {
-            if (linkError.code === '23505') { // Code SQL pour "Doublon"
-               alert("Ce jeu est déjà dans ton challenge !");
-            } else {
-               throw linkError;
-            }
+            if (linkError.code === '23505') alert("Déjà dans ta liste !");
+            else throw linkError;
          } else {
-            alert(`🎉 ${gameData.name} ajouté à ton challenge !`);
+            setIsModalOpen(false);
+            fetchChallenge();
          }
-
       } catch (error) {
-         console.error("Erreur ajout:", error);
          alert("Erreur : " + error.message);
       }
    };
 
+   // On calcule la liste des IDs BGG déjà présents pour la modale
+   const existingBggIds = items.map(item => item.game.bgg_id);
+
    return (
-      <div className="max-w-4xl mx-auto">
-         <h1 className="text-3xl font-bold mb-6 text-gray-800">Ajouter un jeu au challenge</h1>
-
-         {/* Barre de recherche */}
-         <form onSubmit={handleSearch} className="mb-8 flex gap-2">
-            <input
-               type="text"
-               placeholder="Rechercher un jeu (ex: Catan, Azul...)"
-               className="flex-1 p-3 border rounded shadow-sm focus:ring-2 focus:ring-blue-500 outline-none"
-               value={query}
-               onChange={(e) => setQuery(e.target.value)}
-            />
-            <button
-               type="submit"
-               disabled={loading || query.length < 3}
-               className="bg-blue-600 text-white px-6 py-3 rounded font-bold hover:bg-blue-700 disabled:opacity-50 transition"
-            >
-               {loading ? '...' : 'Chercher'}
-            </button>
-         </form>
-
-         {/* Zone de feedback (Erreur) */}
-         {error && (
-            <div className="p-4 bg-yellow-50 text-yellow-800 rounded mb-4 border border-yellow-200">
-               {error}
+      <div className="max-w-6xl mx-auto pb-24">
+         <header className="mb-8 flex justify-between items-end">
+            <div>
+               <h1 className="text-4xl font-extrabold text-gray-900 tracking-tight">Mon Challenge 10x10</h1>
+               <p className="text-gray-500 mt-2">Objectif : 100 parties en 2026</p>
             </div>
-         )}
+         </header>
 
-         {/* Grille de résultats de recherche (Celle qui affiche Catan, Azul...) */}
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {results.map((game) => (
-               <div key={game.bgg_id} className="flex items-center p-4 bg-white border rounded shadow-sm hover:shadow-md transition">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center text-gray-400 font-bold text-xs mr-4 shrink-0">
-                     {game.year || '?'}
-                  </div>
+         {/* On passe les items directement à la grille */}
+         <ChallengeGrid
+            items={items}
+            loading={loading}
+            onAddClick={() => setIsModalOpen(true)}
+         />
 
-                  <div className="flex-1">
-                     <h3 className="font-bold text-lg">{game.name}</h3>
-                     <p className="text-xs text-gray-500">ID BGG: {game.bgg_id}</p>
-                  </div>
+         {/* Bouton Flottant */}
+         <button
+            onClick={() => setIsModalOpen(true)}
+            className="fixed bottom-8 right-8 bg-blue-600 text-white px-6 py-4 rounded-full shadow-lg flex items-center gap-3 hover:bg-blue-700 hover:scale-105 transition transform z-40 font-bold"
+         >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span>Ajouter un jeu</span>
+         </button>
 
-                  <button
-                     className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded hover:bg-green-200 transition"
-                     onClick={() => addToCollection(game)}
-                  >
-                     Ajouter
-                  </button>
-               </div>
-            ))}
-         </div>
-
-         {/* 👇 C'EST ICI QU'ON AJOUTE LA SÉPARATION ET LA GRILLE 👇 */}
-
-         <hr className="my-12 border-gray-200" />
-
-         {/* Notre nouveau composant qui affiche "Mes Jeux" */}
-         <ChallengeGrid />
-
-         {/* 👆 FIN DE L'AJOUT 👆 */}
+         {/* On passe la liste des exclus (existingBggIds) à la modale */}
+         <AddGameModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onAdd={addToCollection}
+            existingIds={existingBggIds}
+         />
 
       </div>
    );
