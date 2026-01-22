@@ -4,6 +4,16 @@ import AddGameModal from '../components/AddGameModal';
 import { supabase } from '../services/supabase';
 import { getGameDetails } from '../services/bgg';
 
+const MEEPLE_COLORS = [
+   'red',
+   'yellow',
+   'teal',   // vert-bleu
+   'blue',
+   'purple',
+   'orange',
+   'green'
+];
+
 export default function Dashboard() {
    const [isModalOpen, setIsModalOpen] = useState(false);
    const [items, setItems] = useState([]);
@@ -18,11 +28,12 @@ export default function Dashboard() {
          const { data, error } = await supabase
             .from('challenge_items')
             .select(`
-          game_id, 
-          progress,
-          target,
-          game:games (id, bgg_id, name, thumbnail_url)
-        `)
+             game_id, 
+             progress,
+             target,
+             meeple_color,
+             game:games (id, bgg_id, name, thumbnail_url)
+           `)
             .eq('challenge_id', CHALLENGE_ID);
 
          if (error) throw error;
@@ -57,6 +68,9 @@ export default function Dashboard() {
 
          if (gameError) throw gameError;
 
+         // 🎨 On choisit une couleur au hasard pour ce nouveau jeu
+         const randomColor = MEEPLE_COLORS[Math.floor(Math.random() * MEEPLE_COLORS.length)];
+
          // 3. Insert Link
          const { error: linkError } = await supabase
             .from('challenge_items')
@@ -64,7 +78,8 @@ export default function Dashboard() {
                challenge_id: CHALLENGE_ID,
                game_id: gameData.id,
                progress: 0,
-               target: 10
+               target: 10,
+               meeple_color: randomColor // <--- ON SAUVEGARDE LA COULEUR
             });
 
          if (linkError) {
@@ -76,6 +91,32 @@ export default function Dashboard() {
          }
       } catch (error) {
          alert("Erreur : " + error.message);
+      }
+   };
+
+   const updateProgress = async (gameId, newProgress) => {
+      // Optimisation UI : On met à jour l'affichage localement TOUT DE SUITE (avant la réponse du serveur)
+      // Cela donne une sensation de vitesse instantanée (Optimistic UI)
+      setItems(currentItems =>
+         currentItems.map(item =>
+            item.game_id === gameId ? { ...item, progress: newProgress } : item
+         )
+      );
+
+      try {
+         const { error } = await supabase
+            .from('challenge_items')
+            .update({ progress: newProgress })
+            .eq('challenge_id', CHALLENGE_ID)
+            .eq('game_id', gameId);
+
+         if (error) throw error;
+         // Pas besoin de recharger fetchChallenge() car on a déjà mis à jour l'état local !
+
+      } catch (error) {
+         console.error("Erreur sauvegarde:", error);
+         alert("Erreur lors de la sauvegarde du progrès. Rechargement...");
+         fetchChallenge(); // En cas d'erreur, on remet les vraies données du serveur pour corriger
       }
    };
 
@@ -96,6 +137,7 @@ export default function Dashboard() {
             items={items}
             loading={loading}
             onAddClick={() => setIsModalOpen(true)}
+            onUpdateProgress={updateProgress}
          />
 
          {/* Bouton Flottant */}
