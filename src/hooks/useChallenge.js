@@ -2,48 +2,88 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
 import { getGameDetails } from '../services/bgg';
 
-// Les couleurs disponibles
 const MEEPLE_COLORS = ['red', 'yellow', 'teal', 'blue', 'purple', 'orange', 'green'];
 
-export function useChallenge(challengeId = 1) {
+export function useChallenge() {
+   const [challengeId, setChallengeId] = useState(null);
    const [items, setItems] = useState([]);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
 
-   // 1. CHARGER
-   const fetchChallenge = useCallback(async () => {
+   // --- INITIALISATION ---
+   const initChallenge = useCallback(async () => {
       try {
          setLoading(true);
+
+         // 1. On récupère l'user
+         const { data: { user } } = await supabase.auth.getUser();
+         if (!user) {
+            console.warn("Utilisateur non connecté");
+            setLoading(false);
+            return;
+         }
+
+         // 2. On récupère SON challenge
+         const { data: challengeData, error: challengeError } = await supabase
+            .from('challenges')
+            .select('id')
+            .eq('user_id', user.id)
+            .single();
+
+         if (challengeError) throw challengeError;
+
+         // 3. ON SAUVEGARDE L'ID DANS LE STATE
+         setChallengeId(challengeData.id);
+
+         // 4. On charge les jeux
+         await fetchGames(challengeData.id);
+
+      } catch (err) {
+         console.error("Erreur init:", err);
+         setError(err.message);
+         setLoading(false);
+      }
+   }, []);
+
+   // --- CHARGEMENT DES JEUX ---
+   const fetchGames = async (id) => {
+      try {
          const { data, error } = await supabase
             .from('challenge_items')
             .select(`
           game_id, progress, target, meeple_color,
           game:games (id, bgg_id, name, thumbnail_url)
         `)
-            .eq('challenge_id', challengeId)
+            .eq('challenge_id', id)
             .order('created_at', { ascending: true });
 
          if (error) throw error;
          setItems(data || []);
       } catch (err) {
-         setError(err.message);
-         console.error("Erreur chargement:", err);
+         console.error(err);
       } finally {
          setLoading(false);
       }
-   }, [challengeId]);
+   };
 
-   // Chargement initial
    useEffect(() => {
-      fetchChallenge();
-   }, [fetchChallenge]);
+      initChallenge();
+   }, [initChallenge]);
 
-   // 2. AJOUTER
+   // --- AJOUTER UN JEU ---
    const addGame = async (gameBgg) => {
+      // Vérification de sécurité
+      if (!challengeId) {
+         return { success: false, message: "Erreur interne: Challenge non trouvé" };
+      }
+
+      console.log(`Tentative d'ajout dans le challenge ID : ${challengeId}`);
+
       try {
+         // 1. Détails BGG
          const details = await getGameDetails(gameBgg.bgg_id);
 
-         // Upsert Game
+         // 2. Upsert Game (Table Games - Public)
          const { data: gameData, error: gameError } = await supabase
             .from('games')
             .upsert({
@@ -56,9 +96,9 @@ export function useChallenge(challengeId = 1) {
 
          if (gameError) throw gameError;
 
+         // 3. Insert Link (Table Challenge_Items - Privé)
          const randomColor = MEEPLE_COLORS[Math.floor(Math.random() * MEEPLE_COLORS.length)];
 
-         // Insert Link
          const { error: linkError } = await supabase
             .from('challenge_items')
             .insert({
@@ -72,52 +112,32 @@ export function useChallenge(challengeId = 1) {
             throw linkError;
          }
 
-         fetchChallenge(); // Recharge la liste proprement
+         // Recharger la liste
+         fetchGames(challengeId);
          return { success: true };
 
       } catch (err) {
+         console.error("Erreur addGame:", err);
          return { success: false, message: err.message };
       }
    };
 
-   // 3. METTRE À JOUR
    const updateProgress = async (gameId, newProgress) => {
-      // Optimistic UI update
-      setItems(current => current.map(item =>
-         item.game_id === gameId ? { ...item, progress: newProgress } : item
-      ));
-
+      if (!challengeId) return;
+      setItems(current => current.map(item => item.game_id === gameId ? { ...item, progress: newProgress } : item));
       try {
-         const { error } = await supabase
-            .from('challenge_items')
-            .update({ progress: newProgress })
-            .eq('challenge_id', challengeId)
-            .eq('game_id', gameId);
-
-         if (error) throw error;
-      } catch (err) {
-         console.error("Erreur update:", err);
-         fetchChallenge(); // Rollback en cas d'erreur
-      }
+         await supabase.from('challenge_items').update({ progress: newProgress })
+            .eq('challenge_id', challengeId).eq('game_id', gameId);
+      } catch (err) { fetchGames(challengeId); }
    };
 
-   // 4. SUPPRIMER
    const removeGame = async (gameId) => {
-      // Optimistic UI delete
+      if (!challengeId) return;
       setItems(current => current.filter(item => item.game_id !== gameId));
-
       try {
-         const { error } = await supabase
-            .from('challenge_items')
-            .delete()
-            .eq('challenge_id', challengeId)
-            .eq('game_id', gameId);
-
-         if (error) throw error;
-      } catch (err) {
-         console.error("Erreur delete:", err);
-         fetchChallenge();
-      }
+         await supabase.from('challenge_items').delete()
+            .eq('challenge_id', challengeId).eq('game_id', gameId);
+      } catch (err) { fetchGames(challengeId); }
    };
 
    return {

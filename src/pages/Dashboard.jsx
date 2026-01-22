@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ChallengeGrid from '../components/ChallengeGrid';
 import AddGameModal from '../components/AddGameModal';
-import { useChallenge } from '../hooks/useChallenge'; // <--- Import du hook
+import { useChallenge } from '../hooks/useChallenge';
 
 export default function Dashboard() {
    const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,7 +13,7 @@ export default function Dashboard() {
       updateProgress,
       removeGame,
       existingBggIds
-   } = useChallenge(1);
+   } = useChallenge();
 
    const handleAddGame = async (game) => {
       const result = await addGame(game);
