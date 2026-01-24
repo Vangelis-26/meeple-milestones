@@ -2,9 +2,12 @@ import { useState } from 'react';
 import { useChallenge } from '../hooks/useChallenge';
 import AddGameModal from '../components/AddGameModal';
 import GameCard from '../components/GameCard';
+import GameDetailsModal from '../components/GameDetailsModal'; // IMPORT MODALE
 
 export default function Dashboard() {
    const [isModalOpen, setIsModalOpen] = useState(false);
+   const [selectedGame, setSelectedGame] = useState(null); // STATE POUR LA MODALE
+
    const { items, loading, addGame, updateProgress, removeGame, existingBggIds } = useChallenge();
 
    const totalGames = items.length;
@@ -62,11 +65,7 @@ export default function Dashboard() {
             </div>
 
             {/* BARRE DE PROGRESSION STICKY */}
-            {/* sticky top-20 : Se colle sous la navbar (env. 64px + marge) */}
-            {/* z-30 : Reste au-dessus des cartes */}
-            {/* backdrop-blur-md : Effet de flou sur ce qui passe dessous */}
             <div className="sticky top-20 z-30 mb-12 bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-stone-200/60 shadow-md transition-all">
-
                {/* Conteneur de la barre */}
                <div className="h-5 w-full bg-stone-200/80 rounded-full overflow-hidden relative shadow-inner border border-stone-300/50">
                   <div className="h-full bg-gradient-to-r from-red-700 via-amber-500 to-green-700 transition-all duration-1000 relative" style={{ width: `${progressPercentageWidth}%` }}>
@@ -97,6 +96,7 @@ export default function Dashboard() {
                      gameInfo={item.game}
                      onUpdateProgress={updateProgress}
                      onRemove={() => handleRemoveGame(item.game_id, item.game.name)}
+                     onClickDetails={setSelectedGame} // CONNEXION AU CLIC
                   />
                ))}
 
@@ -118,7 +118,17 @@ export default function Dashboard() {
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
          </button>
 
+         {/* MODALE D'AJOUT */}
          <AddGameModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddGame} existingIds={existingBggIds} />
+
+         {/* MODALE DE DÉTAILS - AFFICHAGE CONDITIONNEL */}
+         {selectedGame && (
+            <GameDetailsModal
+               game={selectedGame}
+               onClose={() => setSelectedGame(null)}
+            />
+         )}
+
       </div>
    );
 }

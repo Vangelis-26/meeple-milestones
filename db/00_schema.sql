@@ -1,6 +1,7 @@
 -- ==============================================================================
 -- 🏗️ FICHIER DE RÉFÉRENCE : STRUCTURE DE LA BASE (SCHEMA)
 -- Description : Crée les tables et les relations.
+-- Mis à jour : Ajout des colonnes pour l'option "Ludique" (description, stats...)
 -- ==============================================================================
 
 -- 1. Table : GAMES (Bibliothèque publique des jeux)
@@ -9,6 +10,13 @@ create table if not exists public.games (
   bgg_id bigint not null unique,
   name text not null,
   thumbnail_url text,
+  image_url text,             -- Image HD
+  description text,           -- Description complète
+  year_published integer,
+  min_age integer,
+  playing_time integer,       -- Durée en minutes
+  rating numeric(3, 1),       -- Note BGG (ex: 8.1)
+  complexity numeric(3, 2),   -- Poids (ex: 3.45)
   min_players integer,
   max_players integer,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null

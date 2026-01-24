@@ -7,7 +7,7 @@
 -- 1. FONCTIONS UTILITAIRES
 -- ==============================================================================
 
--- Vérifie si un challenge appartient à l'utilisateur connecté (Fonction de sécurité critique)
+-- Vérifie si un challenge appartient à l'utilisateur connecté
 create or replace function public.check_challenge_ownership(challenge_id bigint)
 returns boolean as $$
 begin
@@ -19,7 +19,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- Crée automatiquement un challenge lors de l'inscription d'un utilisateur
+-- Crée automatiquement un challenge lors de l'inscription
 create or replace function public.handle_new_user() 
 returns trigger as $$
 begin
@@ -48,7 +48,7 @@ alter table public.games enable row level security;
 alter table public.challenges enable row level security;
 alter table public.challenge_items enable row level security;
 
--- Nettoyage préventif des policies pour éviter les conflits lors d'un re-déploiement
+-- Nettoyage préventif
 drop policy if exists "Games_Read_Public" on public.games;
 drop policy if exists "Games_Write_Auth" on public.games;
 drop policy if exists "Challenges_Select_Own" on public.challenges;
@@ -59,50 +59,16 @@ drop policy if exists "Items_Update_Own" on public.challenge_items;
 drop policy if exists "Items_Delete_Own" on public.challenge_items;
 
 
--- A. TABLE GAMES (Catalogue Global)
--- Tout le monde peut voir les jeux
-create policy "Games_Read_Public"
-on public.games for select
-using (true);
+-- A. TABLE GAMES
+create policy "Games_Read_Public" on public.games for select using (true);
+create policy "Games_Write_Auth" on public.games for all using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
--- Les utilisateurs connectés peuvent enrichir le catalogue
-create policy "Games_Write_Auth"
-on public.games for all
-using (auth.role() = 'authenticated')
-with check (auth.role() = 'authenticated');
+-- B. TABLE CHALLENGES
+create policy "Challenges_Select_Own" on public.challenges for select using (auth.uid() = user_id);
+create policy "Challenges_Insert_Own" on public.challenges for insert with check (auth.uid() = user_id);
 
-
--- B. TABLE CHALLENGES (Container)
--- Je ne vois que mon challenge
-create policy "Challenges_Select_Own"
-on public.challenges for select
-using (auth.uid() = user_id);
-
--- Je peux créer mon challenge (ou le système via le trigger)
-create policy "Challenges_Insert_Own"
-on public.challenges for insert
-with check (auth.uid() = user_id);
-
-
--- C. TABLE CHALLENGE_ITEMS (Contenu)
--- Utilisation de la fonction de sécurité centralisée
-
--- Lecture
-create policy "Items_Select_Own"
-on public.challenge_items for select
-using (public.check_challenge_ownership(challenge_id));
-
--- Ajout
-create policy "Items_Insert_Own"
-on public.challenge_items for insert
-with check (public.check_challenge_ownership(challenge_id));
-
--- Modification (Update progress)
-create policy "Items_Update_Own"
-on public.challenge_items for update
-using (public.check_challenge_ownership(challenge_id));
-
--- Suppression
-create policy "Items_Delete_Own"
-on public.challenge_items for delete
-using (public.check_challenge_ownership(challenge_id));
+-- C. TABLE CHALLENGE_ITEMS
+create policy "Items_Select_Own" on public.challenge_items for select using (public.check_challenge_ownership(challenge_id));
+create policy "Items_Insert_Own" on public.challenge_items for insert with check (public.check_challenge_ownership(challenge_id));
+create policy "Items_Update_Own" on public.challenge_items for update using (public.check_challenge_ownership(challenge_id));
+create policy "Items_Delete_Own" on public.challenge_items for delete using (public.check_challenge_ownership(challenge_id));
