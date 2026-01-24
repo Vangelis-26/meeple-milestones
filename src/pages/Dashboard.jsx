@@ -10,7 +10,11 @@ export default function Dashboard() {
    const totalGames = items.length;
    const totalPlays = items.reduce((acc, item) => acc + (item.progress || 0), 0);
    const targetGlobal = 100;
-   const progressPercentage = Math.min((totalPlays / targetGlobal) * 100, 100);
+
+   // Calculs pour la barre de progression
+   const progressPercentageTxt = Math.round(Math.min((totalPlays / targetGlobal) * 100, 100));
+   const progressPercentageWidth = Math.min((totalPlays / targetGlobal) * 100, 100);
+   const remainingPlays = Math.max(0, 100 - totalPlays);
 
    const handleAddGame = async (game) => {
       const result = await addGame(game);
@@ -35,29 +39,57 @@ export default function Dashboard() {
    return (
       <div className="min-h-screen bg-paper-texture font-sans text-stone-800 flex flex-col pb-24 relative">
          <main className="flex-1 max-w-5xl mx-auto px-4 py-8 w-full">
-            {/* Header & Stats */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-10">
+
+            {/* Header & Stats (Reste en haut) */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
                <div className="text-center md:text-left">
                   <h1 className="text-4xl font-serif font-extrabold text-amber-900 tracking-tight">Mon Challenge</h1>
                   <p className="text-stone-500 font-medium mt-1">Tableau de bord 2026</p>
                </div>
-               <div className="bg-white border border-stone-200 rounded-xl shadow-sm px-4 py-2 flex items-center gap-4">
-                  <div><span className="font-bold text-xl">{totalGames}/10</span> <span className="text-xs text-stone-500 uppercase">Jeux</span></div>
-                  <span className="text-stone-300">&times;</span>
-                  <div><span className="font-bold text-xl text-amber-700">{totalPlays}/100</span> <span className="text-xs text-amber-600 uppercase">Parties</span></div>
+
+               {/* Widget Stats */}
+               <div className="bg-white border border-stone-200 rounded-xl shadow-sm px-6 py-3 flex items-center gap-6">
+                  <div className="flex flex-col items-center">
+                     <span className="font-bold text-xl leading-none">{totalGames}/10</span>
+                     <span className="text-[10px] text-stone-500 uppercase font-bold tracking-wider mt-1">Jeux</span>
+                  </div>
+                  <div className="h-8 w-px bg-stone-300"></div>
+                  <div className="flex flex-col items-center">
+                     <span className="font-bold text-xl text-amber-700 leading-none">{totalPlays}/100</span>
+                     <span className="text-[10px] text-amber-600 uppercase font-bold tracking-wider mt-1">Parties</span>
+                  </div>
                </div>
             </div>
 
-            {/* Barre de progression */}
-            <div className="mb-12 bg-white/50 p-6 rounded-2xl border border-stone-200/60 shadow-sm">
-               <div className="h-4 w-full bg-stone-200 rounded-full overflow-hidden shadow-inner border border-stone-300 relative">
-                  <div className="h-full bg-gradient-to-r from-stone-400 via-amber-500 to-amber-700 transition-all duration-1000" style={{ width: `${progressPercentage}%` }}></div>
+            {/* BARRE DE PROGRESSION STICKY */}
+            {/* sticky top-20 : Se colle sous la navbar (env. 64px + marge) */}
+            {/* z-30 : Reste au-dessus des cartes */}
+            {/* backdrop-blur-md : Effet de flou sur ce qui passe dessous */}
+            <div className="sticky top-20 z-30 mb-12 bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-stone-200/60 shadow-md transition-all">
+
+               {/* Conteneur de la barre */}
+               <div className="h-5 w-full bg-stone-200/80 rounded-full overflow-hidden relative shadow-inner border border-stone-300/50">
+                  <div className="h-full bg-gradient-to-r from-red-700 via-amber-500 to-green-700 transition-all duration-1000 relative" style={{ width: `${progressPercentageWidth}%` }}>
+                     <div className="absolute top-0 left-0 w-full h-1/2 bg-white/20"></div>
+                  </div>
+                  <div className="absolute inset-0 flex justify-evenly pointer-events-none">
+                     {[...Array(9)].map((_, i) => (
+                        <div key={i} className="w-[1px] h-full bg-white/60"></div>
+                     ))}
+                  </div>
                </div>
-               <p className="text-center text-sm text-stone-500 mt-2 font-serif italic">{Math.max(0, 100 - totalPlays)} parties restantes !</p>
+
+               {/* Textes descriptifs */}
+               <div className="flex justify-between text-sm font-bold uppercase tracking-wider mt-2 px-1">
+                  <span className="text-stone-500">{progressPercentageTxt}%</span>
+                  <span className="text-green-700 font-medium italic normal-case">
+                     {remainingPlays > 0 ? `${remainingPlays} parties restantes !` : "Objectif atteint ! 🎉"}
+                  </span>
+               </div>
             </div>
 
             {/* GRILLE DES JEUX */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 relative z-0">
                {items.map((item) => (
                   <GameCard
                      key={item.game_id}
@@ -82,7 +114,7 @@ export default function Dashboard() {
          </main>
 
          {/* FAB */}
-         <button onClick={() => setIsModalOpen(true)} className="fixed bottom-8 right-8 z-40 bg-amber-600 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-all border-2 border-amber-500">
+         <button onClick={() => setIsModalOpen(true)} className="fixed bottom-8 right-8 z-40 bg-amber-600 text-white p-4 rounded-full shadow-lg hover:scale-110 transition-all border-2 border-amber-500 hover:bg-amber-700 cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" /></svg>
          </button>
 
