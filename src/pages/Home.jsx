@@ -68,7 +68,7 @@ export default function Home() {
                            <img
                               src="/token_x.webp"
                               alt="X Token"
-                              className="w-14 h-14 object-contain drop-shadow-sm"
+                              className="w-16 h-16 object-contain drop-shadow-sm"
                            />
                         </div>
                         <div className="flex flex-col items-center w-1/3 z-10">
