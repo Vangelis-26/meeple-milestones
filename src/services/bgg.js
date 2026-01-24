@@ -13,11 +13,13 @@ const MOCK_RESULTS = [
 
 // 2. NOUVEAU : Dictionnaire d'images de secours (Vraies URLs d'images)
 const MOCK_IMAGES = {
-   13: "https://cdn3.philibertnet.com/797512-thickbox_default/catane.jpg", // Catan (Style Catan)
-   30549: "https://cdn3.philibertnet.com/523831-thickbox_default/pandemie.jpg", // Pandemic (Virus/Carte)
-   266192: "https://cdn3.philibertnet.com/430895-thickbox_default/wingspan.jpg", // Wingspan (Oiseau)
-   230802: "https://cdn2.philibertnet.com/402193-thickbox_default/azul.jpg", // Azul (Mosaique)
-   822: "https://cdn2.philibertnet.com/542823-thickbox_default/carcassonne-vf.jpg" // Carcassonne (Chateau)
+   13: "https://cf.geekdo-images.com/0XODRpReiZBFUffEcqT5-Q__imagepage/img/enC7UTvCAnb6j1Uazvh0OBQjvxw=/fit-in/900x600/filters:no_upscale():strip_icc()/pic9156909.png", // Catan (Style Catan)
+   30549: "https://cf.geekdo-images.com/S3ybV1LAp-8SnHIXLLjVqA__imagepage/img/kIBu-2Ljb_ml5n-S8uIbE6ehGFc=/fit-in/900x600/filters:no_upscale():strip_icc()/pic1534148.jpg", // Pandemic (Virus/Carte)
+   266192: "https://cf.geekdo-images.com/yLZJCVLlIx4c7eJEWUNJ7w__imagepage/img/uIjeoKgHMcRtzRSR4MoUYl3nXxs=/fit-in/900x600/filters:no_upscale():strip_icc()/pic4458123.jpg", // Wingspan (Oiseau)
+   230802: "https://cf.geekdo-images.com/aPSHJO0d0XOpQR5X-wJonw__imagepage/img/q4uWd2nXGeEkKDR8Cc3NhXG9PEU=/fit-in/900x600/filters:no_upscale():strip_icc()/pic6973671.png", // Azul (Mosaique)
+   822: "https://cf.geekdo-images.com/peUgu3A20LRmAXAMyDQfpQ__imagepage/img/Ywa8dN-gGRhgo_uVSR_mMGoRQMM=/fit-in/900x600/filters:no_upscale():strip_icc()/pic8621446.jpg", // Carcassonne (Chateau)
+   167791: "https://cf.geekdo-images.com/wg9oOLcsKvDesSUdZQ4rxw__imagepage/img/FS1RE8Ue6nk1pNbPI3l-OSapQGc=/fit-in/900x600/filters:no_upscale():strip_icc()/pic3536616.jpg", // Terraforming Mars (Mars)
+   174430: "https://cf.geekdo-images.com/sZYp_3BTDGjh2unaZfZmuA__imagepage/img/pBaOL7vV402nn1I5dHsdSKsFHqA=/fit-in/900x600/filters:no_upscale():strip_icc()/pic2437871.jpg" // Gloomhaven (Aventure)
 };
 
 const parseXML = (xmlText) => {
