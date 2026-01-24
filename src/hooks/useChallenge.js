@@ -138,7 +138,7 @@ export function useChallenge() {
       try {
          await supabase.from('challenge_items').update({ progress: newProgress })
             .eq('challenge_id', challengeId).eq('game_id', gameId);
-      } catch (err) { fetchGames(challengeId); }
+      } catch { fetchGames(challengeId); }
    };
 
    // --- RETIRER UN JEU ---
@@ -148,7 +148,7 @@ export function useChallenge() {
       try {
          await supabase.from('challenge_items').delete()
             .eq('challenge_id', challengeId).eq('game_id', gameId);
-      } catch (err) { fetchGames(challengeId); }
+      } catch { fetchGames(challengeId); }
    };
 
    return {

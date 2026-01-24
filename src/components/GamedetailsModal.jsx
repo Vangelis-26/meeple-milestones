@@ -1,17 +1,19 @@
 import { useEffect } from 'react';
 
 export default function GameDetailsModal({ game, onClose }) {
-   // Sécurité supplémentaire, même si géré par le parent
-   if (!game) return null;
-
    // Empêche le scroll de la page derrière la modale
    useEffect(() => {
-      document.body.style.overflow = 'hidden';
+      if (game) {
+         document.body.style.overflow = 'hidden';
+      }
       // Au démontage du composant, on remet le scroll
       return () => {
          document.body.style.overflow = 'unset';
       };
-   }, []);
+   }, [game]);
+
+   // Sécurité supplémentaire, même si géré par le parent
+   if (!game) return null;
 
    return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
