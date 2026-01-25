@@ -1,13 +1,12 @@
 -- ==============================================================================
 -- 🔒 FICHIER DE RÉFÉRENCE : SÉCURITÉ & AUTOMATISATION
 -- Description : Contient les fonctions, triggers et policies RLS.
--- Pré-requis : Les tables (games, challenges, challenge_items) doivent exister.
 -- ==============================================================================
 
 -- 1. FONCTIONS UTILITAIRES
 -- ==============================================================================
 
--- Vérifie si un challenge appartient à l'utilisateur connecté
+-- Vérifie la propriété du challenge
 create or replace function public.check_challenge_ownership(challenge_id bigint)
 returns boolean as $$
 begin
@@ -19,7 +18,7 @@ begin
 end;
 $$ language plpgsql security definer;
 
--- Crée automatiquement un challenge lors de l'inscription
+-- Auto-création du challenge à l'inscription
 create or replace function public.handle_new_user() 
 returns trigger as $$
 begin
@@ -30,10 +29,8 @@ end;
 $$ language plpgsql security definer;
 
 
--- 2. TRIGGERS (DÉCLENCHEURS)
+-- 2. TRIGGERS
 -- ==============================================================================
-
--- Déclenche la création du challenge après une insertion dans auth.users
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
@@ -43,21 +40,11 @@ create trigger on_auth_user_created
 -- 3. ROW LEVEL SECURITY (RLS)
 -- ==============================================================================
 
--- Activation de la sécurité sur toutes les tables
+-- Activation RLS
 alter table public.games enable row level security;
 alter table public.challenges enable row level security;
 alter table public.challenge_items enable row level security;
-
--- Nettoyage préventif
-drop policy if exists "Games_Read_Public" on public.games;
-drop policy if exists "Games_Write_Auth" on public.games;
-drop policy if exists "Challenges_Select_Own" on public.challenges;
-drop policy if exists "Challenges_Insert_Own" on public.challenges;
-drop policy if exists "Items_Select_Own" on public.challenge_items;
-drop policy if exists "Items_Insert_Own" on public.challenge_items;
-drop policy if exists "Items_Update_Own" on public.challenge_items;
-drop policy if exists "Items_Delete_Own" on public.challenge_items;
-
+alter table public.plays enable row level security; -- NOUVEAU
 
 -- A. TABLE GAMES
 create policy "Games_Read_Public" on public.games for select using (true);
@@ -72,3 +59,26 @@ create policy "Items_Select_Own" on public.challenge_items for select using (pub
 create policy "Items_Insert_Own" on public.challenge_items for insert with check (public.check_challenge_ownership(challenge_id));
 create policy "Items_Update_Own" on public.challenge_items for update using (public.check_challenge_ownership(challenge_id));
 create policy "Items_Delete_Own" on public.challenge_items for delete using (public.check_challenge_ownership(challenge_id));
+
+-- D. TABLE PLAYS (NOUVEAU)
+create policy "Plays_Select_Own" on public.plays for select using (auth.uid() = user_id);
+create policy "Plays_Insert_Own" on public.plays for insert with check (auth.uid() = user_id);
+create policy "Plays_Update_Own" on public.plays for update using (auth.uid() = user_id);
+create policy "Plays_Delete_Own" on public.plays for delete using (auth.uid() = user_id);
+
+
+-- 4. STORAGE (BUCKETS)
+-- ==============================================================================
+-- Note: Ces politiques s'appliquent à la table interne storage.objects
+
+-- Autoriser l'upload pour les utilisateurs connectés dans 'game-memories'
+create policy "Allow authenticated uploads"
+on storage.objects for insert
+to authenticated
+with check ( bucket_id = 'game-memories' );
+
+-- Autoriser la lecture publique (pour afficher les images)
+create policy "Allow public viewing"
+on storage.objects for select
+to public
+using ( bucket_id = 'game-memories' );
