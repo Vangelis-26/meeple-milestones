@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, deletePlay, getHistory }) {
    const [history, setHistory] = useState([]);
    const [loading, setLoading] = useState(true);
-   const [confirmDeleteId, setConfirmDeleteId] = useState(null); // ID de la partie qu'on veut supprimer (pour afficher le confirm)
+   const [confirmDeleteId, setConfirmDeleteId] = useState(null); // ID de la partie à supprimer
 
    useEffect(() => {
       if (isOpen && game) {
@@ -14,29 +14,29 @@ export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, de
 
    const loadData = async () => {
       setLoading(true);
-      // On utilise la fonction passée en prop (liée au Dashboard)
+      // On récupère les vraies données depuis la base
       const data = await getHistory(game.id);
       setHistory(data);
       setLoading(false);
    };
 
-   // Déclenche la vue de confirmation
+   // Déclenche la vue de confirmation (carte rouge)
    const requestDelete = (playId) => {
       setConfirmDeleteId(playId);
    };
 
-   // Annule la confirmation
+   // Annule
    const cancelDelete = () => {
       setConfirmDeleteId(null);
    };
 
-   // Confirme et supprime pour de bon
+   // Confirme la suppression
    const confirmDelete = async () => {
       if (confirmDeleteId) {
-         setLoading(true); // Petit loading pour l'effet
+         // Petit état de chargement local si on veut, ou juste action
          await deletePlay(confirmDeleteId, game.id);
          setConfirmDeleteId(null);
-         await loadData(); // On recharge la liste (et le Dashboard se mettra à jour automatiquement)
+         await loadData(); // On recharge la liste (le Dashboard se mettra à jour tout seul)
       }
    };
 
@@ -49,7 +49,7 @@ export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, de
          <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[85vh]">
 
             {/* Header */}
-            <div className="bg-stone-100 border-b border-stone-200 px-6 py-4 flex justify-between items-center">
+            <div className="bg-stone-100 border-b border-stone-200 px-6 py-4 flex justify-between items-center shrink-0">
                <div>
                   <h3 className="font-serif font-bold text-lg text-stone-800">Historique des parties</h3>
                   <p className="text-xs text-stone-500 font-medium uppercase tracking-wider">{game.name}</p>
@@ -59,7 +59,7 @@ export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, de
                </button>
             </div>
 
-            {/* Liste */}
+            {/* Liste Scrollable */}
             <div className="overflow-y-auto p-4 flex-1 custom-scrollbar bg-stone-50/50">
                {loading ? (
                   <div className="flex justify-center py-8"><div className="animate-spin h-6 w-6 border-2 border-amber-500 border-t-transparent rounded-full"></div></div>
@@ -68,36 +68,39 @@ export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, de
                ) : (
                   <div className="space-y-3">
                      {history.map((play) => (
-                        <div key={play.id} className="relative">
+                        <div key={play.id} className="relative transition-all">
 
-                           {/* VUE DE CONFIRMATION DE SUPPRESSION (Si c'est l'ID sélectionné) */}
+                           {/* --- VUE DE CONFIRMATION (CARTE ROUGE) --- */}
                            {confirmDeleteId === play.id ? (
                               <div className="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm animate-in fade-in duration-200 flex flex-col gap-3">
                                  <div className="flex items-center gap-3 text-red-800">
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                                    <span className="font-bold text-sm">Supprimer cette partie ?</span>
+                                    {/* Icône crâne ou épée brisée */}
+                                    <span className="text-2xl">💀</span>
+                                    <span className="font-serif font-bold text-base">Invoquer le sort d'Oubli ?</span>
                                  </div>
-                                 <div className="text-xs text-red-600 pl-9">
-                                    Cette action retirera le meeple associé et est irréversible.
+
+                                 <div className="text-sm text-red-700/80 pl-9 leading-relaxed italic">
+                                    "Attention, Aventurier. Effacer cette partie la retirera définitivement des chroniques. Le Meeple associé retournera dormir dans sa boîte..."
                                  </div>
-                                 <div className="flex gap-2 pl-9 mt-1">
+
+                                 <div className="flex gap-2 pl-9 mt-2">
                                     <button
                                        onClick={cancelDelete}
-                                       className="px-3 py-1.5 bg-white border border-red-200 text-red-600 rounded-lg text-xs font-bold hover:bg-red-100 transition-colors"
+                                       className="px-4 py-2 bg-white border border-red-200 text-red-700 rounded-lg text-xs font-bold hover:bg-red-50 transition-colors uppercase tracking-wide"
                                     >
-                                       Annuler
+                                       Annuler le sort
                                     </button>
                                     <button
                                        onClick={confirmDelete}
-                                       className="px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-bold hover:bg-red-700 shadow-sm transition-colors"
+                                       className="px-4 py-2 bg-red-700 text-white rounded-lg text-xs font-bold hover:bg-red-800 shadow-md transition-colors flex items-center gap-2 uppercase tracking-wide"
                                     >
-                                       Confirmer la suppression
+                                       <span>Effacer l'histoire</span>
                                     </button>
                                  </div>
                               </div>
                            ) : (
-                              /* VUE NORMALE DE LA LIGNE */
-                              <div className="bg-white border border-stone-200 rounded-xl p-4 shadow-sm flex items-center gap-4 transition-all hover:border-amber-300">
+                              /* --- VUE NORMALE (CARTE BLANCHE) --- */
+                              <div className="bg-white border border-stone-200 rounded-xl p-4 shadow-sm flex items-center gap-4 hover:border-amber-300 transition-colors group">
 
                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${play.is_victory ? 'bg-amber-100 text-amber-600' : 'bg-stone-100 text-stone-400'}`}>
                                     {play.is_victory ? '🏆' : '💀'}
@@ -109,14 +112,14 @@ export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, de
                                           {new Date(play.played_on).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
                                        </span>
                                     </div>
-                                    <div className="text-xs text-stone-500 flex items-center gap-2">
+                                    <div className="text-xs text-stone-500 flex items-center gap-2 flex-wrap">
                                        <span>⏱️ {Math.floor(play.duration_minutes / 60)}h{play.duration_minutes % 60 > 0 ? (play.duration_minutes % 60).toString().padStart(2, '0') : ''}</span>
                                        {play.notes && <span>• 📝 Note</span>}
                                        {play.image_urls && play.image_urls.length > 0 && <span>• 📸 {play.image_urls.length}</span>}
                                     </div>
                                  </div>
 
-                                 <div className="flex items-center gap-1">
+                                 <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                                     <button
                                        onClick={() => { onEditPlay(play); onClose(); }}
                                        className="p-2 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"

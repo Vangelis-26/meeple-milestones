@@ -6,14 +6,14 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
    const { user } = useAuth();
    const [loading, setLoading] = useState(false);
 
-   // États du formulaire
+   // --- ÉTATS DU FORMULAIRE ---
    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
    const [durationHours, setDurationHours] = useState(0);
    const [durationMinutes, setDurationMinutes] = useState(game?.playing_time || 30);
    const [isVictory, setIsVictory] = useState(false);
    const [notes, setNotes] = useState('');
 
-   // Gestion Images Multiples (Max 3)
+   // Gestion Images
    const [selectedFiles, setSelectedFiles] = useState([]);
    const [previewUrls, setPreviewUrls] = useState([]);
 
@@ -28,8 +28,7 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
             setIsVictory(playToEdit.is_victory);
             setNotes(playToEdit.notes || '');
 
-            // On affiche les images existantes (URLs)
-            // Note: Pour simplifier, on ne gère que l'ajout de nouvelles images en édition
+            // On affiche les images existantes
             setPreviewUrls(playToEdit.image_urls || []);
             setSelectedFiles([]);
          } else {
@@ -57,7 +56,9 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
    // Gestion Sélection Fichiers
    const handleFileSelect = (e) => {
       const files = Array.from(e.target.files);
-      if (files.length + selectedFiles.length + (playToEdit?.image_urls?.length || 0) > 3) {
+      const currentCount = previewUrls.length; // Images existantes + déjà sélectionnées
+
+      if (files.length + currentCount > 3) {
          alert("Maximum 3 photos autorisées au total !");
          return;
       }
@@ -70,17 +71,11 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
       setPreviewUrls(prev => [...prev, ...newPreviews]);
    };
 
-   // Supprimer une image (seulement les nouvelles sélections pour l'instant)
+   // Supprimer une image (Visuellement seulement pour l'instant)
    const removeImage = (index) => {
-      // Si on est en édition, l'index peut correspondre à une image existante ou nouvelle.
-      // Pour cette version "MVP Pro", on permet de retirer visuellement de la liste locale.
-      // Une gestion parfaite demanderait de gérer un tableau d'URLs à garder + un tableau de fichiers à upload.
-
-      // Ici, on simplifie : on retire juste de la prévisualisation et des fichiers sélectionnés
-      // (Si l'utilisateur retire une vieille image, il faudra une logique plus poussée, 
-      // pour l'instant on se concentre sur l'ajout propre).
-
-      const newFiles = selectedFiles.filter((_, i) => i !== index); // Ça ne marchera bien que pour les nouvelles
+      // Note : Une gestion parfaite suppression cloud/local demanderait plus de logique.
+      // Ici on gère surtout le retrait des nouvelles images avant upload.
+      const newFiles = selectedFiles.filter((_, i) => i !== index);
       const newPreviews = previewUrls.filter((_, i) => i !== index);
       setSelectedFiles(newFiles);
       setPreviewUrls(newPreviews);
@@ -114,7 +109,9 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
 
          const newUploadedUrls = await Promise.all(uploadPromises);
 
-         // Fusionner avec les anciennes images si mode édition
+         // Fusionner avec les anciennes images si mode édition (on garde celles qui étaient déjà là)
+         // Note: previewUrls contient tout (vieux + nouveaux blob), mais on veut les URLs persistantes
+         // Simplification : On prend les URLs existantes de playToEdit et on ajoute les nouvelles
          const finalImageUrls = playToEdit
             ? [...(playToEdit.image_urls || []), ...newUploadedUrls]
             : newUploadedUrls;
@@ -150,12 +147,23 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
             if (error) throw error;
          }
 
+         // --- MESSAGES ÉPIQUES ---
+         const successMessages = [
+            "Haut fait enregistré ! Les bardes chanteront vos louanges. 🎻",
+            "Et c'est noté ! Une légende de plus dans les archives. 📜",
+            "Victoire ou Défaite, l'important c'est l'XP ! (Sauvegardé). ✨",
+            "Les dés sont jetés, et l'histoire est écrite. 🎲",
+            "Votre épopée continue... Partie gravée ! ⚔️"
+         ];
+         const randomMsg = successMessages[Math.floor(Math.random() * successMessages.length)];
+         alert(randomMsg);
+
          if (onPlayAdded) await onPlayAdded(game.bgg_id, targetProgress);
          onClose();
 
       } catch (error) {
          console.error("Erreur:", error);
-         alert("Erreur lors de l'enregistrement.");
+         alert("Échec critique lors de la sauvegarde... (Erreur technique)");
       } finally {
          setLoading(false);
       }
@@ -173,7 +181,7 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
             <div className="bg-gradient-to-r from-amber-600 to-amber-700 px-6 py-5 flex justify-between items-center shrink-0">
                <div>
                   <h3 className="font-serif font-bold text-xl text-white tracking-wide">
-                     {playToEdit ? "Modifier la partie" : "Nouvelle Partie"}
+                     {playToEdit ? "Modifier le Récit" : "Nouvelle Aventure"}
                   </h3>
                   <p className="text-amber-100 text-xs font-medium uppercase tracking-wider mt-0.5">{game.name}</p>
                </div>
@@ -184,8 +192,8 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
 
             <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-6 overflow-y-auto custom-scrollbar">
 
-               {/* 1. Date & Temps */}
-               <div className="flex gap-4">
+               {/* 1. Date & Temps (Responsive : Stack sur mobile, Ligne sur Desktop) */}
+               <div className="flex flex-col sm:flex-row gap-4">
                   <div className="flex-1">
                      <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5 block">Date</label>
                      <input
@@ -225,8 +233,8 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
                         onClick={() => setIsVictory(false)}
                         className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 
                            ${!isVictory
-                              ? 'bg-stone-700 text-white shadow-md ring-1 ring-stone-800' // Sélectionné (Défaite)
-                              : 'text-stone-400 hover:text-stone-600 hover:bg-stone-200/50' // Non sélectionné
+                              ? 'bg-stone-700 text-white shadow-md ring-1 ring-stone-800'
+                              : 'text-stone-400 hover:text-stone-600 hover:bg-stone-200/50'
                            }`}
                      >
                         💀 Défaite
@@ -236,8 +244,8 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
                         onClick={() => setIsVictory(true)}
                         className={`flex-1 py-3 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 
                            ${isVictory
-                              ? 'bg-amber-500 text-white shadow-md ring-1 ring-amber-600' // Sélectionné (Victoire)
-                              : 'text-stone-400 hover:text-amber-600 hover:bg-amber-50' // Non sélectionné
+                              ? 'bg-amber-500 text-white shadow-md ring-1 ring-amber-600'
+                              : 'text-stone-400 hover:text-amber-600 hover:bg-amber-50'
                            }`}
                      >
                         Victoire 🏆
@@ -248,7 +256,7 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
                {/* 3. Photos */}
                <div>
                   <div className="flex justify-between items-end mb-2">
-                     <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest block">Souvenirs</label>
+                     <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest block">Souvenirs (Max 3)</label>
                      <span className="text-[10px] font-bold text-amber-600">{previewUrls.length}/3</span>
                   </div>
 
@@ -256,7 +264,6 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
                      {previewUrls.map((url, idx) => (
                         <div key={idx} className="relative aspect-square rounded-lg overflow-hidden group border border-stone-200 shadow-sm">
                            <img src={url} alt="Souvenir" className="w-full h-full object-cover" />
-                           {/* Bouton suppression simplifié */}
                            <button
                               type="button"
                               onClick={() => removeImage(idx)}
@@ -279,29 +286,33 @@ export default function AddPlayModal({ game, isOpen, onClose, onPlayAdded, targe
 
                {/* 4. Notes */}
                <div>
-                  <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5 block">Anecdote</label>
+                  <label className="text-[10px] font-bold text-stone-400 uppercase tracking-widest mb-1.5 block">Anecdote du MJ</label>
                   <textarea
                      rows="3"
-                     placeholder="Score final ? Stratégie utilisée ?"
+                     placeholder="Un moment épique ? Un score légendaire ?"
                      value={notes}
                      onChange={e => setNotes(e.target.value)}
                      className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl focus:ring-2 focus:ring-amber-500/50 outline-none text-sm resize-none"
                   />
                </div>
 
-               {/* Footer */}
-               <div className="pt-2">
+               {/* Footer Action */}
+               <div className="pt-2 border-t border-stone-100 mt-2">
                   <button
                      type="submit"
                      disabled={loading}
-                     className="w-full bg-stone-900 hover:bg-amber-600 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:translate-y-0 transition-all disabled:opacity-50 flex justify-center items-center gap-3"
+                     className="w-full bg-stone-900 hover:bg-amber-700 text-amber-50 font-serif font-bold py-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 active:translate-y-0 transition-all disabled:opacity-50 flex justify-center items-center gap-3 group"
                   >
                      {loading ? (
-                        <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                        <div className="animate-spin h-5 w-5 border-2 border-amber-500 border-t-transparent rounded-full"></div>
                      ) : (
                         <>
-                           <span>{playToEdit ? "Mettre à jour" : "Valider la partie"}</span>
-                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                           <span className="tracking-wider text-lg">
+                              {playToEdit ? "Corriger les Archives" : "Graver dans le Marbre"}
+                           </span>
+                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:rotate-12 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                           </svg>
                         </>
                      )}
                   </button>
