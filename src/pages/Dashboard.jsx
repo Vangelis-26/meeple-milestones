@@ -16,8 +16,11 @@ export default function Dashboard() {
    const [historyModalConfig, setHistoryModalConfig] = useState(null);
    const [playToEdit, setPlayToEdit] = useState(null);
 
-   // On récupère TOUTES les fonctions du hook ici (notamment deletePlay et getHistory)
-   const { items, loading, addGame, updateProgress, removeGame, existingBggIds, deletePlay, getHistory } = useChallenge();
+   // Import complet des fonctions
+   const {
+      items, loading, addGame, removeGame, existingBggIds,
+      deletePlay, getHistory, refreshGameProgress, updateProgress
+   } = useChallenge();
 
    const totalGames = items.length;
    const totalPlays = items.reduce((acc, item) => acc + (item.progress || 0), 0);
@@ -60,11 +63,12 @@ export default function Dashboard() {
       setHistoryModalConfig(null);
    };
 
+   // C'est ici que la synchro se fait après un AJOUT ou MODIF
    const handlePlayAdded = async (bggId, targetLevel) => {
-      if (targetLevel && playModalConfig?.gameItem) {
-         await updateProgress(playModalConfig.gameItem.game_id, targetLevel);
+      if (playModalConfig?.gameItem) {
+         await refreshGameProgress(playModalConfig.gameItem.game_id);
       } else {
-         await updateProgress(null, null); // Refresh global pour être sûr
+         await updateProgress(null, null);
       }
       setPlayModalConfig(null);
       setPlayToEdit(null);
@@ -82,7 +86,6 @@ export default function Dashboard() {
       <div className="min-h-screen bg-paper-texture font-sans text-stone-800 flex flex-col pb-24 relative">
          <main className="flex-1 max-w-[90rem] mx-auto px-4 py-8 w-full">
 
-            {/* Header & Stats */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
                <div className="text-center md:text-left">
                   <h1 className="text-4xl font-serif font-extrabold text-amber-900 tracking-tight">Mon Challenge</h1>
@@ -103,7 +106,6 @@ export default function Dashboard() {
                </div>
             </div>
 
-            {/* Barre Progression */}
             <div className="sticky top-20 z-30 mb-12 bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-stone-200/60 shadow-md transition-all">
                <div className="h-5 w-full bg-stone-200/80 rounded-full overflow-hidden relative shadow-inner border border-stone-300/50">
                   <div className="h-full bg-gradient-to-r from-red-700 via-amber-500 to-green-700 transition-all duration-1000 relative" style={{ width: `${progressPercentageWidth}%` }}>
@@ -123,7 +125,6 @@ export default function Dashboard() {
                </div>
             </div>
 
-            {/* Grille */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 relative z-0">
                {items.map((item) => (
                   <GameCard
@@ -135,6 +136,7 @@ export default function Dashboard() {
                      onRequestAddPlay={handleRequestAddPlay}
                   />
                ))}
+
                {!isChallengeFull && Array.from({ length: Math.max(0, 10 - items.length) }).map((_, index) => (
                   <button key={`empty-${index}`} onClick={() => setIsModalOpen(true)}
                      className="group bg-stone-50/50 border-2 border-dashed border-stone-300 rounded-xl aspect-[3/4] flex flex-col items-center justify-center p-6 hover:border-amber-400 hover:bg-white transition-all w-full relative overflow-hidden">
@@ -150,22 +152,20 @@ export default function Dashboard() {
             </div>
          </main>
 
-         {/* Modales */}
          <AddGameModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddGame} existingIds={existingBggIds} />
 
          {selectedGame && (<GameDetailsModal game={selectedGame} onClose={() => setSelectedGame(null)} />)}
 
          <DeleteGameModal isOpen={!!gameToDelete} game={gameToDelete} onClose={() => setGameToDelete(null)} onConfirm={confirmRemove} />
 
-         {/* MODALE HISTORIQUE : On passe deletePlay et getHistory en props */}
          {historyModalConfig && (
             <GameHistoryModal
                isOpen={!!historyModalConfig}
                game={historyModalConfig.game}
                onClose={() => setHistoryModalConfig(null)}
                onEditPlay={handleRequestEditFromHistory}
-               deletePlay={deletePlay} // <--- C'est ici que la magie opère
-               getHistory={getHistory} // <--- Et ici
+               deletePlay={deletePlay}
+               getHistory={getHistory}
             />
          )}
 

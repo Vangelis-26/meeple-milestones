@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
 import { getGameDetails } from '../services/bgg';
 
+// Liste des 10 couleurs de ton Édition Bois
 const MEEPLE_COLORS = [
    'red', 'blue', 'green', 'yellow', 'black',
    'gray', 'purple', 'orange', 'brown', 'teal'
@@ -27,6 +28,7 @@ export function useChallenge() {
       } catch (err) { setError(err.message); setLoading(false); }
    }, []);
 
+   // --- READ ---
    const fetchGames = async (id) => {
       try {
          const { data, error } = await supabase
@@ -47,7 +49,7 @@ export function useChallenge() {
 
    useEffect(() => { initChallenge(); }, [initChallenge]);
 
-   // --- AJOUT JEU ---
+   // --- CREATE JEU ---
    const addGame = async (gameBgg) => {
       if (!challengeId) return { success: false, message: "Erreur interne" };
       try {
@@ -86,8 +88,9 @@ export function useChallenge() {
       } catch (err) { return { success: false, message: err.message }; }
    };
 
-   // --- HISTORIQUE & SUPPRESSION ---
+   // --- SYNCHRO & PROGRESSION ---
 
+   // 1. Lire l'historique
    const getHistory = async (gameId) => {
       const { data, error } = await supabase
          .from('plays').select('*').eq('game_id', gameId).order('played_on', { ascending: false });
@@ -95,31 +98,44 @@ export function useChallenge() {
       return data;
    };
 
+   // 2. Mettre à jour l'affichage local + BDD
    const updateProgress = async (gameId, newProgress) => {
       if (!gameId) { fetchGames(challengeId); return; } // Refresh global
-
-      // Mise à jour optimiste
       setItems(current => current.map(item => item.game_id === gameId ? { ...item, progress: newProgress } : item));
-
       try {
          await supabase.from('challenge_items').update({ progress: newProgress })
             .eq('challenge_id', challengeId).eq('game_id', gameId);
       } catch { fetchGames(challengeId); }
    };
 
+   // 3. LA FONCTION CRUCIALE : Recompte réel
+   const refreshGameProgress = async (gameId) => {
+      try {
+         // Compte réel en base
+         const { count, error: countError } = await supabase
+            .from('plays')
+            .select('*', { count: 'exact', head: true })
+            .eq('game_id', gameId);
+
+         if (countError) throw countError;
+
+         // On plafonne à 10 pour l'affichage (mais le count peut être > 10)
+         const newProgress = Math.min(count, 10);
+         await updateProgress(gameId, newProgress);
+         return newProgress;
+      } catch (err) {
+         console.error("Erreur refreshGameProgress:", err);
+      }
+   };
+
+   // 4. Supprimer une partie
    const deletePlay = async (playId, gameId) => {
       try {
          const { error } = await supabase.from('plays').delete().eq('id', playId);
          if (error) throw error;
 
-         // Recalculer le nombre réel de parties restantes
-         const { count, error: countError } = await supabase
-            .from('plays').select('*', { count: 'exact', head: true }).eq('game_id', gameId);
-         if (countError) throw countError;
-
-         // Mettre à jour le Challenge
-         const newProgress = Math.min(count, 10);
-         await updateProgress(gameId, newProgress);
+         // Après suppression, on recompte tout de suite !
+         await refreshGameProgress(gameId);
 
          return { success: true };
       } catch (err) {
@@ -139,7 +155,8 @@ export function useChallenge() {
 
    return {
       items, loading, error,
-      addGame, updateProgress, removeGame, getHistory, deletePlay,
+      addGame, updateProgress, refreshGameProgress, // <--- Bien vérifié ici
+      removeGame, getHistory, deletePlay,
       existingBggIds: items.map(i => i.game.bgg_id)
    };
 }
