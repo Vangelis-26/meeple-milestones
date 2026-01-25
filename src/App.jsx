@@ -2,23 +2,13 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./components/Navbar";
 
 export default function App() {
-
    return (
-      <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
-
-         {/* ========================================================= */}
-         {/* --- BARRE DE NAVIGATION GLOBALE --- */}
-         {/* ========================================================= */}
+      <div className="min-h-screen bg-paper-texture font-sans text-stone-800">
          <Navbar />
-
-         {/* ========================================================= */}
-         {/* --- CONTENU DES PAGES (Via le Router) --- */}
-         {/* ========================================================= */}
          <main>
-            {/* Outlet affiche le composant de la page actuelle (Home, Dashboard, Login...) */}
+            {/* C'est ici que le Router va injecter Home, Login ou Dashboard */}
             <Outlet />
          </main>
-
       </div>
    );
 }
