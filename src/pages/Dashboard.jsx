@@ -3,24 +3,28 @@ import { useChallenge } from '../hooks/useChallenge';
 import AddGameModal from '../components/AddGameModal';
 import GameCard from '../components/GameCard';
 import GameDetailsModal from '../components/GameDetailsModal';
-import DeleteGameModal from '../components/DeleteGameModal'; // <--- NOUVEL IMPORT
+import DeleteGameModal from '../components/DeleteGameModal';
+import AddPlayModal from '../components/AddPlayModal';
+import GameHistoryModal from '../components/GameHistoryModal';
 
 export default function Dashboard() {
    const [isModalOpen, setIsModalOpen] = useState(false);
    const [selectedGame, setSelectedGame] = useState(null);
-   const [gameToDelete, setGameToDelete] = useState(null); // <--- NOUVEL ÉTAT
+   const [gameToDelete, setGameToDelete] = useState(null);
 
-   const { items, loading, addGame, updateProgress, removeGame, existingBggIds } = useChallenge();
+   const [playModalConfig, setPlayModalConfig] = useState(null);
+   const [historyModalConfig, setHistoryModalConfig] = useState(null);
+   const [playToEdit, setPlayToEdit] = useState(null);
+
+   // On récupère TOUTES les fonctions du hook ici (notamment deletePlay et getHistory)
+   const { items, loading, addGame, updateProgress, removeGame, existingBggIds, deletePlay, getHistory } = useChallenge();
 
    const totalGames = items.length;
    const totalPlays = items.reduce((acc, item) => acc + (item.progress || 0), 0);
    const targetGlobal = 100;
-
-   // LIMITE DU CHALLENGE : 10 JEUX MAX
    const isChallengeFull = totalGames >= 10;
-
-   const progressPercentageTxt = Math.round(Math.min((totalPlays / targetGlobal) * 100, 100));
    const progressPercentageWidth = Math.min((totalPlays / targetGlobal) * 100, 100);
+   const progressPercentageTxt = Math.round(progressPercentageWidth);
    const remainingPlays = Math.max(0, 100 - totalPlays);
 
    const handleAddGame = async (game) => {
@@ -29,17 +33,41 @@ export default function Dashboard() {
       else alert(result.message);
    };
 
-   // Au clic sur la poubelle, on OUVRE la modale (on ne supprime pas direct)
    const handleRequestRemove = (gameId, gameName) => {
       setGameToDelete({ id: gameId, name: gameName });
    };
 
-   // C'est ici qu'on supprime vraiment, après confirmation
    const confirmRemove = async () => {
       if (gameToDelete) {
          await removeGame(gameToDelete.id);
-         setGameToDelete(null); // On ferme la modale
+         setGameToDelete(null);
       }
+   };
+
+   const handleRequestAddPlay = (gameItem, targetLevel, showHistory = false) => {
+      if (showHistory) {
+         setHistoryModalConfig({ game: gameItem.game });
+      } else {
+         setPlayToEdit(null);
+         setPlayModalConfig({ gameItem, targetLevel });
+      }
+   };
+
+   const handleRequestEditFromHistory = (play) => {
+      const currentGame = historyModalConfig.game;
+      setPlayToEdit(play);
+      setPlayModalConfig({ gameItem: { game: currentGame }, targetLevel: null });
+      setHistoryModalConfig(null);
+   };
+
+   const handlePlayAdded = async (bggId, targetLevel) => {
+      if (targetLevel && playModalConfig?.gameItem) {
+         await updateProgress(playModalConfig.gameItem.game_id, targetLevel);
+      } else {
+         await updateProgress(null, null); // Refresh global pour être sûr
+      }
+      setPlayModalConfig(null);
+      setPlayToEdit(null);
    };
 
    if (loading) {
@@ -60,8 +88,6 @@ export default function Dashboard() {
                   <h1 className="text-4xl font-serif font-extrabold text-amber-900 tracking-tight">Mon Challenge</h1>
                   <p className="text-stone-500 font-medium mt-1">Tableau de bord 2026</p>
                </div>
-
-               {/* Widget Stats */}
                <div className="bg-white border border-stone-200 rounded-xl shadow-sm px-6 py-3 flex items-center gap-6">
                   <div className="flex flex-col items-center">
                      <span className={`font-bold text-xl leading-none ${isChallengeFull ? 'text-green-600' : ''}`}>
@@ -77,7 +103,7 @@ export default function Dashboard() {
                </div>
             </div>
 
-            {/* BARRE DE PROGRESSION STICKY */}
+            {/* Barre Progression */}
             <div className="sticky top-20 z-30 mb-12 bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-stone-200/60 shadow-md transition-all">
                <div className="h-5 w-full bg-stone-200/80 rounded-full overflow-hidden relative shadow-inner border border-stone-300/50">
                   <div className="h-full bg-gradient-to-r from-red-700 via-amber-500 to-green-700 transition-all duration-1000 relative" style={{ width: `${progressPercentageWidth}%` }}>
@@ -97,21 +123,18 @@ export default function Dashboard() {
                </div>
             </div>
 
-            {/* GRILLE RESPONSIVE */}
+            {/* Grille */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 relative z-0">
-
                {items.map((item) => (
                   <GameCard
                      key={item.game_id}
                      item={item}
                      gameInfo={item.game}
-                     onUpdateProgress={updateProgress}
-                     // On appelle handleRequestRemove au lieu de removeGame direct
                      onRemove={() => handleRequestRemove(item.game_id, item.game.name)}
                      onClickDetails={setSelectedGame}
+                     onRequestAddPlay={handleRequestAddPlay}
                   />
                ))}
-
                {!isChallengeFull && Array.from({ length: Math.max(0, 10 - items.length) }).map((_, index) => (
                   <button key={`empty-${index}`} onClick={() => setIsModalOpen(true)}
                      className="group bg-stone-50/50 border-2 border-dashed border-stone-300 rounded-xl aspect-[3/4] flex flex-col items-center justify-center p-6 hover:border-amber-400 hover:bg-white transition-all w-full relative overflow-hidden">
@@ -127,24 +150,35 @@ export default function Dashboard() {
             </div>
          </main>
 
-         {/* MODALES */}
+         {/* Modales */}
          <AddGameModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddGame} existingIds={existingBggIds} />
 
-         {selectedGame && (
-            <GameDetailsModal
-               game={selectedGame}
-               onClose={() => setSelectedGame(null)}
+         {selectedGame && (<GameDetailsModal game={selectedGame} onClose={() => setSelectedGame(null)} />)}
+
+         <DeleteGameModal isOpen={!!gameToDelete} game={gameToDelete} onClose={() => setGameToDelete(null)} onConfirm={confirmRemove} />
+
+         {/* MODALE HISTORIQUE : On passe deletePlay et getHistory en props */}
+         {historyModalConfig && (
+            <GameHistoryModal
+               isOpen={!!historyModalConfig}
+               game={historyModalConfig.game}
+               onClose={() => setHistoryModalConfig(null)}
+               onEditPlay={handleRequestEditFromHistory}
+               deletePlay={deletePlay} // <--- C'est ici que la magie opère
+               getHistory={getHistory} // <--- Et ici
             />
          )}
 
-         {/* Modale de Suppression */}
-         <DeleteGameModal
-            isOpen={!!gameToDelete}
-            game={gameToDelete}
-            onClose={() => setGameToDelete(null)}
-            onConfirm={confirmRemove}
-         />
-
+         {playModalConfig && (
+            <AddPlayModal
+               isOpen={!!playModalConfig}
+               game={playModalConfig.gameItem.game}
+               targetProgress={playModalConfig.targetLevel}
+               playToEdit={playToEdit}
+               onClose={() => { setPlayModalConfig(null); setPlayToEdit(null); }}
+               onPlayAdded={handlePlayAdded}
+            />
+         )}
       </div>
    );
 }
