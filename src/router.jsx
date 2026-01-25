@@ -1,5 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
-import App from './App';
+import App from './App'; // Si App est dans src
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
