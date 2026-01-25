@@ -1,9 +1,7 @@
 import { Outlet } from "react-router-dom";
-// On n'importe plus useAuth ici car c'est Navbar qui s'en occupe
-import Navbar from "./components/Navbar"; // <--- Import du nouveau composant
+import Navbar from "./components/Navbar";
 
 export default function App() {
-   // Plus besoin de logique auth ici !
 
    return (
       <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
