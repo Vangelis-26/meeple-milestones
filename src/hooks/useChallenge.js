@@ -90,7 +90,6 @@ export function useChallenge() {
 
    // --- SYNCHRO & PROGRESSION ---
 
-   // 1. Lire l'historique
    const getHistory = async (gameId) => {
       const { data, error } = await supabase
          .from('plays').select('*').eq('game_id', gameId).order('played_on', { ascending: false });
@@ -98,9 +97,8 @@ export function useChallenge() {
       return data;
    };
 
-   // 2. Mettre à jour l'affichage local + BDD
    const updateProgress = async (gameId, newProgress) => {
-      if (!gameId) { fetchGames(challengeId); return; } // Refresh global
+      if (!gameId) { fetchGames(challengeId); return; }
       setItems(current => current.map(item => item.game_id === gameId ? { ...item, progress: newProgress } : item));
       try {
          await supabase.from('challenge_items').update({ progress: newProgress })
@@ -108,18 +106,14 @@ export function useChallenge() {
       } catch { fetchGames(challengeId); }
    };
 
-   // 3. LA FONCTION CRUCIALE : Recompte réel
    const refreshGameProgress = async (gameId) => {
       try {
-         // Compte réel en base
          const { count, error: countError } = await supabase
             .from('plays')
             .select('*', { count: 'exact', head: true })
             .eq('game_id', gameId);
 
          if (countError) throw countError;
-
-         // On plafonne à 10 pour l'affichage (mais le count peut être > 10)
          const newProgress = Math.min(count, 10);
          await updateProgress(gameId, newProgress);
          return newProgress;
@@ -128,15 +122,11 @@ export function useChallenge() {
       }
    };
 
-   // 4. Supprimer une partie
    const deletePlay = async (playId, gameId) => {
       try {
          const { error } = await supabase.from('plays').delete().eq('id', playId);
          if (error) throw error;
-
-         // Après suppression, on recompte tout de suite !
          await refreshGameProgress(gameId);
-
          return { success: true };
       } catch (err) {
          console.error("Erreur deletePlay", err);
@@ -144,18 +134,52 @@ export function useChallenge() {
       }
    };
 
-   // --- SUPPRESSION JEU ---
+   // --- SUPPRESSION JEU (CORRIGÉE) ---
    const removeGame = async (gameId) => {
       if (!challengeId) return;
-      setItems(current => current.filter(item => item.game_id !== gameId));
+
       try {
-         await supabase.from('challenge_items').delete().eq('challenge_id', challengeId).eq('game_id', gameId);
-      } catch { fetchGames(challengeId); }
+         // 1. SUPPRIMER LES PARTIES D'ABORD (IMPORTANT)
+         // On doit filtrer par game_id ET user_id pour être sûr (via les RPC ou policies, 
+         // mais ici on supprime tout ce qui lie à ce jeu pour cet user indirectement)
+         // Note: Assure-toi que ta table 'plays' a bien une colonne 'user_id' ou que ta policy autorise ça.
+
+         // On récupère l'user actuel pour la sécurité
+         const { data: { user } } = await supabase.auth.getUser();
+         if (!user) return;
+
+         const { error: playsError } = await supabase
+            .from('plays')
+            .delete()
+            .eq('game_id', gameId)
+            .eq('user_id', user.id);
+
+         if (playsError) throw playsError;
+
+         // 2. SUPPRIMER L'ITEM DU CHALLENGE
+         const { error: itemError } = await supabase
+            .from('challenge_items')
+            .delete()
+            .eq('challenge_id', challengeId)
+            .eq('game_id', gameId);
+
+         if (itemError) throw itemError;
+
+         // 3. MISE À JOUR LOCALE
+         setItems(current => current.filter(item => item.game_id !== gameId));
+
+         return { success: true };
+
+      } catch (err) {
+         console.error("Erreur suppression jeu:", err);
+         fetchGames(challengeId); // Recharger en cas d'erreur
+         return { success: false, message: "Impossible de supprimer." };
+      }
    };
 
    return {
       items, loading, error,
-      addGame, updateProgress, refreshGameProgress, // <--- Bien vérifié ici
+      addGame, updateProgress, refreshGameProgress,
       removeGame, getHistory, deletePlay,
       existingBggIds: items.map(i => i.game.bgg_id)
    };

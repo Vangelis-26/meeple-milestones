@@ -1,18 +1,25 @@
-import { useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabase';
 
-export function useAuth() {
+// 1. Création du contexte (la mémoire partagée)
+const AuthContext = createContext({});
+
+// 2. Le Fournisseur (le composant qui enveloppe l'app)
+export const AuthProvider = ({ children }) => {
    const [user, setUser] = useState(null);
    const [loading, setLoading] = useState(true);
 
    useEffect(() => {
-      // 1. Vérifier la session actuelle au chargement
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      // Vérifier la session au démarrage
+      const checkSession = async () => {
+         const { data: { session } } = await supabase.auth.getSession();
          setUser(session?.user ?? null);
          setLoading(false);
-      });
+      };
 
-      // 2. Écouter les changements (Connexion / Déconnexion)
+      checkSession();
+
+      // Écouter les changements (connexion/déconnexion)
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
          setUser(session?.user ?? null);
          setLoading(false);
@@ -21,10 +28,39 @@ export function useAuth() {
       return () => subscription.unsubscribe();
    }, []);
 
-   // Fonction de déconnexion
-   const signOut = async () => {
-      await supabase.auth.signOut();
+   // --- LES FONCTIONS QUE "LOGIN.JSX" ATTEND ---
+
+   const signUp = async (email, password) => {
+      // Supabase v2 : signUp renvoie { data, error }
+      return await supabase.auth.signUp({ email, password });
    };
 
-   return { user, loading, signOut };
-}
+   const signIn = async (email, password) => {
+      // Supabase v2 : signInWithPassword renvoie { data, error }
+      return await supabase.auth.signInWithPassword({ email, password });
+   };
+
+   const signOut = async () => {
+      return await supabase.auth.signOut();
+   };
+
+   // On expose tout ça au reste de l'app
+   const value = {
+      user,
+      loading,
+      signIn,
+      signUp,
+      signOut
+   };
+
+   return (
+      <AuthContext.Provider value={value}>
+         {!loading && children}
+      </AuthContext.Provider>
+   );
+};
+
+// 3. Le hook personnalisé pour utiliser le contexte facilement
+export const useAuth = () => {
+   return useContext(AuthContext);
+};
