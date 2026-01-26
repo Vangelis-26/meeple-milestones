@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Nécessaire pour naviguer
 
-export default function GameDetailsModal({ game, isOpen, onClose, userProgress }) {
+export default function GameDetailsModal({ game, isOpen, onClose }) {
+   const navigate = useNavigate(); // Hook de navigation
    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
 
    useEffect(() => {
@@ -16,10 +18,7 @@ export default function GameDetailsModal({ game, isOpen, onClose, userProgress }
       return 'text-red-600 bg-red-50 border-red-200';
    };
 
-   // Formatage note
    const rating = game.rating ? parseFloat(game.rating).toFixed(1) : '-';
-
-   // Vérifie si la description est longue pour afficher ou non le bouton "Lire la suite"
    const isLongDescription = game.description && game.description.length > 350;
 
    return (
@@ -33,14 +32,13 @@ export default function GameDetailsModal({ game, isOpen, onClose, userProgress }
 
          <div className="relative bg-[#FDFBF7] w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col shadow-2xl rounded-3xl max-h-[90vh]">
 
-            {/* HEADER IMMERSIF (Sans bordure coupante) */}
+            {/* HEADER IMMERSIF */}
             <div className="relative h-48 shrink-0 bg-stone-900 overflow-hidden z-10">
                <img
                   src={game.image_url || game.thumbnail_url}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover object-top opacity-60 blur-[2px] scale-105"
                />
-               {/* Dégradé fluide vers la couleur papier du bas */}
                <div className="absolute inset-0 bg-gradient-to-t from-[#FDFBF7] via-stone-900/20 to-transparent"></div>
 
                <div className="absolute inset-0 p-8 flex flex-col justify-end">
@@ -66,10 +64,9 @@ export default function GameDetailsModal({ game, isOpen, onClose, userProgress }
                </button>
             </div>
 
-            {/* CORPS DE LA FICHE */}
+            {/* CORPS */}
             <div className="p-8 overflow-y-auto no-scrollbar relative z-10">
 
-               {/* 1. GRID INFOS */}
                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
                   <div className="bg-white p-3 rounded-2xl border border-stone-200 shadow-sm flex flex-col items-center justify-center text-center group hover:border-amber-300 transition-colors">
                      <span className="text-2xl mb-1 group-hover:scale-110 transition-transform">⏳</span>
@@ -93,7 +90,6 @@ export default function GameDetailsModal({ game, isOpen, onClose, userProgress }
                   </div>
                </div>
 
-               {/* 2. DESCRIPTION */}
                <div className="mb-8">
                   <h4 className="font-serif font-bold text-xl text-stone-800 mb-3 flex items-center gap-2">
                      <span>📜</span> À propos
@@ -102,8 +98,6 @@ export default function GameDetailsModal({ game, isOpen, onClose, userProgress }
                      <div className={`text-stone-600 text-sm leading-relaxed ${isLongDescription && !isDescriptionExpanded ? 'line-clamp-4' : ''}`}>
                         <div dangerouslySetInnerHTML={{ __html: game.description }} />
                      </div>
-
-                     {/* Bouton seulement si nécessaire */}
                      {isLongDescription && (
                         <button
                            onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
@@ -116,10 +110,9 @@ export default function GameDetailsModal({ game, isOpen, onClose, userProgress }
                   </div>
                </div>
 
-               {/* 3. FOOTER : GRIMOIRE */}
+               {/* FOOTER - BOUTON ACTIVÉ ET CÂBLÉ */}
                <div className="bg-stone-100 rounded-2xl p-5 border border-stone-200 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <div className="flex items-center gap-4 text-center sm:text-left">
-                     {/* Icône Livre Magique (SVG) */}
                      <div className="w-12 h-12 rounded-full bg-white border border-stone-200 flex items-center justify-center text-amber-600 shadow-sm">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
@@ -132,9 +125,11 @@ export default function GameDetailsModal({ game, isOpen, onClose, userProgress }
                   </div>
 
                   <button
-                     disabled
-                     className="px-5 py-3 bg-stone-800 text-amber-50 rounded-xl text-xs font-bold uppercase tracking-widest opacity-60 cursor-not-allowed flex items-center gap-2 shadow-sm"
-                     title="Fonctionnalité à venir"
+                     onClick={() => {
+                        onClose();
+                        navigate(`/game/${game.id}`);
+                     }}
+                     className="px-5 py-3 bg-stone-800 text-amber-50 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-black hover:scale-105 transition-all flex items-center gap-2 shadow-lg cursor-pointer"
                   >
                      Ouvrir le Grimoire
                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
@@ -142,12 +137,7 @@ export default function GameDetailsModal({ game, isOpen, onClose, userProgress }
                </div>
 
                <div className="mt-6 text-center">
-                  <a
-                     href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`}
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     className="text-[10px] text-stone-400 hover:text-amber-600 transition-colors uppercase tracking-widest inline-flex items-center gap-1.5"
-                  >
+                  <a href={`https://boardgamegeek.com/boardgame/${game.bgg_id}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-stone-400 hover:text-amber-600 transition-colors uppercase tracking-widest inline-flex items-center gap-1.5">
                      Fiche BoardGameGeek
                      <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
                   </a>

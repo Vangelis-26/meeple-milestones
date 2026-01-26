@@ -1,29 +1,32 @@
 import { createBrowserRouter } from 'react-router-dom';
-import App from './App'; // Si App est dans src
+import App from './App';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import RequireAuth from './components/RequireAuth';
+import GameStats from './pages/GameStats';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export const router = createBrowserRouter([
    {
       path: "/",
       element: <App />,
       children: [
-         {
-            index: true,
-            element: <Home />,
-         },
-         {
-            path: "login",
-            element: <Login />,
-         },
+         { index: true, element: <Home /> },
+         { path: "login", element: <Login /> },
          {
             path: "dashboard",
             element: (
-               <RequireAuth>
+               <ProtectedRoute>
                   <Dashboard />
-               </RequireAuth>
+               </ProtectedRoute>
+            ),
+         },
+         {
+            path: "game/:id",
+            element: (
+               <ProtectedRoute>
+                  <GameStats />
+               </ProtectedRoute>
             ),
          },
       ],
