@@ -1,6 +1,6 @@
 # 🎲 Meeple & Milestones
 
-> Une application moderne pour suivre le "Challenge 10x10" (10 parties de 10 jeux différents) et visualiser sa progression ludique.
+> Transformez vos sessions de jeu en un véritable grimoire de légendes. Suivez le "Challenge 10x10" avec une interface Premium conçue pour les collectionneurs exigeants.
 
 ![Status](https://img.shields.io/badge/Status-Beta-orange)
 ![License](https://img.shields.io/badge/License-MIT-blue)
@@ -8,60 +8,49 @@
 
 ## 🎯 L'Objectif
 
-Ce projet a pour but de fournir une interface fluide et agréable ("App-like") pour les joueurs de société souhaitant tracker leurs défis annuels. Il permet de :
+Ce projet fournit une interface "App-like" haut de gamme pour les joueurs de société souhaitant immortaliser leurs défis ludiques. Plus qu'un simple tracker, il s'agit d'une **Chronique de l'Aventurier** qui permet de :
 
-1. Constituer sa liste de 10 jeux (via l'API BoardGameGeek).
-2. Enregistrer ses parties avec détails (durée, victoire, photos, notes).
-3. Visualiser sa progression via une interface gamifiée (Meeples interactifs).
-
-Il sert également de "Sandbox" technique pour implémenter une architecture React robuste, scalable et sécurisée.
+1.  **Gérer son Challenge** : Constituer sa liste de 10 jeux via l'API BoardGameGeek.
+2.  **Sceller ses Souvenirs** : Enregistrer chaque partie avec un niveau de détail "Premium" (durée, victoires, photos, notes narratives).
+3.  **Analyser ses Performances** : Visualiser ses statistiques globales et l'historique de ses exploits à travers une timeline immersive.
 
 ## 🛠 Stack Technique
 
 **Front-end :**
 
 - ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=white) **React 18** (Vite + Hooks personnalisés)
-- ![Tailwind](https://img.shields.io/badge/-Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white) **Tailwind CSS v3** (Mobile First, Animations)
-- **React Router v6** (Gestion des routes protégées)
+- ![Tailwind](https://img.shields.io/badge/-Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white) **Tailwind CSS v3** (Architecture Mobile First, Design "Gold Edition")
+- **React Router v6** (Navigation fluide et routes protégées)
 
 **Back-end & Services :**
 
-- ![Supabase](https://img.shields.io/badge/-Supabase-3ECF8E?logo=supabase&logoColor=white) **Supabase** :
-  - **Auth** : Gestion utilisateurs et sessions.
-  - **Database** : PostgreSQL avec Row Level Security (RLS) pour la confidentialité des données.
-  - **Storage** : Stockage cloud des photos souvenirs ("Buckets").
-- **BoardGameGeek API** : Récupération des métadonnées des jeux (XML to JSON).
+- ![Supabase](https://img.shields.io/badge/-Supabase-3ECF8E?logo=supabase&logoColor=white) **Supabase** (PostgreSQL avec RLS, Auth sécurisée et Storage Cloud)
+- **BoardGameGeek API** : Extraction intelligente des métadonnées mondiales.
 
-## 🚀 Fonctionnalités Implémentées
+## 🚀 Fonctionnalités "Gold Edition" Implémentées
 
-### 🔐 Authentification & Sécurité
+### 📜 Grimoire des Statistiques (Nouvelle Dimension)
 
-- [x] Inscription / Connexion email (Supabase Auth).
-- [x] Protection des routes (Redirection intelligente si non connecté).
-- [x] RLS (Row Level Security) : Chaque utilisateur ne voit et ne modifie que ses propres données.
+- [x] **Header Immersif** : Bannière dynamique centrée avec traitement visuel "Cinématique".
+- [x] **Timeline Narrative** : Chronique des parties alternant entre cartouches de texte et souvenirs visuels.
+- [x] **Design "Token" Premium** : Cartes de parties avec bordures latérales (12px) et inférieures (6px) en relief, simulant des tuiles de jeu physiques.
+- [x] **Esquisses de l'Archiviste** : Placeholders stylisés (dessins à la plume) pour les souvenirs sans photo, préservant l'immersion ludique.
+- [x] **Légendes Contextuelles** : Génération de textes "flavor text" adaptés aux résultats de la partie (Victoire/Défaite).
+- [x] **Micro-interactions** : Effets de survol discrets simulant le soulèvement des tuiles de jeu.
 
-### 🎲 Gestion du Challenge
+### 🎲 Gestion du Challenge & Tracking
 
-- [x] **Recherche BGG** : Recherche instantanée dans la base de données mondiale des jeux.
-- [x] **Attribution Intelligente** : Assignation automatique d'une couleur de Meeple unique par jeu.
-- [x] **Visualisation** : Grille de progression interactive avec meeples remplissables.
+- [x] **Visualisation Gamifiée** : Grille de progression avec Meeples interactifs et verrouillage séquentiel.
+- [x] **Tracking Précis** : Gestion complète (CRUD) des parties : dates, durées, notes de session et victoires.
+- [x] **Photos Souvenirs** : Système d'upload multiple optimisé pour le Cloud.
 
-### 📝 Tracking des Parties (CRUD Complet)
+### 📱 Excellence UI / UX
 
-- [x] **Enregistrement** : Date, durée, victoire/défaite, notes.
-- [x] **Photos Souvenirs** : Upload multiple (jusqu'à 3 photos) stockées dans le Cloud.
-- [x] **Historique** : Liste détaillée des parties par jeu.
-- [x] **Édition & Suppression** : Correction des erreurs et recalcul automatique de la progression.
-
-### 📱 UI / UX
-
-- [x] **Design Responsive** : Interface optimisée mobile et desktop.
-- [x] **Feedback Utilisateur** : Modales animées, états de chargement (skeletons/spinners), toasts.
-- [x] **Logique Séquentielle** : Guidage de l'utilisateur (impossible de valider le meeple 5 avant le 4).
+- [x] **Responsive Radical** : Interface optimisée pour une lecture "Grand Format" sur PC et une timeline verticale simplifiée à gauche sur mobile.
+- [x] **Lisibilité Haute Définition** : Échelles typographiques ajustées pour un confort de lecture optimal sur tous les écrans.
+- [x] **Atmosphère Chaleureuse** : Utilisation de textures papier et de tons "Stone" pour briser la froideur du numérique.
 
 ## 💻 Installation en local
-
-Si vous souhaitez tester le projet :
 
 1.  **Cloner le dépôt**
 
@@ -91,4 +80,4 @@ Si vous souhaitez tester le projet :
 
 ## 👤 Auteur
 
-Projet réalisé par **[Vangelis]** dans le cadre d'une montée en compétence sur l'écosystème React moderne et le Backend-as-a-Service.
+Projet réalisé par **Vangelis** dans le cadre d'une montée en compétence sur l'écosystème React moderne et le Design d'Expérience (UX).
