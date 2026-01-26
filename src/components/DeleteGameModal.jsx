@@ -1,59 +1,45 @@
-import { useEffect } from 'react';
-
-export default function DeleteGameModal({ game, isOpen, onClose, onConfirm }) {
-   // Bloque le scroll arrière-plan
-   useEffect(() => {
-      if (isOpen) {
-         document.body.style.overflow = 'hidden';
-      }
-      return () => {
-         document.body.style.overflow = 'unset';
-      };
-   }, [isOpen]);
-
+export default function DeleteGameModal({ isOpen, game, onClose, onConfirm }) {
    if (!isOpen || !game) return null;
 
    return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-         {/* Backdrop */}
-         <div
-            className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm transition-opacity"
-            onClick={onClose}
-         ></div>
+      <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+         <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
 
-         {/* Card */}
-         <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm relative z-10 animate-in zoom-in-95 duration-200 border border-stone-100">
+         <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 p-6 flex flex-col items-center text-center border border-stone-200">
 
-            <div className="flex flex-col items-center text-center">
-               {/* Icone Danger */}
-               <div className="w-12 h-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mb-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                     <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-               </div>
+            {/* Icône Danger Thématique */}
+            <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 border-2 border-red-100 shadow-inner">
+               <span className="text-3xl">🔥</span>
+            </div>
 
-               <h3 className="text-lg font-bold text-stone-800 mb-2">
-                  Supprimer ce jeu ?
-               </h3>
+            <h3 className="text-2xl font-serif font-extrabold text-stone-900 mb-2">
+               Brûler ce parchemin ?
+            </h3>
 
-               <p className="text-stone-500 text-sm mb-6">
-                  Vous êtes sur le point de retirer <span className="font-bold text-stone-700">"{game.name}"</span> de votre challenge. Cette action est irréversible.
+            <div className="bg-red-50 border border-red-100 rounded-xl p-4 mb-6 text-left shadow-sm">
+               <p className="text-sm text-red-900 font-bold mb-2 font-serif">
+                  ⚠️ Une décision irrévocable
                </p>
+               <p className="text-xs text-red-800/80 leading-relaxed">
+                  Voyageur, en retirant <span className="font-bold text-red-900">"{game.name}"</span> de votre quête, vous condamnerez toutes les parties et souvenirs associés à l'oubli éternel.
+                  <br /><br />
+                  <span className="italic">Les archives seront détruites et ne pourront être restaurées.</span>
+               </p>
+            </div>
 
-               <div className="flex gap-3 w-full">
-                  <button
-                     onClick={onClose}
-                     className="flex-1 px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-600 font-bold rounded-xl transition-colors"
-                  >
-                     Annuler
-                  </button>
-                  <button
-                     onClick={() => onConfirm(game.id)}
-                     className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all"
-                  >
-                     Supprimer
-                  </button>
-               </div>
+            <div className="flex gap-3 w-full">
+               <button
+                  onClick={onClose}
+                  className="flex-1 py-3 px-4 bg-white border border-stone-200 hover:bg-stone-50 text-stone-700 font-bold rounded-xl transition-colors text-sm uppercase tracking-wide"
+               >
+                  Garder le jeu
+               </button>
+               <button
+                  onClick={onConfirm}
+                  className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all text-sm uppercase tracking-wide flex items-center justify-center gap-2 group"
+               >
+                  <span>Invoquer l'oubli</span>
+               </button>
             </div>
          </div>
       </div>
