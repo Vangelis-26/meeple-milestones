@@ -6,6 +6,7 @@ import GameDetailsModal from '../components/GameDetailsModal';
 import DeleteGameModal from '../components/DeleteGameModal';
 import AddPlayModal from '../components/AddPlayModal';
 import GameHistoryModal from '../components/GameHistoryModal';
+import Toast from '../components/Toast'; // <--- IMPORT
 
 export default function Dashboard() {
    const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,7 +17,9 @@ export default function Dashboard() {
    const [historyModalConfig, setHistoryModalConfig] = useState(null);
    const [playToEdit, setPlayToEdit] = useState(null);
 
-   // Import complet des fonctions
+   // --- NOUVEAU : État du Toast ---
+   const [toast, setToast] = useState(null); // { message, type }
+
    const {
       items, loading, addGame, removeGame, existingBggIds,
       deletePlay, getHistory, refreshGameProgress, updateProgress
@@ -30,10 +33,21 @@ export default function Dashboard() {
    const progressPercentageTxt = Math.round(progressPercentageWidth);
    const remainingPlays = Math.max(0, 100 - totalPlays);
 
+   // --- FONCTION POUR AFFICHER UN TOAST ---
+   const showToast = (message, type = 'success') => {
+      setToast({ message, type });
+   };
+
+   // --- HANDLERS ---
+
    const handleAddGame = async (game) => {
       const result = await addGame(game);
-      if (result.success) setIsModalOpen(false);
-      else alert(result.message);
+      if (result.success) {
+         setIsModalOpen(false);
+         showToast(`"${game.name}" a rejoint votre collection !`);
+      } else {
+         showToast(result.message, 'error');
+      }
    };
 
    const handleRequestRemove = (gameId, gameName) => {
@@ -43,6 +57,7 @@ export default function Dashboard() {
    const confirmRemove = async () => {
       if (gameToDelete) {
          await removeGame(gameToDelete.id);
+         showToast(`"${gameToDelete.name}" a été retiré.`, 'success');
          setGameToDelete(null);
       }
    };
@@ -63,8 +78,7 @@ export default function Dashboard() {
       setHistoryModalConfig(null);
    };
 
-   // C'est ici que la synchro se fait après un AJOUT ou MODIF
-   const handlePlayAdded = async (bggId, targetLevel) => {
+   const handlePlayAdded = async () => {
       if (playModalConfig?.gameItem) {
          await refreshGameProgress(playModalConfig.gameItem.game_id);
       } else {
@@ -84,8 +98,18 @@ export default function Dashboard() {
 
    return (
       <div className="min-h-screen bg-paper-texture font-sans text-stone-800 flex flex-col pb-24 relative">
-         <main className="flex-1 max-w-[90rem] mx-auto px-4 py-8 w-full">
 
+         {/* --- COMPOSANT TOAST (S'affiche si toast existe) --- */}
+         {toast && (
+            <Toast
+               message={toast.message}
+               type={toast.type}
+               onClose={() => setToast(null)}
+            />
+         )}
+
+         <main className="flex-1 max-w-[90rem] mx-auto px-4 py-8 w-full">
+            {/* Header & Stats */}
             <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
                <div className="text-center md:text-left">
                   <h1 className="text-4xl font-serif font-extrabold text-amber-900 tracking-tight">Mon Challenge</h1>
@@ -106,6 +130,7 @@ export default function Dashboard() {
                </div>
             </div>
 
+            {/* Barre Progression */}
             <div className="sticky top-20 z-30 mb-12 bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-stone-200/60 shadow-md transition-all">
                <div className="h-5 w-full bg-stone-200/80 rounded-full overflow-hidden relative shadow-inner border border-stone-300/50">
                   <div className="h-full bg-gradient-to-r from-red-700 via-amber-500 to-green-700 transition-all duration-1000 relative" style={{ width: `${progressPercentageWidth}%` }}>
@@ -125,6 +150,7 @@ export default function Dashboard() {
                </div>
             </div>
 
+            {/* Grille */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 relative z-0">
                {items.map((item) => (
                   <GameCard
@@ -152,12 +178,15 @@ export default function Dashboard() {
             </div>
          </main>
 
+         {/* --- MODALES CONNECTÉES AU TOAST --- */}
+
          <AddGameModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddGame} existingIds={existingBggIds} />
 
          {selectedGame && (<GameDetailsModal game={selectedGame} onClose={() => setSelectedGame(null)} />)}
 
          <DeleteGameModal isOpen={!!gameToDelete} game={gameToDelete} onClose={() => setGameToDelete(null)} onConfirm={confirmRemove} />
 
+         {/* Modale Historique */}
          {historyModalConfig && (
             <GameHistoryModal
                isOpen={!!historyModalConfig}
@@ -166,9 +195,12 @@ export default function Dashboard() {
                onEditPlay={handleRequestEditFromHistory}
                deletePlay={deletePlay}
                getHistory={getHistory}
+               // On passe la fonction showToast
+               showToast={showToast}
             />
          )}
 
+         {/* Modale Ajout/Edit */}
          {playModalConfig && (
             <AddPlayModal
                isOpen={!!playModalConfig}
@@ -177,8 +209,11 @@ export default function Dashboard() {
                playToEdit={playToEdit}
                onClose={() => { setPlayModalConfig(null); setPlayToEdit(null); }}
                onPlayAdded={handlePlayAdded}
+               // On passe la fonction showToast
+               showToast={showToast}
             />
          )}
+
       </div>
    );
 }
