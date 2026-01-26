@@ -1,25 +1,30 @@
 import { useState } from 'react';
 import { useChallenge } from '../hooks/useChallenge';
-import AddGameModal from '../components/AddGameModal';
+// Composants UI Découpés
+import DashboardHeader from '../components/DashboardHeader';
+import ChallengeProgress from '../components/ChallengeProgress';
 import GameCard from '../components/GameCard';
+import Toast from '../components/Toast';
+import Footer from '../components/Footer'; // <--- NOUVEAU
+
+// Modales
+import AddGameModal from '../components/AddGameModal';
 import GameDetailsModal from '../components/GameDetailsModal';
 import DeleteGameModal from '../components/DeleteGameModal';
 import AddPlayModal from '../components/AddPlayModal';
 import GameHistoryModal from '../components/GameHistoryModal';
-import Toast from '../components/Toast'; // <--- IMPORT
 
 export default function Dashboard() {
+   // --- ÉTATS ---
    const [isModalOpen, setIsModalOpen] = useState(false);
    const [selectedGame, setSelectedGame] = useState(null);
    const [gameToDelete, setGameToDelete] = useState(null);
-
    const [playModalConfig, setPlayModalConfig] = useState(null);
    const [historyModalConfig, setHistoryModalConfig] = useState(null);
    const [playToEdit, setPlayToEdit] = useState(null);
+   const [toast, setToast] = useState(null);
 
-   // --- NOUVEAU : État du Toast ---
-   const [toast, setToast] = useState(null); // { message, type }
-
+   // --- DONNÉES ---
    const {
       items, loading, addGame, removeGame, existingBggIds,
       deletePlay, getHistory, refreshGameProgress, updateProgress
@@ -27,18 +32,10 @@ export default function Dashboard() {
 
    const totalGames = items.length;
    const totalPlays = items.reduce((acc, item) => acc + (item.progress || 0), 0);
-   const targetGlobal = 100;
    const isChallengeFull = totalGames >= 10;
-   const progressPercentageWidth = Math.min((totalPlays / targetGlobal) * 100, 100);
-   const progressPercentageTxt = Math.round(progressPercentageWidth);
-   const remainingPlays = Math.max(0, 100 - totalPlays);
 
-   // --- FONCTION POUR AFFICHER UN TOAST ---
-   const showToast = (message, type = 'success') => {
-      setToast({ message, type });
-   };
-
-   // --- HANDLERS ---
+   // --- ACTIONS ---
+   const showToast = (message, type = 'success') => setToast({ message, type });
 
    const handleAddGame = async (game) => {
       const result = await addGame(game);
@@ -50,9 +47,7 @@ export default function Dashboard() {
       }
    };
 
-   const handleRequestRemove = (gameId, gameName) => {
-      setGameToDelete({ id: gameId, name: gameName });
-   };
+   const handleRequestRemove = (gameId, gameName) => setGameToDelete({ id: gameId, name: gameName });
 
    const confirmRemove = async () => {
       if (gameToDelete) {
@@ -97,60 +92,20 @@ export default function Dashboard() {
    }
 
    return (
-      <div className="min-h-screen bg-paper-texture font-sans text-stone-800 flex flex-col pb-24 relative">
+      <div className="min-h-screen bg-paper-texture font-sans text-stone-800 flex flex-col relative">
 
-         {/* --- COMPOSANT TOAST (S'affiche si toast existe) --- */}
-         {toast && (
-            <Toast
-               message={toast.message}
-               type={toast.type}
-               onClose={() => setToast(null)}
-            />
-         )}
+         {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
          <main className="flex-1 max-w-[90rem] mx-auto px-4 py-8 w-full">
-            {/* Header & Stats */}
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6 mb-8">
-               <div className="text-center md:text-left">
-                  <h1 className="text-4xl font-serif font-extrabold text-amber-900 tracking-tight">Mon Challenge</h1>
-                  <p className="text-stone-500 font-medium mt-1">Tableau de bord 2026</p>
-               </div>
-               <div className="bg-white border border-stone-200 rounded-xl shadow-sm px-6 py-3 flex items-center gap-6">
-                  <div className="flex flex-col items-center">
-                     <span className={`font-bold text-xl leading-none ${isChallengeFull ? 'text-green-600' : ''}`}>
-                        {totalGames}/10
-                     </span>
-                     <span className="text-[10px] text-stone-500 uppercase font-bold tracking-wider mt-1">Jeux</span>
-                  </div>
-                  <div className="h-8 w-px bg-stone-300"></div>
-                  <div className="flex flex-col items-center">
-                     <span className="font-bold text-xl text-amber-700 leading-none">{totalPlays}/100</span>
-                     <span className="text-[10px] text-amber-600 uppercase font-bold tracking-wider mt-1">Parties</span>
-                  </div>
-               </div>
-            </div>
 
-            {/* Barre Progression */}
-            <div className="sticky top-20 z-30 mb-12 bg-white/90 backdrop-blur-md p-6 rounded-2xl border border-stone-200/60 shadow-md transition-all">
-               <div className="h-5 w-full bg-stone-200/80 rounded-full overflow-hidden relative shadow-inner border border-stone-300/50">
-                  <div className="h-full bg-gradient-to-r from-red-700 via-amber-500 to-green-700 transition-all duration-1000 relative" style={{ width: `${progressPercentageWidth}%` }}>
-                     <div className="absolute top-0 left-0 w-full h-1/2 bg-white/20"></div>
-                  </div>
-                  <div className="absolute inset-0 flex justify-evenly pointer-events-none">
-                     {[...Array(9)].map((_, i) => (
-                        <div key={i} className="w-[1px] h-full bg-white/60"></div>
-                     ))}
-                  </div>
-               </div>
-               <div className="flex justify-between text-sm font-bold uppercase tracking-wider mt-2 px-1">
-                  <span className="text-stone-500">{progressPercentageTxt}%</span>
-                  <span className="text-green-700 font-medium italic normal-case">
-                     {remainingPlays > 0 ? `${remainingPlays} parties restantes !` : "Objectif atteint ! 🎉"}
-                  </span>
-               </div>
-            </div>
+            <DashboardHeader
+               totalGames={totalGames}
+               totalPlays={totalPlays}
+               isChallengeFull={isChallengeFull}
+            />
 
-            {/* Grille */}
+            <ChallengeProgress totalPlays={totalPlays} />
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 relative z-0">
                {items.map((item) => (
                   <GameCard
@@ -178,15 +133,14 @@ export default function Dashboard() {
             </div>
          </main>
 
-         {/* --- MODALES CONNECTÉES AU TOAST --- */}
+         {/* Ajout du Footer ici */}
+         <Footer />
 
+         {/* --- MODALES --- */}
          <AddGameModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAdd={handleAddGame} existingIds={existingBggIds} />
-
          {selectedGame && (<GameDetailsModal game={selectedGame} onClose={() => setSelectedGame(null)} />)}
-
          <DeleteGameModal isOpen={!!gameToDelete} game={gameToDelete} onClose={() => setGameToDelete(null)} onConfirm={confirmRemove} />
 
-         {/* Modale Historique */}
          {historyModalConfig && (
             <GameHistoryModal
                isOpen={!!historyModalConfig}
@@ -195,12 +149,10 @@ export default function Dashboard() {
                onEditPlay={handleRequestEditFromHistory}
                deletePlay={deletePlay}
                getHistory={getHistory}
-               // On passe la fonction showToast
                showToast={showToast}
             />
          )}
 
-         {/* Modale Ajout/Edit */}
          {playModalConfig && (
             <AddPlayModal
                isOpen={!!playModalConfig}
@@ -209,11 +161,9 @@ export default function Dashboard() {
                playToEdit={playToEdit}
                onClose={() => { setPlayModalConfig(null); setPlayToEdit(null); }}
                onPlayAdded={handlePlayAdded}
-               // On passe la fonction showToast
                showToast={showToast}
             />
          )}
-
       </div>
    );
 }
