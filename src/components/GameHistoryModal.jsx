@@ -29,7 +29,7 @@ export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, de
    const confirmDelete = async () => {
       if (confirmDeleteId) {
          await deletePlay(confirmDeleteId, game.id);
-         if (showToast) showToast("L'archive a été brûlée.", "success");
+         if (showToast) showToast("Le sort est lancé. Le souvenir s'efface...", "success");
          setConfirmDeleteId(null);
          await loadData();
       }
@@ -42,15 +42,14 @@ export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, de
          <style>{`
             .no-scrollbar::-webkit-scrollbar { display: none; }
             .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-            /* Effet de masque pour le bas de la liste */
-            .mask-bottom { mask-image: linear-gradient(to bottom, black 90%, transparent 100%); }
+            .mask-bottom { mask-image: linear-gradient(to bottom, black 85%, transparent 100%); }
          `}</style>
 
          <div className="absolute inset-0 bg-stone-900/70 backdrop-blur-md transition-opacity" onClick={onClose}></div>
 
          <div className="relative bg-stone-100 w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col max-h-[85vh] shadow-2xl rounded-2xl ring-1 ring-white/10">
 
-            {/* HEADER IMMERSIF */}
+            {/* HEADER */}
             <div className="relative h-32 shrink-0 bg-stone-900 overflow-hidden">
                <img
                   src={game.image_url || game.thumbnail_url}
@@ -85,54 +84,66 @@ export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, de
                <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent"></div>
             </div>
 
-            {/* LISTE DÉROULANTE */}
-            {/* Ajout de 'mask-bottom' pour le fondu en bas */}
-            <div className="overflow-y-auto p-5 flex-1 space-y-3 no-scrollbar relative z-10 mask-bottom pb-8">
+            {/* LISTE */}
+            <div className="overflow-y-auto p-4 sm:p-5 flex-1 space-y-3 no-scrollbar relative z-10 mask-bottom pb-10">
 
                {loading ? (
                   <div className="flex flex-col items-center justify-center py-12 gap-3 text-stone-400">
                      <div className="animate-spin h-6 w-6 border-2 border-stone-300 border-t-amber-600 rounded-full"></div>
-                     <p className="text-xs font-serif italic">Recherche...</p>
+                     <p className="text-xs font-serif italic">Consultation du grimoire...</p>
                   </div>
                ) : history.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-16 text-center opacity-60">
                      <span className="text-4xl mb-3 grayscale opacity-50">📜</span>
-                     <p className="text-stone-500 font-serif text-lg italic">Le registre est vierge.</p>
+                     <p className="text-stone-500 font-serif text-lg italic">Cette page est encore vierge.</p>
                   </div>
                ) : (
                   history.map((play) => (
                      <div key={play.id} className="relative group">
 
+                        {/* ZONE DE SUPPRESSION (Style MJ / Roleplay) */}
                         {confirmDeleteId === play.id ? (
                            <div className="bg-red-50 border border-red-100 rounded-xl p-4 animate-in fade-in zoom-in-95 duration-200 shadow-inner">
-                              <div className="flex gap-4 items-center">
-                                 <div className="text-2xl">🔥</div>
-                                 <div className="flex-1">
-                                    <h4 className="text-red-900 font-bold font-serif text-lg leading-tight">Brûler l'archive ?</h4>
-                                    <p className="text-xs text-red-800/70 mb-0 font-medium">Action irréversible.</p>
+                              <div className="flex flex-col sm:flex-row gap-3 sm:items-center justify-between">
+
+                                 {/* Gauche : Icone + Texte Ambiance */}
+                                 <div className="flex items-center gap-3">
+                                    <div className="text-2xl shrink-0">🔥</div>
+                                    <div>
+                                       <h4 className="text-red-900 font-bold font-serif text-lg leading-tight">Invoquer l'Oubli ?</h4>
+                                       <p className="text-xs text-red-800/80 font-medium italic">
+                                          Attention aventurier, ce sort est irréversible ! Ce récit sera perdu à jamais.
+                                       </p>
+                                    </div>
                                  </div>
-                                 <div className="flex gap-2">
-                                    <button onClick={cancelDelete} className="px-3 py-1.5 text-xs font-bold text-stone-600 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-stone-200">Annuler</button>
-                                    <button onClick={confirmDelete} className="px-3 py-1.5 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-lg shadow-sm transition-colors">Confirmer</button>
+
+                                 {/* Droite : Boutons */}
+                                 <div className="flex gap-2 self-end sm:self-auto mt-2 sm:mt-0">
+                                    <button onClick={cancelDelete} className="px-3 py-1.5 text-xs font-bold text-stone-600 hover:bg-white rounded-lg transition-colors border border-transparent hover:border-stone-200 uppercase tracking-wide">
+                                       Garder
+                                    </button>
+                                    <button onClick={confirmDelete} className="px-3 py-1.5 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-lg shadow-sm transition-colors uppercase tracking-wide">
+                                       Consumer
+                                    </button>
                                  </div>
                               </div>
                            </div>
                         ) : (
                            /* CARTE PARTIE */
-                           <div className="flex items-center gap-4 py-3 px-4 bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md hover:border-amber-300/50 transition-all group">
+                           <div className="flex items-center gap-3 sm:gap-4 py-3 px-3 sm:px-4 bg-white border border-stone-200 rounded-xl shadow-sm hover:shadow-md hover:border-amber-300/50 transition-all group">
 
-                              {/* ICÔNE RÉSULTAT (Couleurs Fortes "Sceau") */}
-                              <div className={`shrink-0 w-11 h-11 flex items-center justify-center rounded-full text-lg shadow-md border-2 
+                              {/* ICÔNE RÉSULTAT */}
+                              <div className={`shrink-0 w-10 h-10 sm:w-11 sm:h-11 flex items-center justify-center rounded-full text-lg shadow-md border-2 
                                  ${play.is_victory
-                                    ? 'bg-amber-500 border-amber-400 text-white'  // VICTOIRE : Or Plein + Blanc
-                                    : 'bg-stone-800 border-stone-700 text-stone-300' // DÉFAITE : Noir Plein + Gris
+                                    ? 'bg-amber-500 border-amber-400 text-white'
+                                    : 'bg-stone-800 border-stone-700 text-stone-300'
                                  }`}>
                                  {play.is_victory ? '🏆' : '💀'}
                               </div>
 
-                              {/* CONTENU CENTRAL */}
-                              <div className="flex flex-col justify-center gap-0.5">
-                                 <h4 className="font-serif font-bold text-stone-800 text-base capitalize leading-none">
+                              {/* CONTENU */}
+                              <div className="flex flex-col justify-center gap-0.5 flex-1 min-w-0">
+                                 <h4 className="font-serif font-bold text-stone-800 text-sm sm:text-base capitalize leading-none truncate">
                                     {formatDate(play.played_on)}
                                  </h4>
 
@@ -146,27 +157,27 @@ export default function GameHistoryModal({ game, isOpen, onClose, onEditPlay, de
                                  </div>
                               </div>
 
-                              {/* EXTRAS (Photos/Notes) À DROITE */}
-                              <div className="ml-auto flex items-center gap-3">
+                              {/* EXTRAS */}
+                              <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                                  {(play.notes || (play.image_urls && play.image_urls.length > 0)) && (
-                                    <div className="flex items-center gap-2 bg-stone-50 px-2 py-1 rounded-md border border-stone-100">
+                                    <div className="hidden xs:flex items-center gap-2 bg-stone-50 px-2 py-1 rounded-md border border-stone-100">
                                        {play.image_urls && play.image_urls.length > 0 && (
-                                          <div className="flex items-center gap-1 text-stone-400" title="Photos">
+                                          <div className="flex items-center gap-1 text-stone-400">
                                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" /></svg>
-                                             {play.image_urls.length > 1 && <span className="text-[9px] font-bold">{play.image_urls.length}</span>}
+                                             <span className="text-[9px] font-bold">{play.image_urls.length}</span>
                                           </div>
                                        )}
                                        {play.notes && play.image_urls?.length > 0 && <div className="w-px h-3 bg-stone-200"></div>}
                                        {play.notes && (
-                                          <div className="flex items-center gap-1 text-stone-400" title={play.notes}>
+                                          <div className="flex items-center gap-1 text-stone-400">
                                              <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clipRule="evenodd" /></svg>
                                           </div>
                                        )}
                                     </div>
                                  )}
 
-                                 {/* ACTIONS (Hover) */}
-                                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-x-1 group-hover:translate-x-0 border-l border-stone-100 pl-2">
+                                 {/* Actions */}
+                                 <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all duration-200 sm:translate-x-1 sm:group-hover:translate-x-0 border-l border-stone-100 pl-2">
                                     <button onClick={() => { onEditPlay(play); onClose(); }} className="p-1.5 text-stone-300 hover:text-amber-600 hover:bg-amber-50 rounded-md transition-colors">
                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
                                     </button>
