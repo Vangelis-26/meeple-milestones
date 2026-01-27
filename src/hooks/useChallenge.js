@@ -14,6 +14,18 @@ export function useChallenge() {
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
 
+   // --- UTILITAIRE : Extraire le chemin du fichier depuis l'URL publique ---
+   const extractStoragePath = (fullUrl) => {
+      try {
+         const bucketMarker = '/game-memories/';
+         const parts = fullUrl.split(bucketMarker);
+         return parts.length > 1 ? parts[1] : null;
+      } catch (error) {
+         console.error("Erreur parsing URL image:", fullUrl, error);
+         return null;
+      }
+   };
+
    // --- INITIALISATION ---
    const initChallenge = useCallback(async () => {
       try {
@@ -122,32 +134,97 @@ export function useChallenge() {
       }
    };
 
+   // ✅ SUPPRESSION D'UNE PARTIE (AVEC LOGS DE DEBUG ET NETTOYAGE STORAGE)
    const deletePlay = async (playId, gameId) => {
       try {
+         console.log(`🗑️ Tentative de suppression de la partie ${playId}...`);
+
+         // 1. Récupérer les infos de la partie AVANT de supprimer pour avoir les URLs
+         const { data: playData, error: fetchError } = await supabase
+            .from('plays')
+            .select('image_urls')
+            .eq('id', playId)
+            .single();
+
+         if (fetchError) throw fetchError;
+
+         // 2. Si images, les supprimer du Storage
+         if (playData.image_urls && playData.image_urls.length > 0) {
+            console.log("📸 Images trouvées à supprimer :", playData.image_urls);
+
+            const pathsToDelete = playData.image_urls
+               .map(url => extractStoragePath(url))
+               .filter(path => path !== null);
+
+            console.log("📍 Chemins Storage extraits :", pathsToDelete);
+
+            if (pathsToDelete.length > 0) {
+               const { error: storageError } = await supabase.storage
+                  .from('game-memories')
+                  .remove(pathsToDelete);
+
+               if (storageError) {
+                  console.error("❌ ERREUR SUPABASE STORAGE :", storageError);
+               } else {
+                  console.log("✅ Images supprimées du Storage avec succès.");
+               }
+            }
+         } else {
+            console.log("ℹ️ Aucune image associée à cette partie.");
+         }
+
+         // 3. Supprimer la ligne en base
          const { error } = await supabase.from('plays').delete().eq('id', playId);
          if (error) throw error;
+
          await refreshGameProgress(gameId);
          return { success: true };
       } catch (err) {
-         console.error("Erreur deletePlay", err);
+         console.error("🚨 Erreur critique deletePlay :", err);
          return { success: false };
       }
    };
 
-   // --- SUPPRESSION JEU (CORRIGÉE) ---
+   // ✅ SUPPRESSION D'UN JEU (NETTOYAGE COMPLET EN CASCADE)
    const removeGame = async (gameId) => {
       if (!challengeId) return;
 
       try {
-         // 1. SUPPRIMER LES PARTIES D'ABORD (IMPORTANT)
-         // On doit filtrer par game_id ET user_id pour être sûr (via les RPC ou policies, 
-         // mais ici on supprime tout ce qui lie à ce jeu pour cet user indirectement)
-         // Note: Assure-toi que ta table 'plays' a bien une colonne 'user_id' ou que ta policy autorise ça.
-
-         // On récupère l'user actuel pour la sécurité
          const { data: { user } } = await supabase.auth.getUser();
          if (!user) return;
 
+         // 1. Récupérer TOUTES les parties de ce jeu pour cet utilisateur
+         const { data: allPlays, error: fetchPlaysError } = await supabase
+            .from('plays')
+            .select('id, image_urls')
+            .eq('game_id', gameId)
+            .eq('user_id', user.id);
+
+         if (fetchPlaysError) throw fetchPlaysError;
+
+         // 2. Collecter TOUS les chemins d'images à supprimer
+         let allPathsToDelete = [];
+         if (allPlays && allPlays.length > 0) {
+            allPlays.forEach(play => {
+               if (play.image_urls && play.image_urls.length > 0) {
+                  const paths = play.image_urls
+                     .map(url => extractStoragePath(url))
+                     .filter(p => p !== null);
+                  allPathsToDelete = [...allPathsToDelete, ...paths];
+               }
+            });
+         }
+
+         // 3. Nettoyer le Storage en un seul appel (Batch Delete)
+         if (allPathsToDelete.length > 0) {
+            const { error: storageError } = await supabase.storage
+               .from('game-memories')
+               .remove(allPathsToDelete);
+
+            if (storageError) console.error("Erreur nettoyage global storage:", storageError);
+         }
+
+         // 4. Supprimer les parties (DB)
          const { error: playsError } = await supabase
             .from('plays')
             .delete()
@@ -156,7 +233,7 @@ export function useChallenge() {
 
          if (playsError) throw playsError;
 
-         // 2. SUPPRIMER L'ITEM DU CHALLENGE
+         // 5. Supprimer le jeu du challenge
          const { error: itemError } = await supabase
             .from('challenge_items')
             .delete()
@@ -165,14 +242,14 @@ export function useChallenge() {
 
          if (itemError) throw itemError;
 
-         // 3. MISE À JOUR LOCALE
+         // 6. Mise à jour locale
          setItems(current => current.filter(item => item.game_id !== gameId));
 
          return { success: true };
 
       } catch (err) {
          console.error("Erreur suppression jeu:", err);
-         fetchGames(challengeId); // Recharger en cas d'erreur
+         fetchGames(challengeId);
          return { success: false, message: "Impossible de supprimer." };
       }
    };

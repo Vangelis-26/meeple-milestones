@@ -31,12 +31,10 @@ export const AuthProvider = ({ children }) => {
    // --- LES FONCTIONS QUE "LOGIN.JSX" ATTEND ---
 
    const signUp = async (email, password) => {
-      // Supabase v2 : signUp renvoie { data, error }
       return await supabase.auth.signUp({ email, password });
    };
 
    const signIn = async (email, password) => {
-      // Supabase v2 : signInWithPassword renvoie { data, error }
       return await supabase.auth.signInWithPassword({ email, password });
    };
 
@@ -60,7 +58,7 @@ export const AuthProvider = ({ children }) => {
    );
 };
 
-// 3. Le hook personnalisé pour utiliser le contexte facilement
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
    return useContext(AuthContext);
 };
