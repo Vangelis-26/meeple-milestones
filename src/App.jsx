@@ -10,7 +10,8 @@ const DecorativeMeeple = ({ color, className }) => (
 
 export default function App() {
    return (
-      <div className="min-h-screen flex flex-col relative font-sans text-stone-800 bg-[#E8E4DC] bg-paper-texture">
+      // ✅ NETTOYAGE : Plus besoin de bg-paper-texture ici, c'est géré par le body
+      <div className="min-h-screen flex flex-col relative font-sans text-stone-800">
 
          {/* DÉCOR GLOBAL IMMUABLE */}
          <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
@@ -22,7 +23,7 @@ export default function App() {
 
          <Navbar />
 
-         {/* Zone de contenu principale avec espacement pour Navbar fixe */}
+         {/* Zone de contenu principale */}
          <main className="flex-grow relative z-10 pt-20 md:pt-24">
             <Outlet />
          </main>
