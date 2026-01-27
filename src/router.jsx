@@ -9,10 +9,16 @@ import ProtectedRoute from './components/ProtectedRoute';
 export const router = createBrowserRouter([
    {
       path: "/",
-      element: <App />,
+      element: <App />, // App contient maintenant la Navbar et l'Outlet
       children: [
-         { index: true, element: <Home /> },
-         { path: "login", element: <Login /> },
+         {
+            index: true,
+            element: <Home />
+         },
+         {
+            path: "login",
+            element: <Login />
+         },
          {
             path: "dashboard",
             element: (

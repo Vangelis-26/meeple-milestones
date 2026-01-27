@@ -50,12 +50,11 @@ export default function GameStats() {
    const monolithStyle = "bg-white rounded-[1.5rem] border border-stone-100 transition-all duration-300 hover:-translate-y-1 shadow-[8px_8px_0_0_rgba(28,25,23,0.05),0_15px_30px_-10px_rgba(0,0,0,0.1)]";
 
    return (
-      <div className="min-h-screen bg-[#FDFBF7] flex flex-col font-sans text-stone-800">
+      <div className="min-h-screen bg-[#F5F5F2] flex flex-col font-sans text-stone-800 pt-16 md:pt-20">
 
          {/* SECTION 1 : HERO (TITRE) - Arrêt net du dégradé */}
          <div className="relative h-[250px] md:h-[380px] shrink-0 bg-stone-900 overflow-hidden">
             <img src={game?.image_url || game?.thumbnail_url} className="absolute inset-0 w-full h-full object-cover object-center opacity-40 blur-[1px]" alt="" />
-            {/* Le dégradé meurt en "transparent" pour laisser le fond de la page prendre le relais sans transition visible sur la timeline */}
             <div className="absolute inset-0 bg-gradient-to-b from-stone-950/80 via-stone-950/30 to-transparent"></div>
 
             <div className="absolute top-0 left-0 w-full p-4 md:p-6 z-20">
@@ -66,7 +65,7 @@ export default function GameStats() {
             </div>
 
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 z-10 text-center">
-               <h1 className="font-serif font-black text-4xl md:text-7xl text-stone-900 leading-none drop-shadow-2xl mb-3 uppercase tracking-tighter tracking-widest">{game?.name}</h1>
+               <h1 className="font-serif font-black text-4xl md:text-7xl text-stone-900 leading-none drop-shadow-2xl mb-3 uppercase tracking-widest">{game?.name}</h1>
                <div className="h-1.5 w-28 bg-amber-600/40 mb-4 rounded-full"></div>
                <p className="text-amber-900 font-bold tracking-[0.4em] uppercase text-[10px] md:text-xs italic opacity-90">Chroniques & Statistiques</p>
             </div>
@@ -134,7 +133,7 @@ export default function GameStats() {
             </div>
 
             {/* TIMELINE NARRATIVE */}
-            <div className="lg:col-span-2 pt-0">
+            <div className="lg:col-span-2">
                <div className="relative space-y-24 md:space-y-36 before:absolute before:left-8 md:before:left-1/2 before:-translate-x-1/2 before:w-px before:h-full before:bg-stone-200">
                   {plays.map((play, index) => {
                      const isLeftSide = index % 2 === 0;
