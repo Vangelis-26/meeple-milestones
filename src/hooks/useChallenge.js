@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../services/supabase';
 import { getGameDetails } from '../services/bgg';
 
-// Liste des 10 couleurs de ton Édition Bois
 const MEEPLE_COLORS = [
    'red', 'blue', 'green', 'yellow', 'black',
    'gray', 'purple', 'orange', 'brown', 'teal'
@@ -14,7 +13,6 @@ export function useChallenge() {
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
 
-   // --- UTILITAIRE : Extraire le chemin du fichier depuis l'URL publique ---
    const extractStoragePath = (fullUrl) => {
       try {
          const bucketMarker = '/game-memories/';
@@ -26,7 +24,6 @@ export function useChallenge() {
       }
    };
 
-   // --- INITIALISATION ---
    const initChallenge = useCallback(async () => {
       try {
          setLoading(true);
@@ -40,7 +37,6 @@ export function useChallenge() {
       } catch (err) { setError(err.message); setLoading(false); }
    }, []);
 
-   // --- READ ---
    const fetchGames = async (id) => {
       try {
          const { data, error } = await supabase
@@ -61,7 +57,6 @@ export function useChallenge() {
 
    useEffect(() => { initChallenge(); }, [initChallenge]);
 
-   // --- CREATE JEU ---
    const addGame = async (gameBgg) => {
       if (!challengeId) return { success: false, message: "Erreur interne" };
       try {
@@ -97,10 +92,10 @@ export function useChallenge() {
 
          fetchGames(challengeId);
          return { success: true };
-      } catch (err) { return { success: false, message: err.message }; }
+      } catch (err) {
+         return { success: false, message: err.message || "Erreur inconnue" };
+      }
    };
-
-   // --- SYNCHRO & PROGRESSION ---
 
    const getHistory = async (gameId) => {
       const { data, error } = await supabase
@@ -108,6 +103,38 @@ export function useChallenge() {
       if (error) { console.error(error); return []; }
       return data;
    };
+
+   const getAllPlays = useCallback(async () => {
+      try {
+         const { data: { user } } = await supabase.auth.getUser();
+         if (!user || !challengeId) return [];
+
+         const { data: challengeGames } = await supabase
+            .from('challenge_items')
+            .select('game_id')
+            .eq('challenge_id', challengeId);
+
+         if (!challengeGames || challengeGames.length === 0) return [];
+         const gameIds = challengeGames.map(item => item.game_id);
+
+         // On récupère les parties ET le nom du jeu lié
+         const { data: allPlays, error: playsError } = await supabase
+            .from('plays')
+            .select(`
+               id, played_on, is_victory, duration_minutes, notes, image_urls,
+               game:games ( name )
+            `)
+            .in('game_id', gameIds)
+            .eq('user_id', user.id)
+            .order('played_on', { ascending: true });
+
+         if (playsError) throw playsError;
+         return allPlays;
+      } catch (err) {
+         console.error("Erreur stats globales:", err);
+         return [];
+      }
+   }, [challengeId]);
 
    const updateProgress = async (gameId, newProgress) => {
       if (!gameId) { fetchGames(challengeId); return; }
@@ -134,119 +161,62 @@ export function useChallenge() {
       }
    };
 
-   // ✅ SUPPRESSION D'UNE PARTIE (AVEC LOGS DE DEBUG ET NETTOYAGE STORAGE)
    const deletePlay = async (playId, gameId) => {
       try {
-         console.log(`🗑️ Tentative de suppression de la partie ${playId}...`);
-
-         // 1. Récupérer les infos de la partie AVANT de supprimer pour avoir les URLs
          const { data: playData, error: fetchError } = await supabase
-            .from('plays')
-            .select('image_urls')
-            .eq('id', playId)
-            .single();
+            .from('plays').select('image_urls').eq('id', playId).single();
 
          if (fetchError) throw fetchError;
 
-         // 2. Si images, les supprimer du Storage
          if (playData.image_urls && playData.image_urls.length > 0) {
-            console.log("📸 Images trouvées à supprimer :", playData.image_urls);
-
             const pathsToDelete = playData.image_urls
                .map(url => extractStoragePath(url))
                .filter(path => path !== null);
 
-            console.log("📍 Chemins Storage extraits :", pathsToDelete);
-
             if (pathsToDelete.length > 0) {
-               const { error: storageError } = await supabase.storage
-                  .from('game-memories')
-                  .remove(pathsToDelete);
-
-               if (storageError) {
-                  console.error("❌ ERREUR SUPABASE STORAGE :", storageError);
-               } else {
-                  console.log("✅ Images supprimées du Storage avec succès.");
-               }
+               await supabase.storage.from('game-memories').remove(pathsToDelete);
             }
-         } else {
-            console.log("ℹ️ Aucune image associée à cette partie.");
          }
 
-         // 3. Supprimer la ligne en base
          const { error } = await supabase.from('plays').delete().eq('id', playId);
          if (error) throw error;
 
          await refreshGameProgress(gameId);
          return { success: true };
       } catch (err) {
-         console.error("🚨 Erreur critique deletePlay :", err);
+         console.error("Erreur deletePlay :", err);
          return { success: false };
       }
    };
 
-   // ✅ SUPPRESSION D'UN JEU (NETTOYAGE COMPLET EN CASCADE)
    const removeGame = async (gameId) => {
       if (!challengeId) return;
-
       try {
          const { data: { user } } = await supabase.auth.getUser();
          if (!user) return;
 
-         // 1. Récupérer TOUTES les parties de ce jeu pour cet utilisateur
-         const { data: allPlays, error: fetchPlaysError } = await supabase
-            .from('plays')
-            .select('id, image_urls')
-            .eq('game_id', gameId)
-            .eq('user_id', user.id);
+         const { data: allPlays } = await supabase
+            .from('plays').select('image_urls').eq('game_id', gameId).eq('user_id', user.id);
 
-         if (fetchPlaysError) throw fetchPlaysError;
-
-         // 2. Collecter TOUS les chemins d'images à supprimer
          let allPathsToDelete = [];
-         if (allPlays && allPlays.length > 0) {
+         if (allPlays) {
             allPlays.forEach(play => {
-               if (play.image_urls && play.image_urls.length > 0) {
-                  const paths = play.image_urls
-                     .map(url => extractStoragePath(url))
-                     .filter(p => p !== null);
+               if (play.image_urls) {
+                  const paths = play.image_urls.map(url => extractStoragePath(url)).filter(p => p !== null);
                   allPathsToDelete = [...allPathsToDelete, ...paths];
                }
             });
          }
 
-         // 3. Nettoyer le Storage en un seul appel (Batch Delete)
          if (allPathsToDelete.length > 0) {
-            const { error: storageError } = await supabase.storage
-               .from('game-memories')
-               .remove(allPathsToDelete);
-
-            if (storageError) console.error("Erreur nettoyage global storage:", storageError);
+            await supabase.storage.from('game-memories').remove(allPathsToDelete);
          }
 
-         // 4. Supprimer les parties (DB)
-         const { error: playsError } = await supabase
-            .from('plays')
-            .delete()
-            .eq('game_id', gameId)
-            .eq('user_id', user.id);
+         await supabase.from('plays').delete().eq('game_id', gameId).eq('user_id', user.id);
+         await supabase.from('challenge_items').delete().eq('challenge_id', challengeId).eq('game_id', gameId);
 
-         if (playsError) throw playsError;
-
-         // 5. Supprimer le jeu du challenge
-         const { error: itemError } = await supabase
-            .from('challenge_items')
-            .delete()
-            .eq('challenge_id', challengeId)
-            .eq('game_id', gameId);
-
-         if (itemError) throw itemError;
-
-         // 6. Mise à jour locale
          setItems(current => current.filter(item => item.game_id !== gameId));
-
          return { success: true };
-
       } catch (err) {
          console.error("Erreur suppression jeu:", err);
          fetchGames(challengeId);
@@ -257,7 +227,7 @@ export function useChallenge() {
    return {
       items, loading, error,
       addGame, updateProgress, refreshGameProgress,
-      removeGame, getHistory, deletePlay,
+      removeGame, getHistory, deletePlay, getAllPlays,
       existingBggIds: items.map(i => i.game.bgg_id)
    };
 }

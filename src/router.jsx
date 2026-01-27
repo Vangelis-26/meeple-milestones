@@ -4,12 +4,13 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import GameStats from './pages/GameStats';
+import GlobalStats from './pages/GlobalStats';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export const router = createBrowserRouter([
    {
       path: "/",
-      element: <App />, // App contient maintenant la Navbar et l'Outlet
+      element: <App />,
       children: [
          {
             index: true,
@@ -24,6 +25,15 @@ export const router = createBrowserRouter([
             element: (
                <ProtectedRoute>
                   <Dashboard />
+               </ProtectedRoute>
+            ),
+         },
+         // ✅ La route doit être ici, au même niveau que dashboard
+         {
+            path: "stats",
+            element: (
+               <ProtectedRoute>
+                  <GlobalStats />
                </ProtectedRoute>
             ),
          },

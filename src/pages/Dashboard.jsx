@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Ajouté pour la navigation
 import { useChallenge } from '../hooks/useChallenge';
 
 // Composants
@@ -15,22 +16,24 @@ import AddPlayModal from '../components/AddPlayModal';
 import GameHistoryModal from '../components/GameHistoryModal';
 
 export default function Dashboard() {
+   const navigate = useNavigate(); // Hook de navigation
+
    // --- ÉTATS ---
    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
    // États de sélection pour les modales
-   const [selectedGame, setSelectedGame] = useState(null);       // Pour GameDetailsModal
-   const [gameToDelete, setGameToDelete] = useState(null);       // Pour DeleteGameModal
+   const [selectedGame, setSelectedGame] = useState(null);
+   const [gameToDelete, setGameToDelete] = useState(null);
 
-   // Configuration des modales d'action (Play & History)
-   const [playModalConfig, setPlayModalConfig] = useState(null);       // { gameItem, targetLevel }
-   const [historyModalConfig, setHistoryModalConfig] = useState(null); // { game }
-   const [playToEdit, setPlayToEdit] = useState(null);                 // Pour modifier une partie
+   // Configuration des modales d'action
+   const [playModalConfig, setPlayModalConfig] = useState(null);
+   const [historyModalConfig, setHistoryModalConfig] = useState(null);
+   const [playToEdit, setPlayToEdit] = useState(null);
 
    // Toast System
    const [toast, setToast] = useState(null);
 
-   // --- DONNÉES (Via Hook) ---
+   // --- DONNÉES ---
    const {
       items, loading, addGame, removeGame, existingBggIds,
       deletePlay, getHistory, refreshGameProgress, updateProgress
@@ -41,10 +44,8 @@ export default function Dashboard() {
    const totalPlays = items.reduce((acc, item) => acc + (item.progress || 0), 0);
    const isChallengeFull = totalGames >= 10;
 
-   // --- GESTION NOTIFICATIONS ---
    const showToast = (message, type = 'success') => setToast({ message, type });
 
-   // --- LOGIQUE AJOUT JEU ---
    const handleAddGame = async (game) => {
       const result = await addGame(game);
       if (result.success) {
@@ -55,7 +56,6 @@ export default function Dashboard() {
       }
    };
 
-   // --- LOGIQUE SUPPRESSION JEU ---
    const handleRequestRemove = (gameId, gameName) => {
       setGameToDelete({ id: gameId, name: gameName });
    };
@@ -72,9 +72,6 @@ export default function Dashboard() {
       }
    };
 
-   // --- LOGIQUE PARTIES (Ajout / Historique) ---
-
-   // Déclencheur depuis la GameCard
    const handleRequestAddPlay = (gameItem, targetLevel, showHistory = false) => {
       if (showHistory) {
          setHistoryModalConfig({ game: gameItem.game });
@@ -84,19 +81,16 @@ export default function Dashboard() {
       }
    };
 
-   // Passer de l'historique à l'édition
    const handleRequestEditFromHistory = (play) => {
       const currentGame = historyModalConfig.game;
-      setHistoryModalConfig(null); // Fermer l'historique
-
+      setHistoryModalConfig(null);
       setPlayToEdit(play);
       setPlayModalConfig({
          gameItem: { game: currentGame, game_id: currentGame.id },
-         targetLevel: null // Pas besoin de target en édition
+         targetLevel: null
       });
    };
 
-   // Callback succès ajout/modif partie
    const handlePlayAdded = async () => {
       if (playModalConfig?.gameItem) {
          await refreshGameProgress(playModalConfig.gameItem.game_id);
@@ -107,7 +101,6 @@ export default function Dashboard() {
       setPlayToEdit(null);
    };
 
-   // --- RENDER LOADING ---
    if (loading) {
       return (
          <div className="flex-1 flex items-center justify-center min-h-[60vh]">
@@ -119,17 +112,35 @@ export default function Dashboard() {
       );
    }
 
-   // --- RENDER DASHBOARD ---
    return (
       <div className="flex-1 flex flex-col w-full max-w-[90rem] mx-auto px-4 md:px-8 py-8">
-
-         {/* Toast Notification */}
          {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
          <main className="w-full flex-grow space-y-8">
-
-            {/* 1. Header & Progression */}
             <div className="space-y-6">
+
+               {/* EN-TÊTE AVEC NAVIGATION STATS */}
+               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
+                  <div>
+                     <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-800 mb-2">
+                        Mon Grimoire Ludique
+                     </h1>
+                     <p className="text-stone-500 font-serif italic">
+                        Challenge 10x10 • Édition {new Date().getFullYear()}
+                     </p>
+                  </div>
+
+                  <button
+                     onClick={() => navigate('/stats')} // Navigation vers la page Gold
+                     className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-amber-200 text-amber-700 rounded-xl font-bold uppercase text-xs tracking-wider hover:bg-amber-50 hover:border-amber-400 transition-all shadow-sm group self-start md:self-auto"
+                  >
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 group-hover:scale-110 transition-transform">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 21h15.75a2.25 2.25 0 002.25-2.25V3.75M3.75 3h11.25a2.25 2.25 0 002.25 2.25v11.25a2.25 2.25 0 00-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25z" />
+                     </svg>
+                     Statistiques
+                  </button>
+               </div>
+
                <DashboardHeader
                   totalGames={totalGames}
                   totalPlays={totalPlays}
@@ -138,20 +149,15 @@ export default function Dashboard() {
                <ChallengeProgress totalPlays={totalPlays} />
             </div>
 
-            {/* 2. Grille des Jeux */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 relative z-0 mb-12">
-
-               {/* A. Les Cartes Jeux */}
                {items.map((item) => (
                   <GameCard
                      key={item.game_id}
                      item={item}
-                     // Mapping sécurisé pour l'image
                      gameInfo={{
                         ...item.game,
                         image: item.game.image_url || item.game.thumbnail_url
                      }}
-                     // Actions
                      onClickDetails={setSelectedGame}
                      onRemove={() => handleRequestRemove(item.game_id, item.game.name)}
                      onRequestAddPlay={handleRequestAddPlay}
@@ -159,7 +165,6 @@ export default function Dashboard() {
                   />
                ))}
 
-               {/* B. Les Slots Vides (Boutons d'ajout) */}
                {!isChallengeFull && Array.from({ length: Math.max(0, 10 - items.length) }).map((_, index) => (
                   <button
                      key={`empty-${index}`}
@@ -181,32 +186,23 @@ export default function Dashboard() {
             </div>
          </main>
 
-         {/* --- LES MODALES --- */}
-
-         {/* 1. Ajouter un jeu */}
          <AddGameModal
             isOpen={isAddModalOpen}
             onClose={() => setIsAddModalOpen(false)}
             onAddGame={handleAddGame}
             existingIds={existingBggIds}
          />
-
-         {/* 2. Détails du jeu (Fiche BGG) */}
          <GameDetailsModal
             isOpen={!!selectedGame}
             game={selectedGame}
             onClose={() => setSelectedGame(null)}
          />
-
-         {/* 3. Confirmer suppression */}
          <DeleteGameModal
             isOpen={!!gameToDelete}
             game={gameToDelete}
             onClose={() => setGameToDelete(null)}
             onConfirm={confirmRemove}
          />
-
-         {/* 4. Historique (Archives) */}
          {historyModalConfig && (
             <GameHistoryModal
                isOpen={!!historyModalConfig}
@@ -218,8 +214,6 @@ export default function Dashboard() {
                showToast={showToast}
             />
          )}
-
-         {/* 5. Ajout / Modif Partie (Nouveau Récit) */}
          {playModalConfig && (
             <AddPlayModal
                isOpen={!!playModalConfig}
