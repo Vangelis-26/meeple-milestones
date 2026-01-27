@@ -43,7 +43,7 @@ export default function GameStats() {
    const complexity = game?.complexity ? parseFloat(game.complexity) : 0;
 
    if (loading) return (
-      <div className="min-h-screen flex items-center justify-center bg-[#FDFBF7]">
+      <div className="min-h-screen flex items-center justify-center">
          <div className="animate-spin rounded-full h-10 w-10 border-2 border-stone-200 border-t-amber-600"></div>
       </div>
    );
@@ -51,16 +51,13 @@ export default function GameStats() {
    const monolithStyle = "bg-white rounded-[1.5rem] border border-stone-100 transition-all duration-300 hover:-translate-y-1 shadow-[8px_8px_0_0_rgba(28,25,23,0.05),0_15px_30px_-10px_rgba(0,0,0,0.1)]";
 
    return (
-      // ✅ FIX LAYOUT : Marge négative pour remonter sous la navbar fixe définie dans App.jsx
-      <div className="min-h-screen bg-[#FDFBF7] flex flex-col font-sans text-stone-800 -mt-20 md:-mt-24">
+      <div className="min-h-screen flex flex-col font-sans text-stone-800 -mt-20 md:-mt-24">
 
          {/* SECTION 1 : HERO (TITRE) */}
-         {/* pt-20/24 : On redonne l'espace interne pour que le contenu ne soit pas caché par la navbar */}
          <div className="relative h-[250px] md:h-[380px] shrink-0 bg-stone-900 overflow-hidden pt-20 md:pt-24">
             <img src={game?.image_url || game?.thumbnail_url} className="absolute inset-0 w-full h-full object-cover object-center opacity-40 blur-[1px]" alt="" />
             <div className="absolute inset-0 bg-gradient-to-b from-stone-950/80 via-stone-950/30 to-transparent"></div>
 
-            {/* Bouton Dashboard : Ajusté avec mt-20/24 pour passer sous la navbar */}
             <div className="absolute top-0 left-0 w-full p-4 md:p-6 z-20 mt-20 md:mt-24">
                <button onClick={() => navigate('/dashboard')} className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-white/10 transition-all flex items-center gap-2 group">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
@@ -68,13 +65,22 @@ export default function GameStats() {
                </button>
             </div>
 
-            {/* Titre Centré */}
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 z-10 text-center mt-10 md:mt-12">
-               <h1 className="font-serif font-black text-4xl md:text-7xl text-stone-900 leading-none drop-shadow-2xl mb-3 uppercase tracking-widest">
+
+               {/* TITRE : Contour ultra-fin */}
+               <h1
+                  className="font-serif font-black text-4xl md:text-7xl text-stone-900 leading-none mb-3 uppercase tracking-widest drop-shadow-sm"
+                  style={{ WebkitTextStroke: '0.5px white' }}
+               >
                   {game?.name}
                </h1>
-               <div className="h-1.5 w-28 bg-amber-600/40 mb-4 rounded-full"></div>
-               <p className="text-amber-900 font-bold tracking-[0.4em] uppercase text-[10px] md:text-xs italic opacity-90">Chroniques & Statistiques</p>
+
+               <div className="h-1.5 w-28 bg-amber-600/90 mb-4 rounded-full shadow-lg border border-white/20"></div>
+
+               {/* ✅ FIX SOUS-TITRE : Plus d'ombre (drop-shadow), plus d'opacité réduite. Juste du texte net. */}
+               <p className="text-amber-50 font-bold tracking-[0.4em] uppercase text-[10px] md:text-xs italic">
+                  Chroniques & Statistiques
+               </p>
             </div>
          </div>
 
@@ -82,7 +88,6 @@ export default function GameStats() {
          <div className="w-full max-w-7xl mx-auto p-4 md:p-12 grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-16 items-start flex-grow relative">
 
             <div className="lg:col-span-1 space-y-8">
-               {/* CARTES STATS (MAÎTRISE, DÉFI, FICHE BGG) */}
                <div className={`${monolithStyle} p-8 flex flex-col items-center text-center`}>
                   <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-6">Taux de Succès</h4>
                   <div className="relative w-32 h-32 md:w-36 md:h-36 mb-2">
@@ -141,7 +146,7 @@ export default function GameStats() {
 
             {/* TIMELINE NARRATIVE */}
             <div className="lg:col-span-2 pt-0 relative">
-               <div className="relative space-y-24 md:space-y-36 before:absolute before:left-8 md:before:left-1/2 before:-translate-x-1/2 before:w-px before:h-full before:bg-stone-200">
+               <div className="relative space-y-24 md:space-y-36 before:absolute before:left-8 md:before:left-1/2 before:-translate-x-1/2 before:w-px before:h-full before:bg-stone-300">
                   {plays.map((play, index) => {
                      const isLeftSide = index % 2 === 0;
                      const reliefColor = play.is_victory ? 'rgba(217,119,6,0.15)' : 'rgba(28,25,23,0.15)';
@@ -149,7 +154,7 @@ export default function GameStats() {
 
                      return (
                         <div key={play.id} className={`relative flex flex-col md:flex-row items-center justify-between gap-16 md:gap-32 ${isLeftSide ? 'md:flex-row' : 'md:flex-row-reverse'} pl-20 md:pl-0`}>
-                           <div className={`absolute left-8 md:left-1/2 -translate-x-1/2 w-16 h-16 md:w-20 md:h-20 rounded-full border-4 md:border-[10px] border-[#FDFBF7] shadow-xl z-20 flex items-center justify-center text-3xl ${play.is_victory ? 'bg-amber-100 text-white shadow-amber-200/50' : 'bg-stone-800 text-stone-500'}`}>{play.is_victory ? '🏆' : '💀'}</div>
+                           <div className={`absolute left-8 md:left-1/2 -translate-x-1/2 w-16 h-16 md:w-20 md:h-20 rounded-full border-4 md:border-[8px] border-[#FDFBF7] shadow-xl z-20 flex items-center justify-center text-3xl ${play.is_victory ? 'bg-amber-100 text-white shadow-amber-200/50' : 'bg-stone-800 text-stone-500'}`}>{play.is_victory ? '🏆' : '💀'}</div>
 
                            <div
                               className="w-full md:w-[41%] p-8 md:p-12 bg-white rounded-[1.5rem] border border-stone-100 transition-all duration-300 hover:-translate-y-1"
