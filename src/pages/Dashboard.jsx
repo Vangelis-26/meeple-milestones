@@ -187,7 +187,7 @@ export default function Dashboard() {
          <AddGameModal
             isOpen={isAddModalOpen}
             onClose={() => setIsAddModalOpen(false)}
-            onAdd={handleAddGame}
+            onAddGame={handleAddGame}
             existingIds={existingBggIds}
          />
 
