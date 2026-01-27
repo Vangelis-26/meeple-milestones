@@ -10,6 +10,7 @@ export default function GameStats() {
    const [plays, setPlays] = useState([]);
    const [loading, setLoading] = useState(true);
 
+   // --- CAPTIONS & UTILS ---
    const captions = {
       victory: ["Le plan s'est déroulé sans accroc.", "Une leçon de stratégie magistrale.", "L'instant où la victoire était scellée.", "Maître du plateau, tout simplement.", "L'amitié a survécu (mais de justesse).", "Le point culminant d'un génie tactique."],
       defeat: ["Techniquement, j'ai presque gagné.", "Le hasard fait parfois mal les choses.", "Une retraite stratégique nécessaire.", "L'important, c'est de participer.", "Une défaite riche en enseignements.", "Le moment où les dés m'ont trahi."]
@@ -52,12 +53,14 @@ export default function GameStats() {
    return (
       <div className="min-h-screen bg-[#F5F5F2] flex flex-col font-sans text-stone-800 pt-16 md:pt-20">
 
-         {/* SECTION 1 : HERO (TITRE) - Arrêt net du dégradé */}
-         <div className="relative h-[250px] md:h-[380px] shrink-0 bg-stone-900 overflow-hidden">
+         {/* SECTION 1 : HERO (TITRE) */}
+         {/* pt-20/24 : On redonne l'espace interne pour que le contenu ne soit pas caché par la navbar */}
+         <div className="relative h-[250px] md:h-[380px] shrink-0 bg-stone-900 overflow-hidden pt-20 md:pt-24">
             <img src={game?.image_url || game?.thumbnail_url} className="absolute inset-0 w-full h-full object-cover object-center opacity-40 blur-[1px]" alt="" />
             <div className="absolute inset-0 bg-gradient-to-b from-stone-950/80 via-stone-950/30 to-transparent"></div>
 
-            <div className="absolute top-0 left-0 w-full p-4 md:p-6 z-20">
+            {/* Bouton Dashboard : Ajusté avec mt-20/24 pour passer sous la navbar */}
+            <div className="absolute top-0 left-0 w-full p-4 md:p-6 z-20 mt-20 md:mt-24">
                <button onClick={() => navigate('/dashboard')} className="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md text-white rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-white/10 transition-all flex items-center gap-2 group">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                   Dashboard
@@ -71,8 +74,8 @@ export default function GameStats() {
             </div>
          </div>
 
-         {/* SECTION 2 : STREAM (FIL) - Fond uni parfait */}
-         <div className="w-full max-w-7xl mx-auto p-4 md:p-12 grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-16 items-start flex-grow">
+         {/* SECTION 2 : STREAM (FIL) */}
+         <div className="w-full max-w-7xl mx-auto p-4 md:p-12 grid grid-cols-1 lg:grid-cols-3 gap-8 md:gap-16 items-start flex-grow relative">
 
             <div className="lg:col-span-1 space-y-8">
                {/* CARTES STATS (MAÎTRISE, DÉFI, FICHE BGG) */}
@@ -169,13 +172,21 @@ export default function GameStats() {
 
                            <div className="w-full md:w-[41%] flex justify-center mt-12 md:mt-0">
                               {play.image_urls?.length > 0 ? (
-                                 <div className={`relative p-3 pb-24 bg-white shadow-xl rotate-${isLeftSide ? '-2' : '2'} hover:rotate-0 transition-all duration-300 ring-1 ring-stone-100 group`}>
+                                 <div className={`
+                                    relative p-3 pb-24 bg-white shadow-xl 
+                                    ${isLeftSide ? '-rotate-2' : 'rotate-2'} 
+                                    hover:rotate-0 transition-all duration-300 ring-1 ring-stone-100 group
+                                 `}>
                                     <div className="w-full aspect-square overflow-hidden bg-stone-50 border border-stone-100 shadow-inner"><img src={play.image_urls[0]} alt="" className="w-full h-full object-cover grayscale-[10%] group-hover:grayscale-0 transition-all duration-700 scale-105 group-hover:scale-100" /></div>
                                     <div className="absolute bottom-10 left-0 w-full text-center px-4"><span className="font-serif text-sm text-stone-600 font-bold italic leading-tight opacity-95">{getCaption(play.is_victory, play.id)}</span></div>
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-10 bg-white/70 backdrop-blur-md border border-white/30 -rotate-3 shadow-md"></div>
                                  </div>
                               ) : (
-                                 <div className={`relative p-6 pb-20 bg-white shadow-xl rotate-${isLeftSide ? '3' : '-3'} hover:rotate-0 transition-all duration-300 border border-stone-100 group`}>
+                                 <div className={`
+                                    relative p-6 pb-20 bg-white shadow-xl 
+                                    ${isLeftSide ? 'rotate-3' : '-rotate-3'} 
+                                    hover:rotate-0 transition-all duration-300 border border-stone-100 group
+                                 `}>
                                     <div className="w-40 h-40 flex flex-col items-center justify-center border-2 border-dashed border-stone-200 bg-[#FDFBF7] rounded-xl relative overflow-hidden shadow-inner"><svg className="w-12 h-12 text-stone-300 opacity-60 group-hover:scale-110 transition-transform duration-700" fill="none" stroke="currentColor" strokeWidth={0.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71L12 2z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 18V6" /></svg><div className="absolute inset-0 bg-paper-texture opacity-[0.1]"></div></div>
                                     <div className="absolute bottom-10 left-0 w-full text-center px-4"><p className="font-serif text-[10px] text-stone-400 font-black italic uppercase tracking-[0.2em] leading-tight">Mémoire scellée</p></div>
                                  </div>
@@ -187,12 +198,6 @@ export default function GameStats() {
                </div>
             </div>
          </div>
-
-         {/* SECTION 3 : FOOTER - Séparation nette et archivage */}
-         <footer className="w-full py-12 flex flex-col items-center justify-center border-t border-stone-200/40 bg-stone-50/30">
-            <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em] mb-2 italic">© 2026 Meeple Milestones</p>
-            <p className="text-[9px] text-stone-300 uppercase font-black tracking-widest">L'art de la chronique ludique</p>
-         </footer>
       </div>
    );
 }

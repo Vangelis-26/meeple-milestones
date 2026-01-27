@@ -9,7 +9,7 @@ import Toast from '../components/Toast';
 
 // Modales Premium
 import AddGameModal from '../components/AddGameModal';
-import GameDetailsModal from '../components/GameDetailsModal';
+import GameDetailsModal from '../components/GamedetailsModal';
 import DeleteGameModal from '../components/DeleteGameModal';
 import AddPlayModal from '../components/AddPlayModal';
 import GameHistoryModal from '../components/GameHistoryModal';
@@ -193,11 +193,9 @@ export default function Dashboard() {
 
          {/* 2. Détails du jeu (Fiche BGG) */}
          <GameDetailsModal
-            isOpen={!!selectedGame} // Important pour l'animation
+            isOpen={!!selectedGame}
             game={selectedGame}
             onClose={() => setSelectedGame(null)}
-            // On passe l'item correspondant pour afficher la progression spécifique si besoin plus tard
-            userProgress={items.find(i => i.game_id === selectedGame?.id)}
          />
 
          {/* 3. Confirmer suppression */}

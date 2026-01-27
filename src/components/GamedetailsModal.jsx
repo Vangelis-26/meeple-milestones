@@ -1,13 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Nécessaire pour naviguer
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 export default function GameDetailsModal({ game, isOpen, onClose }) {
-   const navigate = useNavigate(); // Hook de navigation
-   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+   const navigate = useNavigate();
 
-   useEffect(() => {
+   // --- GESTION ÉTAT ---
+   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+   const [prevGameId, setPrevGameId] = useState(null);
+
+   if (game?.id !== prevGameId) {
+      setPrevGameId(game?.id);
       setIsDescriptionExpanded(false);
-   }, [game]);
+   }
 
    if (!isOpen || !game) return null;
 
