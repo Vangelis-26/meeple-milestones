@@ -12,7 +12,7 @@ Ce projet fournit une interface "App-like" haut de gamme pour les joueurs de soc
 
 1.  **Gérer son Challenge** : Constituer sa liste de 10 jeux via l'API BoardGameGeek.
 2.  **Sceller ses Souvenirs** : Enregistrer chaque partie avec un niveau de détail "Premium" (durée, victoires, photos, notes narratives).
-3.  **Analyser ses Performances** : Visualiser ses statistiques globales et l'historique de ses exploits à travers une timeline immersive.
+3.  **Analyser ses Performances** : Visualiser ses statistiques globales au sein du **Sanctuaire** et suivre son ascension à travers un système de grades évolutifs.
 
 ## 🛠 Stack Technique
 
@@ -21,6 +21,7 @@ Ce projet fournit une interface "App-like" haut de gamme pour les joueurs de soc
 - ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=white) **React 18** (Vite + Hooks personnalisés)
 - ![Tailwind](https://img.shields.io/badge/-Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white) **Tailwind CSS v3** (Architecture Mobile First, Design "Gold Edition")
 - **React Router v6** (Navigation fluide et routes protégées)
+- **Recharts** : Visualisation de données pour le suivi de la maîtrise ludique.
 
 **Back-end & Services :**
 
@@ -29,26 +30,37 @@ Ce projet fournit une interface "App-like" haut de gamme pour les joueurs de soc
 
 ## 🚀 Fonctionnalités "Gold Edition" Implémentées
 
-### 📜 Grimoire des Statistiques (Nouvelle Dimension)
+### 🏛 Le Sanctuaire des Statistiques (Nouveau)
 
-- [x] **Header Immersif** : Bannière dynamique centrée avec traitement visuel "Cinématique".
-- [x] **Timeline Narrative** : Chronique des parties alternant entre cartouches de texte et souvenirs visuels.
-- [x] **Design "Token" Premium** : Cartes de parties avec bordures latérales (12px) et inférieures (6px) en relief, simulant des tuiles de jeu physiques.
-- [x] **Esquisses de l'Archiviste** : Placeholders stylisés (dessins à la plume) pour les souvenirs sans photo, préservant l'immersion ludique.
-- [x] **Légendes Contextuelles** : Génération de textes "flavor text" adaptés aux résultats de la partie (Victoire/Défaite).
-- [x] **Micro-interactions** : Effets de survol discrets simulant le soulèvement des tuiles de jeu.
+- [x] **Système de Rangs "Plaisir"** : Progression gamifiée sur 11 niveaux, du _Vagabond des Plateaux_ à l' _Architecte du Destin_.
+- [x] **Sceaux de Gloire** : Icônes SVG premium évolutives (Lanterne, Épée, Éclair divin) marquant les étapes clés du challenge.
+- [x] **Suivi d'XP Premium** : Barre d'avancement avec affichage de pourcentage abstrait pour une immersion accrue.
+- [x] **Analyse d'Activité** : Graphique "Rythme des Épopées" (ComposedChart) pour visualiser le volume de jeu mensuel et cumulé.
+- [x] **KPI Dynamiques** : Calcul automatique du ratio de triomphe, du temps de jeu total et des paliers de gloire.
 
-### 🎲 Gestion du Challenge & Tracking
+### 📜 Grimoire des Jeux & Timeline
 
-- [x] **Visualisation Gamifiée** : Grille de progression avec Meeples interactifs et verrouillage séquentiel.
-- [x] **Tracking Précis** : Gestion complète (CRUD) des parties : dates, durées, notes de session et victoires.
-- [x] **Photos Souvenirs** : Système d'upload multiple optimisé pour le Cloud.
+- [x] **Header Cinématique** : Bannières dynamiques avec traitement visuel immersif.
+- [x] **Timeline Narrative** : Chronique alternant souvenirs visuels et notes textuelles.
+- [x] **Design "Token"** : Cartes simulant des tuiles de jeu physiques (relief 12px/6px).
+- [x] **Légendes Contextuelles** : Génération automatique de "flavor text" adaptés aux résultats des parties.
 
-### 📱 Excellence UI / UX
+### 🎲 Gestion du Challenge & UX
 
-- [x] **Responsive Radical** : Interface optimisée pour une lecture "Grand Format" sur PC et une timeline verticale simplifiée à gauche sur mobile.
-- [x] **Lisibilité Haute Définition** : Échelles typographiques ajustées pour un confort de lecture optimal sur tous les écrans.
-- [x] **Atmosphère Chaleureuse** : Utilisation de textures papier et de tons "Stone" pour briser la froideur du numérique.
+- [x] **Navigation Centralisée** : Navbar intelligente avec accès rapide au Dashboard, au Sanctuaire et aux Archives.
+- [x] **Tracking Précis** : Gestion complète (CRUD) des parties avec upload de photos souvenirs optimisé.
+- [x] **Responsive Radical** : Expérience fluide sur PC et mobile, avec menu latéral tactile pour les Archives.
+
+## 🏆 Le Système de Progression
+
+Le challenge n'est pas qu'une question de chiffres, c'est une ascension. Le système de progression est conçu pour récompenser la régularité sans devenir punitif :
+
+| Grade       | Titre                  | Seuil (Parties)          |
+| :---------- | :--------------------- | :----------------------- |
+| **Rank 1**  | Vagabond des Plateaux  | 0                        |
+| **Rank 5**  | Gardien des Savoirs    | 45                       |
+| **Rank 10** | **Maître de l'Olympe** | **100 (Objectif Final)** |
+| **Rank 11** | Architecte du Destin   | 110+                     |
 
 ## 💻 Installation en local
 
@@ -66,18 +78,18 @@ Ce projet fournit une interface "App-like" haut de gamme pour les joueurs de soc
     ```
 
 3.  **Configuration d'environnement**
-    Créez un fichier `.env.local` à la racine avec vos clés Supabase :
+    Créez un fichier `.env.local` à la racine :
 
     ```env
     VITE_SUPABASE_URL=votre_url_supabase
     VITE_SUPABASE_ANON_KEY=votre_cle_anon
     ```
 
-4.  **Lancer le serveur de développement**
+4.  **Lancer le projet**
     ```bash
     npm run dev
     ```
 
 ## 👤 Auteur
 
-Projet réalisé par **Vangelis** dans le cadre d'une montée en compétence sur l'écosystème React moderne et le Design d'Expérience (UX).
+Projet réalisé par **Vangelis** dans le cadre d'une montée en compétence sur l'écosystème React moderne et le Design d'Expérience (UX) appliqué au monde ludique.
