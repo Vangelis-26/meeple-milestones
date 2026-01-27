@@ -129,16 +129,6 @@ export default function Dashboard() {
                         Challenge 10x10 • Édition {new Date().getFullYear()}
                      </p>
                   </div>
-
-                  <button
-                     onClick={() => navigate('/stats')} // Navigation vers la page Gold
-                     className="flex items-center gap-2 px-4 py-2 bg-white border-2 border-amber-200 text-amber-700 rounded-xl font-bold uppercase text-xs tracking-wider hover:bg-amber-50 hover:border-amber-400 transition-all shadow-sm group self-start md:self-auto"
-                  >
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 group-hover:scale-110 transition-transform">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 21h15.75a2.25 2.25 0 002.25-2.25V3.75M3.75 3h11.25a2.25 2.25 0 002.25 2.25v11.25a2.25 2.25 0 00-2.25 2.25h-9a2.25 2.25 0 01-2.25-2.25z" />
-                     </svg>
-                     Statistiques
-                  </button>
                </div>
 
                <DashboardHeader
