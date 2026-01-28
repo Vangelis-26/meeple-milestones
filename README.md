@@ -1,8 +1,8 @@
-# 🎲 Meeple & Milestones (Gold Edition)
+# 🎲 Meeple & Milestones
 
 > **"Transformez vos sessions de jeu en un véritable grimoire de légendes."**
 >
-> Une application "Premium" conçue pour les ludistes exigeants souhaitant immortaliser leur **Challenge 10x10**. Plus qu'un simple tracker, c'est une chronique visuelle et narrative de votre parcours.
+> Une expérience numérique immersive conçue pour les ludistes souhaitant immortaliser leur **Challenge 10x10**. Plus qu'un simple tracker, c'est une chronique visuelle et narrative qui donne du poids à chaque victoire et documente chaque défaite.
 
 ![Status](https://img.shields.io/badge/Status-Production_Ready-amber)
 ![License](https://img.shields.io/badge/License-MIT-stone)
@@ -12,64 +12,60 @@
 
 ## 🏛️ La Philosophie du Projet
 
-Ce projet n'est pas un tableau Excel déguisé. C'est une **expérience utilisateur (UX)** soignée, inspirée des interfaces de luxe et des carnets de voyage anciens.
+Ce projet refuse l'austérité des tableaux de bord classiques. Il a été pensé comme un **carnet de voyage ludique**, où l'interface s'efface devant le récit de vos parties. L'esthétique repose sur une palette **Stone & Amber**, des typographies Serif élégantes et des effets de profondeur simulant le toucher du papier et du cuir.
 
 L'objectif est triple :
 
-1.  **Gérer** : Un "Cockpit" (Dashboard) fluide pour piloter son challenge 10x10.
-2.  **Narrer** : Chaque partie est une histoire (Notes, Photos, Victoire/Défaite).
-3.  **Célébrer** : Un "Sanctuaire" statistique qui gamifie la progression du joueur.
+1.  **Gérer** : Un Dashboard fluide pour piloter son challenge 10x10.
+2.  **Narrer** : Chaque partie est une histoire (Notes, Photos, Récits).
+3.  **Célébrer** : Un "Sanctuaire" statistique qui transforme la progression en héritage.
 
 ---
 
 ## 💎 Fonctionnalités Clés
 
-### 1. Le Grimoire (Gestion des Jeux)
+### 📖 Chroniques & Souvenirs (Tracking)
 
-- **Intégration BoardGameGeek (BGG)** : Recherche instantanée et import automatique des métadonnées (Images, Complexité, Année).
-- **Cartes "Tuiles 3D"** : Design unique des cartes de jeux avec effet de relief et ombres portées dynamiques.
-- **Modales Immersives** : Fiches de détails avec effets de flou (backdrop-blur), jauges de complexité colorées et navigation fluide.
+- **Le Sceau du Destin** : Chaque partie est enregistrée avec un feedback visuel fort. Victoire éclatante (Ambre) ou Défaite amère (Pierre).
+- **Épreuves par l'Image** : Système de preuve avec upload de photos (max 3 par partie) stockées via **Supabase Storage**.
+- **Timeline "Scrapbook"** : Vos parties s'affichent sous forme de Polaroïds et de cartes narratives, créant un véritable historique organique.
 
-### 2. Chroniques & Souvenirs (Tracking)
+### 🛡️ Le Sanctuaire (Gamification)
 
-- **Système de Preuve** : Upload de photos (jusqu'à 3 par partie) stockées sur **Supabase Storage**.
-- **Timeline Narrative** : Affichage des parties sous forme de fil temporel avec distinction visuelle "Glorieuse Victoire" (Or) vs "Lamentable Défaite" (Pierre).
-- **Édition Complète** : Possibilité de modifier ou supprimer une entrée passée via l'historique.
+- **Système de Rangs RPG** : Votre ascension est rythmée par 11 niveaux honorifiques, du _Vagabond_ à l'_Architecte du Destin_.
+- **KPIs Cinématiques** : Suivi du taux de victoire, calcul des "Heures Perdues" (temps de jeu total) et jauges de challenge circulaires.
 
-### 3. Le Sanctuaire (Statistiques & Gamification)
+### 🔍 Bibliothèque & Immersion
 
-- **Système de Rangs RPG** : Progression sur 11 niveaux, du _Vagabond_ à l' _Architecte du Destin_.
-- **Visualisation de Données** : Graphiques (Recharts) pour l'activité mensuelle et jauges circulaires pour les taux de succès.
-- **KPIs Dynamiques** : Calcul en temps réel du temps de jeu total ("Heures Perdues") et du ratio de triomphe.
-
-### 4. Architecture Réactive (UX)
-
-- **Navigation Intelligente** : Menu "Mes Archives" avec prévisualisation des miniatures et barres de progression dorées.
-- **Hot Reload (Event-Driven)** : Synchronisation instantanée entre le Dashboard et la Navbar sans rechargement de page (via `CustomEvent`).
-- **Mobile First** : Interface totalement adaptative, du grand écran au smartphone.
+- **Connexion BGG** : Recherche et import automatique des métadonnées BoardGameGeek (Images, complexité, âge).
+- **Interface Réactive** : Menu "Mes Archives" avec prévisualisation des miniatures et synchronisation instantanée via `CustomEvents`.
+- **Design "Tuiles 3D"** : Cartes de jeux avec effets de relief et ombres portées dynamiques.
 
 ---
 
 ## 🛠 Stack Technique
 
-### Front-end
-
-- **React 18** (Vite) : Performance et modernité.
-- **Tailwind CSS v3** : Design System personnalisé (Palette Stone/Amber, ombres complexes, typographie Serif).
-- **Recharts** : Librairie de graphiques pour le Sanctuaire.
-- **React Router DOM** : Gestion des routes et modales contextuelles.
-
-### Back-end & Services (Supabase)
-
-- **Database (PostgreSQL)** : Modèle relationnel robuste (`games`, `plays`, `challenges`).
-- **Authentication** : Gestion sécurisée des utilisateurs.
-- **Storage** : Bucket `game-memories` pour le stockage des photos de parties.
-- **Row Level Security (RLS)** : Sécurité des données au niveau de la ligne (chaque joueur ne voit que ses données).
-- **Realtime** : Configuration via `REPLICA IDENTITY FULL` pour la synchronisation.
+- **Front-end** : React 18 (Vite), Tailwind CSS v3, Recharts (Graphiques), React Router DOM.
+- **Back-end & Services** : **Supabase** (Database PostgreSQL, Auth, Storage).
+- **Sécurité** : **Row Level Security (RLS)** pour une isolation stricte des données par utilisateur.
 
 ---
 
-## 🏆 Système de Progression
+## 🌳 Workflow de Développement
+
+Pour maintenir l'intégrité du **Grimoire**, nous suivons une méthodologie de branchement (Feature Branching) stricte :
+
+1.  **`main`** : La source de vérité absolue. Elle doit **toujours** être fonctionnelle et prête pour la production.
+2.  **Branches de tâches** : Pour chaque nouvelle fonctionnalité ou correction, créer une branche `feat/nom-de-la-tache`.
+3.  **Processus de validation** :
+    - Coder et committer sur la branche `feat/`.
+    - Pusher la branche sur le dépôt distant.
+    - Créer une **Pull Request (PR)** sur GitHub de `feat/...` vers `main`.
+    - Fusionner (Merge) une fois la tâche validée.
+
+---
+
+## 🏆 Système de Progression (Rangs)
 
 Le challenge est rythmé par l'obtention de titres honorifiques basés sur le nombre total de parties jouées :
 
@@ -88,12 +84,12 @@ Le challenge est rythmé par l'obtention de titres honorifiques basés sur le no
 
 ## 💾 Structure de la Base de Données
 
-Le projet repose sur 4 tables principales :
+Le projet repose sur 4 tables principales dans **Supabase** :
 
-1.  `games` : Référentiel unique des jeux (données BGG). Partagé mais unique par BGG ID.
-2.  `challenges` : Table de liaison utilisateur/année.
-3.  `challenge_items` : Les jeux spécifiques suivis par un utilisateur (avec progression et couleur de meeple).
-4.  `plays` : Historique des parties (Date, Durée, Victoire, Notes, URLs Images).
+1.  **`games`** : Référentiel unique des jeux (données BGG). Partagé mais unique par BGG ID.
+2.  **`challenges`** : Table de liaison utilisateur / année.
+3.  **`challenge_items`** : Les jeux spécifiques suivis par un utilisateur (avec progression et couleur de meeple).
+4.  **`plays`** : Historique des parties (Date, Durée, Victoire, Notes, URLs Images).
 
 ---
 
@@ -129,7 +125,6 @@ Le projet repose sur 4 tables principales :
 
 ## 👤 Auteur
 
-**Vangelis** - _Architecte du Destin_
-Projet réalisé avec passion pour la communauté ludique.
+**Vangelis** — _Architecte du Destin_ Projet réalisé avec passion pour la communauté ludique.
 
 > _"Le silence est d'or, mais une victoire écrite est éternelle."_
