@@ -19,7 +19,7 @@ export default function Footer() {
                            Meeple & Milestones
                         </span>
                         <span className="text-[10px] font-bold text-amber-700 uppercase tracking-[0.3em]">
-                           L'Âge d'Or
+                           Marquez votre histoire.
                         </span>
                      </div>
                   </div>
