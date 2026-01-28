@@ -1,73 +1,108 @@
-# 🎲 Meeple & Milestones
+# 🎲 Meeple & Milestones (Gold Edition)
 
-> Transformez vos sessions de jeu en un véritable grimoire de légendes. Suivez le "Challenge 10x10" avec une interface Premium conçue pour les collectionneurs exigeants.
+> **"Transformez vos sessions de jeu en un véritable grimoire de légendes."**
+>
+> Une application "Premium" conçue pour les ludistes exigeants souhaitant immortaliser leur **Challenge 10x10**. Plus qu'un simple tracker, c'est une chronique visuelle et narrative de votre parcours.
 
-![Status](https://img.shields.io/badge/Status-Beta-orange)
-![License](https://img.shields.io/badge/License-MIT-blue)
-![Tech](https://img.shields.io/badge/Stack-React%20%7C%20Supabase%20%7C%20Tailwind-blueviolet)
+![Status](https://img.shields.io/badge/Status-Production_Ready-amber)
+![License](https://img.shields.io/badge/License-MIT-stone)
+![Stack](https://img.shields.io/badge/Stack-React_18_%7C_Supabase_%7C_Tailwind-blueviolet)
 
-## 🎯 L'Objectif
+---
 
-Ce projet fournit une interface "App-like" haut de gamme pour les joueurs de société souhaitant immortaliser leurs défis ludiques. Plus qu'un simple tracker, il s'agit d'une **Chronique de l'Aventurier** qui permet de :
+## 🏛️ La Philosophie du Projet
 
-1.  **Gérer son Challenge** : Constituer sa liste de 10 jeux via l'API BoardGameGeek.
-2.  **Sceller ses Souvenirs** : Enregistrer chaque partie avec un niveau de détail "Premium" (durée, victoires, photos, notes narratives).
-3.  **Analyser ses Performances** : Visualiser ses statistiques globales au sein du **Sanctuaire** et suivre son ascension à travers un système de grades évolutifs.
+Ce projet n'est pas un tableau Excel déguisé. C'est une **expérience utilisateur (UX)** soignée, inspirée des interfaces de luxe et des carnets de voyage anciens.
+
+L'objectif est triple :
+
+1.  **Gérer** : Un "Cockpit" (Dashboard) fluide pour piloter son challenge 10x10.
+2.  **Narrer** : Chaque partie est une histoire (Notes, Photos, Victoire/Défaite).
+3.  **Célébrer** : Un "Sanctuaire" statistique qui gamifie la progression du joueur.
+
+---
+
+## 💎 Fonctionnalités Clés
+
+### 1. Le Grimoire (Gestion des Jeux)
+
+- **Intégration BoardGameGeek (BGG)** : Recherche instantanée et import automatique des métadonnées (Images, Complexité, Année).
+- **Cartes "Tuiles 3D"** : Design unique des cartes de jeux avec effet de relief et ombres portées dynamiques.
+- **Modales Immersives** : Fiches de détails avec effets de flou (backdrop-blur), jauges de complexité colorées et navigation fluide.
+
+### 2. Chroniques & Souvenirs (Tracking)
+
+- **Système de Preuve** : Upload de photos (jusqu'à 3 par partie) stockées sur **Supabase Storage**.
+- **Timeline Narrative** : Affichage des parties sous forme de fil temporel avec distinction visuelle "Glorieuse Victoire" (Or) vs "Lamentable Défaite" (Pierre).
+- **Édition Complète** : Possibilité de modifier ou supprimer une entrée passée via l'historique.
+
+### 3. Le Sanctuaire (Statistiques & Gamification)
+
+- **Système de Rangs RPG** : Progression sur 11 niveaux, du _Vagabond_ à l' _Architecte du Destin_.
+- **Visualisation de Données** : Graphiques (Recharts) pour l'activité mensuelle et jauges circulaires pour les taux de succès.
+- **KPIs Dynamiques** : Calcul en temps réel du temps de jeu total ("Heures Perdues") et du ratio de triomphe.
+
+### 4. Architecture Réactive (UX)
+
+- **Navigation Intelligente** : Menu "Mes Archives" avec prévisualisation des miniatures et barres de progression dorées.
+- **Hot Reload (Event-Driven)** : Synchronisation instantanée entre le Dashboard et la Navbar sans rechargement de page (via `CustomEvent`).
+- **Mobile First** : Interface totalement adaptative, du grand écran au smartphone.
+
+---
 
 ## 🛠 Stack Technique
 
-**Front-end :**
+### Front-end
 
-- ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=white) **React 18** (Vite + Hooks personnalisés)
-- ![Tailwind](https://img.shields.io/badge/-Tailwind_CSS-38B2AC?logo=tailwind-css&logoColor=white) **Tailwind CSS v3** (Architecture Mobile First, Design "Gold Edition")
-- **React Router v6** (Navigation fluide et routes protégées)
-- **Recharts** : Visualisation de données pour le suivi de la maîtrise ludique.
+- **React 18** (Vite) : Performance et modernité.
+- **Tailwind CSS v3** : Design System personnalisé (Palette Stone/Amber, ombres complexes, typographie Serif).
+- **Recharts** : Librairie de graphiques pour le Sanctuaire.
+- **React Router DOM** : Gestion des routes et modales contextuelles.
 
-**Back-end & Services :**
+### Back-end & Services (Supabase)
 
-- ![Supabase](https://img.shields.io/badge/-Supabase-3ECF8E?logo=supabase&logoColor=white) **Supabase** (PostgreSQL avec RLS, Auth sécurisée et Storage Cloud)
-- **BoardGameGeek API** : Extraction intelligente des métadonnées mondiales.
+- **Database (PostgreSQL)** : Modèle relationnel robuste (`games`, `plays`, `challenges`).
+- **Authentication** : Gestion sécurisée des utilisateurs.
+- **Storage** : Bucket `game-memories` pour le stockage des photos de parties.
+- **Row Level Security (RLS)** : Sécurité des données au niveau de la ligne (chaque joueur ne voit que ses données).
+- **Realtime** : Configuration via `REPLICA IDENTITY FULL` pour la synchronisation.
 
-## 🚀 Fonctionnalités "Gold Edition" Implémentées
+---
 
-### 🏛 Le Sanctuaire des Statistiques (Nouveau)
+## 🏆 Système de Progression
 
-- [x] **Système de Rangs "Plaisir"** : Progression gamifiée sur 11 niveaux, du _Vagabond des Plateaux_ à l' _Architecte du Destin_.
-- [x] **Sceaux de Gloire** : Icônes SVG premium évolutives (Lanterne, Épée, Éclair divin) marquant les étapes clés du challenge.
-- [x] **Suivi d'XP Premium** : Barre d'avancement avec affichage de pourcentage abstrait pour une immersion accrue.
-- [x] **Analyse d'Activité** : Graphique "Rythme des Épopées" (ComposedChart) pour visualiser le volume de jeu mensuel et cumulé.
-- [x] **KPI Dynamiques** : Calcul automatique du ratio de triomphe, du temps de jeu total et des paliers de gloire.
+Le challenge est rythmé par l'obtention de titres honorifiques basés sur le nombre total de parties jouées :
 
-### 📜 Grimoire des Jeux & Timeline
+| Niveau  | Titre                   | Parties Requises | Icône |
+| :------ | :---------------------- | :--------------- | :---- |
+| **1**   | Vagabond des Plateaux   | 0+               | 🥾    |
+| **2**   | Aventurier Novice       | 5+               | 🎒    |
+| **3**   | Chasseur de Reliques    | 15+              | 🔍    |
+| **4**   | Stratège Reconnu        | 30+              | 📜    |
+| **5**   | **Gardien des Savoirs** | **50+**          | 🕯️    |
+| **...** | ...                     | ...              | ...   |
+| **10**  | **Maître de l'Olympe**  | **100**          | ⚡    |
+| **11**  | Architecte du Destin    | 110+             | 🌌    |
 
-- [x] **Header Cinématique** : Bannières dynamiques avec traitement visuel immersif.
-- [x] **Timeline Narrative** : Chronique alternant souvenirs visuels et notes textuelles.
-- [x] **Design "Token"** : Cartes simulant des tuiles de jeu physiques (relief 12px/6px).
-- [x] **Légendes Contextuelles** : Génération automatique de "flavor text" adaptés aux résultats des parties.
+---
 
-### 🎲 Gestion du Challenge & UX
+## 💾 Structure de la Base de Données
 
-- [x] **Navigation Centralisée** : Navbar intelligente avec accès rapide au Dashboard, au Sanctuaire et aux Archives.
-- [x] **Tracking Précis** : Gestion complète (CRUD) des parties avec upload de photos souvenirs optimisé.
-- [x] **Responsive Radical** : Expérience fluide sur PC et mobile, avec menu latéral tactile pour les Archives.
+Le projet repose sur 4 tables principales :
 
-## 🏆 Le Système de Progression
+1.  `games` : Référentiel unique des jeux (données BGG). Partagé mais unique par BGG ID.
+2.  `challenges` : Table de liaison utilisateur/année.
+3.  `challenge_items` : Les jeux spécifiques suivis par un utilisateur (avec progression et couleur de meeple).
+4.  `plays` : Historique des parties (Date, Durée, Victoire, Notes, URLs Images).
 
-Le challenge n'est pas qu'une question de chiffres, c'est une ascension. Le système de progression est conçu pour récompenser la régularité sans devenir punitif :
-
-| Grade       | Titre                  | Seuil (Parties)          |
-| :---------- | :--------------------- | :----------------------- |
-| **Rank 1**  | Vagabond des Plateaux  | 0                        |
-| **Rank 5**  | Gardien des Savoirs    | 45                       |
-| **Rank 10** | **Maître de l'Olympe** | **100 (Objectif Final)** |
-| **Rank 11** | Architecte du Destin   | 110+                     |
+---
 
 ## 💻 Installation en local
 
 1.  **Cloner le dépôt**
 
     ```bash
-    git clone [https://github.com/Vangelis-26/meeple-milestones](https://github.com/Vangelis-26/meeple-milestones)
+    git clone [https://github.com/Vangelis-26/meeple-milestones.git](https://github.com/Vangelis-26/meeple-milestones.git)
     cd meeple-milestones
     ```
 
@@ -78,18 +113,23 @@ Le challenge n'est pas qu'une question de chiffres, c'est une ascension. Le syst
     ```
 
 3.  **Configuration d'environnement**
-    Créez un fichier `.env.local` à la racine :
+    Créez un fichier `.env.local` à la racine avec vos clés Supabase :
 
     ```env
     VITE_SUPABASE_URL=votre_url_supabase
     VITE_SUPABASE_ANON_KEY=votre_cle_anon
     ```
 
-4.  **Lancer le projet**
+4.  **Lancer le serveur de développement**
     ```bash
     npm run dev
     ```
 
+---
+
 ## 👤 Auteur
 
-Projet réalisé par **Vangelis** dans le cadre d'une montée en compétence sur l'écosystème React moderne et le Design d'Expérience (UX) appliqué au monde ludique.
+**Vangelis** - _Architecte du Destin_
+Projet réalisé avec passion pour la communauté ludique.
+
+> _"Le silence est d'or, mais une victoire écrite est éternelle."_
