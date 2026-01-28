@@ -24,14 +24,35 @@ const parseBGGXml = async (endpoint, params = {}) => {
 export const searchGames = async (query) => {
    if (!query || query.length < 3) return [];
    try {
+      // 1. On cherche les IDs des jeux
       const xml = await parseBGGXml('search', { query, type: 'boardgame' });
       const items = xml.querySelectorAll('item');
-      return Array.from(items).map(item => ({
+
+      if (items.length === 0) return [];
+
+      // On récupère les 10 premiers IDs
+      const ids = Array.from(items)
+         .slice(0, 10)
+         .map(item => item.getAttribute('id'))
+         .join(',');
+
+      // 2. ÉTAPE CLÉ : On récupère les détails (images + notes) pour ces IDs
+      const detailsXml = await parseBGGXml('thing', { id: ids, stats: 1 });
+      const detailItems = detailsXml.querySelectorAll('item');
+
+      // 3. On mappe les résultats avec les illustrations
+      return Array.from(detailItems).map(item => ({
          bgg_id: item.getAttribute('id'),
-         name: item.querySelector('name')?.getAttribute('value'),
-         year: item.querySelector('yearpublished')?.getAttribute('value')
-      })).slice(0, 10);
-   } catch (error) { return []; }
+         name: item.querySelector('name[type="primary"]')?.getAttribute('value') || item.querySelector('name')?.getAttribute('value'),
+         thumbnail: item.querySelector('thumbnail')?.textContent, // L'IMAGE EST ICI
+         year: item.querySelector('yearpublished')?.getAttribute('value'),
+         rating: parseFloat(item.querySelector('statistics ratings average')?.getAttribute('value') || 0).toFixed(1)
+      }));
+
+   } catch (error) {
+      console.error("Erreur Search BGG:", error);
+      return [];
+   }
 };
 
 export const getGameDetails = async (bggId) => {
@@ -49,11 +70,8 @@ export const getGameDetails = async (bggId) => {
          image_url: item.querySelector('image')?.textContent,
          description: item.querySelector('description')?.textContent || "",
          year_published: parseInt(item.querySelector('yearpublished')?.getAttribute('value')),
-
-         // ✅ EXTRACTION DES JOUEURS
          min_players: parseInt(item.querySelector('minplayers')?.getAttribute('value')),
          max_players: parseInt(item.querySelector('maxplayers')?.getAttribute('value')),
-
          min_age: parseInt(item.querySelector('minage')?.getAttribute('value')),
          playing_time: parseInt(item.querySelector('playingtime')?.getAttribute('value')),
          rating: parseFloat(stats?.querySelector('average')?.getAttribute('value') || 0),
