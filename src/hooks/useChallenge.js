@@ -7,6 +7,11 @@ const MEEPLE_COLORS = [
    'gray', 'purple', 'orange', 'brown', 'teal'
 ];
 
+// 🚀 NOUVEAU : Fonction pour prévenir toute l'app qu'il y a du changement
+const triggerGlobalUpdate = () => {
+   window.dispatchEvent(new Event('challengeUpdated'));
+};
+
 export function useChallenge() {
    const [challengeId, setChallengeId] = useState(null);
    const [items, setItems] = useState([]);
@@ -67,6 +72,7 @@ export function useChallenge() {
 
          const details = await getGameDetails(gameBgg.bgg_id);
 
+         // 1. Upsert du jeu
          const { data: gameData, error: gameError } = await supabase
             .from('games')
             .upsert({
@@ -85,12 +91,25 @@ export function useChallenge() {
 
          if (gameError) throw gameError;
 
+         // 2. Ajout au challenge
          const { error: linkError } = await supabase.from('challenge_items')
             .insert({ challenge_id: challengeId, game_id: gameData.id, meeple_color: randomColor });
 
          if (linkError) { if (linkError.code === '23505') throw new Error("Déjà ajouté !"); throw linkError; }
 
-         fetchGames(challengeId);
+         // 3. Mise à jour locale immédiate (Optimistic UI)
+         const newItem = {
+            game_id: gameData.id,
+            progress: 0,
+            target: 10,
+            meeple_color: randomColor,
+            game: gameData
+         };
+         setItems(prev => [...prev, newItem]);
+
+         // 4. SIGNAL GLOBAL (Pour la Navbar)
+         triggerGlobalUpdate();
+
          return { success: true };
       } catch (err) {
          return { success: false, message: err.message || "Erreur inconnue" };
@@ -110,20 +129,14 @@ export function useChallenge() {
          if (!user || !challengeId) return [];
 
          const { data: challengeGames } = await supabase
-            .from('challenge_items')
-            .select('game_id')
-            .eq('challenge_id', challengeId);
+            .from('challenge_items').select('game_id').eq('challenge_id', challengeId);
 
          if (!challengeGames || challengeGames.length === 0) return [];
          const gameIds = challengeGames.map(item => item.game_id);
 
-         // On récupère les parties ET le nom du jeu lié
          const { data: allPlays, error: playsError } = await supabase
             .from('plays')
-            .select(`
-               id, played_on, is_victory, duration_minutes, notes, image_urls,
-               game:games ( name )
-            `)
+            .select(`id, played_on, is_victory, duration_minutes, notes, image_urls, game:games ( name )`)
             .in('game_id', gameIds)
             .eq('user_id', user.id)
             .order('played_on', { ascending: true });
@@ -138,10 +151,17 @@ export function useChallenge() {
 
    const updateProgress = async (gameId, newProgress) => {
       if (!gameId) { fetchGames(challengeId); return; }
+
+      // Update local
       setItems(current => current.map(item => item.game_id === gameId ? { ...item, progress: newProgress } : item));
+
       try {
          await supabase.from('challenge_items').update({ progress: newProgress })
             .eq('challenge_id', challengeId).eq('game_id', gameId);
+
+         // SIGNAL GLOBAL (Pour mettre à jour la barre de progression dans la Navbar)
+         triggerGlobalUpdate();
+
       } catch { fetchGames(challengeId); }
    };
 
@@ -195,6 +215,7 @@ export function useChallenge() {
          const { data: { user } } = await supabase.auth.getUser();
          if (!user) return;
 
+         // Suppression fichiers
          const { data: allPlays } = await supabase
             .from('plays').select('image_urls').eq('game_id', gameId).eq('user_id', user.id);
 
@@ -207,15 +228,20 @@ export function useChallenge() {
                }
             });
          }
-
          if (allPathsToDelete.length > 0) {
             await supabase.storage.from('game-memories').remove(allPathsToDelete);
          }
 
+         // Suppression DB
          await supabase.from('plays').delete().eq('game_id', gameId).eq('user_id', user.id);
          await supabase.from('challenge_items').delete().eq('challenge_id', challengeId).eq('game_id', gameId);
 
+         // Mise à jour locale Dashboard
          setItems(current => current.filter(item => item.game_id !== gameId));
+
+         // SIGNAL GLOBAL (Pour nettoyer la Navbar)
+         triggerGlobalUpdate();
+
          return { success: true };
       } catch (err) {
          console.error("Erreur suppression jeu:", err);

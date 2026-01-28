@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -32,24 +32,37 @@ export default function Navbar() {
       return () => { document.body.style.overflow = 'unset'; };
    }, [isMobileOpen]);
 
-   useEffect(() => {
+   // Fonction de chargement des jeux isolée et mémorisée
+   const fetchUserGames = useCallback(async () => {
       if (!user) return;
-      const fetchUserGames = async () => {
-         try {
-            const { data: challengeData } = await supabase.from('challenges').select('id').eq('user_id', user.id).single();
-            if (!challengeData) return;
-            const { data: itemsData } = await supabase.from('challenge_items').select(`game_id, games ( id, name )`).eq('challenge_id', challengeData.id);
-            const { data: playsData } = await supabase.from('plays').select('game_id').eq('user_id', user.id);
-            const formattedGames = itemsData.filter(item => item.games).map(item => ({
-               id: item.games.id,
-               name: item.games.name,
-               playCount: playsData.filter(p => p.game_id === item.games.id).length
-            }));
-            setGames(formattedGames.sort((a, b) => a.name.localeCompare(b.name)));
-         } catch (error) { console.error(error); }
-      };
-      fetchUserGames();
+      try {
+         const { data: challengeData } = await supabase.from('challenges').select('id').eq('user_id', user.id).single();
+         if (!challengeData) return;
+
+         const { data: itemsData } = await supabase.from('challenge_items').select(`game_id, progress, games ( id, name )`).eq('challenge_id', challengeData.id);
+
+         // On récupère la progression directement depuis challenge_items pour plus de rapidité et de cohérence
+         const formattedGames = itemsData.filter(item => item.games).map(item => ({
+            id: item.games.id,
+            name: item.games.name,
+            playCount: item.progress || 0 // Utilisation directe de la progression
+         }));
+
+         setGames(formattedGames.sort((a, b) => a.name.localeCompare(b.name)));
+      } catch (error) { console.error(error); }
    }, [user]);
+
+   // Chargement initial + Écoute de l'événement global de mise à jour
+   useEffect(() => {
+      fetchUserGames();
+
+      const handleUpdate = () => fetchUserGames();
+      window.addEventListener('challengeUpdated', handleUpdate);
+
+      return () => {
+         window.removeEventListener('challengeUpdated', handleUpdate);
+      };
+   }, [fetchUserGames]);
 
    const isGamePage = location.pathname.includes('/game/');
    const currentGame = games.find(g => g.id == currentGameId);
@@ -105,7 +118,7 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-8 py-8 grid grid-cols-5 gap-4">
                {games.map((game) => (
                   <Link key={game.id} to={`/game/${game.id}`} className="p-4 bg-white rounded-xl border border-stone-200 hover:border-amber-400 transition-all">
-                     <span className="text-sm font-serif font-extrabold text-stone-800 block mb-2">{game.name}</span>
+                     <span className="text-sm font-serif font-extrabold text-stone-800 block mb-2 truncate">{game.name}</span>
                      <div className="h-1 w-full bg-stone-100 rounded-full overflow-hidden">
                         <div className="h-full bg-amber-500" style={{ width: `${(game.playCount / 10) * 100}%` }}></div>
                      </div>
@@ -120,12 +133,14 @@ export default function Navbar() {
                <Link to="/dashboard" className="block p-5 rounded-xl bg-stone-900 text-amber-50 text-center font-serif font-bold">Dashboard</Link>
                <Link to="/stats" className="block p-5 rounded-xl border-2 border-stone-900 text-stone-900 text-center font-serif font-bold">Sanctuaire des Stats</Link>
                <div className="h-px bg-stone-200 my-4"></div>
-               {games.map(game => (
-                  <Link key={game.id} to={`/game/${game.id}`} className="flex justify-between p-4 bg-white rounded-xl border border-stone-200">
-                     <span className="font-serif font-bold">{game.name}</span>
-                     <span className="text-xs text-amber-600 font-bold">{game.playCount}/10</span>
-                  </Link>
-               ))}
+               <div className="max-h-[50vh] overflow-y-auto space-y-2">
+                  {games.map(game => (
+                     <Link key={game.id} to={`/game/${game.id}`} className="flex justify-between p-4 bg-white rounded-xl border border-stone-200">
+                        <span className="font-serif font-bold truncate">{game.name}</span>
+                        <span className="text-xs text-amber-600 font-bold shrink-0">{game.playCount}/10</span>
+                     </Link>
+                  ))}
+               </div>
             </div>
          )}
       </nav>
