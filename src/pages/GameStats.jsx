@@ -53,11 +53,11 @@ export default function GameStats() {
       <div className="min-h-screen bg-[#FDFBF7] font-sans text-stone-800 -mt-20 md:-mt-24 relative selection:bg-amber-100">
 
          {/* --- 1. HEADER HERO (IMMERSION TOTALE) --- */}
-         <div className="relative h-[400px] md:h-[500px] shrink-0 bg-stone-900 overflow-hidden pt-20 md:pt-24 shadow-2xl z-10 border-b-[6px] border-stone-800">
-            {/* IMAGE DE FOND (Plus visible, moins floue) */}
+         <div className="relative h-[400px] md:h-[520px] shrink-0 bg-stone-900 overflow-hidden pt-20 md:pt-24 shadow-2xl z-10 border-b-[6px] border-stone-800">
+            {/* Image du jeu en plein écran avec opacité pour l'immersion */}
             <img
                src={game?.image_url || game?.thumbnail_url}
-               className="absolute inset-0 w-full h-full object-cover object-top opacity-60 blur-[1px]"
+               className="absolute inset-0 w-full h-full object-cover object-center opacity-60 saturate-[0.8]"
                alt=""
             />
 
