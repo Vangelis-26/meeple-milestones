@@ -28,7 +28,7 @@ export default function Navbar() {
    }, [location]);
 
    const fetchUserGames = useCallback(async () => {
-      if (!user) return; // Sécurité : on ne fetch rien si pas d'utilisateur
+      if (!user) return;
       try {
          const { data: challengeData } = await supabase.from('challenges').select('id').eq('user_id', user.id).single();
          if (!challengeData) return;
@@ -65,20 +65,29 @@ export default function Navbar() {
       <nav ref={menuRef} className="fixed top-0 left-0 w-full z-[100] bg-[#FDFBF7]/95 backdrop-blur-xl border-b border-stone-200 shadow-sm transition-all duration-300">
          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
 
-            {/* LOGO (Toujours visible) */}
-            <div className="flex items-center gap-4 lg:gap-8 relative z-[120]">
-               <Link to="/" className="flex items-center gap-3 group">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-white shadow-md overflow-hidden bg-stone-100 flex items-center justify-center shrink-0">
-                     <img src="/logo.webp" alt="Sceau" className="w-full h-full object-cover" />
+            {/* PARTIE GAUCHE : LOGO & TITRE */}
+            <div className="flex items-center relative z-[120]">
+               <Link to="/" className="flex items-center gap-5 group">
+                  <div className="relative w-16 h-16 drop-shadow-[0_5px_15px_rgba(217,119,6,0.4)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
+                     <img src="/logo.png" alt="Sceau Meeple & Milestones" className="w-full h-full object-contain" />
+                     <div className="absolute inset-0 bg-amber-400 rounded-full blur-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-700 -z-10"></div>
                   </div>
-                  <span className="font-serif font-extrabold uppercase tracking-[0.2em] text-stone-900 leading-tight hidden md:block text-[11px] sm:text-xs">
-                     Meeple <span className="text-amber-600">&</span> Milestones
-                  </span>
+                  <div className="flex flex-col">
+                     <h1 className="font-serif font-black text-2xl tracking-tighter text-stone-900 leading-none"> Meeple & Milestones </h1>
+                     <div className="flex items-center gap-3 mt-1.5">
+                        <div className="h-[1px] w-10 bg-gradient-to-r from-amber-600 to-transparent"></div>
+                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-700"> Marquez votre histoire. </span>
+                     </div>
+                  </div>
                </Link>
+            </div>
 
-               {/* LINKS DESKTOP (Conditionnels : Visibles seulement si connecté) */}
+            {/* PARTIE DROITE : NAVIGATION & ACTIONS */}
+            <div className="flex items-center gap-6 lg:gap-10 relative z-[120]">
+
+               {/* LINKS DESKTOP (Déplacés ici pour aérer l'espace central) */}
                {user && (
-                  <div className="hidden lg:flex items-center gap-6 text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400">
+                  <div className="hidden lg:flex items-center gap-6 text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mr-4">
                      <Link to="/dashboard" className={`hover:text-stone-900 transition-colors py-2 ${location.pathname === '/dashboard' ? 'text-stone-900 border-b-2 border-amber-500' : ''}`}>Dashboard</Link>
                      <span className="text-amber-600/30">/</span>
                      <Link to="/stats" className={`hover:text-stone-900 transition-colors py-2 ${location.pathname === '/stats' ? 'text-stone-900 border-b-2 border-amber-500' : ''}`}>Sanctuaire</Link>
@@ -89,10 +98,7 @@ export default function Navbar() {
                      </button>
                   </div>
                )}
-            </div>
 
-            {/* ACTIONS UTILISATEUR */}
-            <div className="flex items-center gap-4 relative z-[120]">
                {user ? (
                   <button onClick={() => signOut()} className="group p-2 rounded-full hover:bg-red-50 transition-colors" title="Déconnexion">
                      <svg className="w-5 h-5 text-stone-400 group-hover:text-red-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
@@ -106,7 +112,6 @@ export default function Navbar() {
                   </Link>
                )}
 
-               {/* Mobile Toggle visible seulement pour naviguer si connecté */}
                {user && (
                   <div className="lg:hidden">
                      <button onClick={() => setIsMobileOpen(!isMobileOpen)} className="p-2 text-stone-800">
@@ -117,7 +122,7 @@ export default function Navbar() {
             </div>
          </div>
 
-         {/* --- DROPDOWN DESKTOP (Protégé) --- */}
+         {/* --- DROPDOWN DESKTOP --- */}
          {user && isOpen && (
             <div className="hidden lg:block absolute top-full left-0 w-full bg-white border-b border-stone-200/50 shadow-2xl animate-in slide-in-from-top-2 duration-300 rounded-b-[2.5rem] overflow-hidden">
                <div className="max-w-7xl mx-auto px-8 py-10 grid grid-cols-4 gap-6">
