@@ -1,5 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
+import Landing from './pages/Landing'; // 1. On importe la nouvelle page
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -14,7 +15,8 @@ export const router = createBrowserRouter([
       children: [
          {
             index: true,
-            element: <Home />
+            // 2. On remplace Home par Landing pour tester le rendu
+            element: <Landing />
          },
          {
             path: "login",
@@ -28,7 +30,6 @@ export const router = createBrowserRouter([
                </ProtectedRoute>
             ),
          },
-         // ✅ La route doit être ici, au même niveau que dashboard
          {
             path: "stats",
             element: (
