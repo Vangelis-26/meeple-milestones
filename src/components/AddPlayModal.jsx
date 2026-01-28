@@ -5,20 +5,20 @@ import { useAuth } from '../hooks/useAuth';
 export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit, onClose, onPlayAdded, showToast }) {
    const { user } = useAuth();
    const fileInputRef = useRef(null);
-   
+
    // --- ÉTATS ---
    const [loading, setLoading] = useState(false);
-   
+
    // Données Formulaire
    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
    const [hours, setHours] = useState(0);
    const [minutes, setMinutes] = useState(0);
-   const [isVictory, setIsVictory] = useState(null); 
+   const [isVictory, setIsVictory] = useState(null);
    const [notes, setNotes] = useState('');
 
    // Gestion Photos
-   const [selectedFiles, setSelectedFiles] = useState([]); 
-   const [previewUrls, setPreviewUrls] = useState([]);     
+   const [selectedFiles, setSelectedFiles] = useState([]);
+   const [previewUrls, setPreviewUrls] = useState([]);
 
    // --- INITIALISATION ---
    useEffect(() => {
@@ -30,13 +30,13 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
             setIsVictory(playToEdit.is_victory);
             setNotes(playToEdit.notes || '');
             setPreviewUrls(playToEdit.image_urls || []);
-            setSelectedFiles([]); 
+            setSelectedFiles([]);
          } else {
             setDate(new Date().toISOString().split('T')[0]);
             const defaultTime = game?.playing_time || 0;
             setHours(Math.floor(defaultTime / 60));
             setMinutes(defaultTime % 60);
-            setIsVictory(null); 
+            setIsVictory(null);
             setNotes('');
             setPreviewUrls([]);
             setSelectedFiles([]);
@@ -46,16 +46,25 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
 
    // --- LOGIQUE METIER ---
    const handleHoursChange = (e) => {
-      const val = parseInt(e.target.value);
-      setHours(isNaN(val) || val < 0 ? 0 : val);
+      const val = e.target.value;
+      if (val === '') {
+         setHours(''); // Autorise la case vide
+         return;
+      }
+      const num = parseInt(val);
+      setHours(isNaN(num) || num < 0 ? 0 : num);
    };
 
    const handleMinutesChange = (e) => {
-      const val = parseInt(e.target.value);
-      if (isNaN(val)) setMinutes('');
-      else if (val < 0) setMinutes(59);
-      else if (val > 59) setMinutes(0);
-      else setMinutes(val);
+      const val = e.target.value;
+      if (val === '') {
+         setMinutes(''); // Autorise la case vide
+         return;
+      }
+      const num = parseInt(val);
+      if (num < 0) setMinutes(59);
+      else if (num > 59) setMinutes(0);
+      else setMinutes(num);
    };
 
    const handleFileSelect = (e) => {
@@ -76,17 +85,17 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
    const removeImage = (indexToRemove) => {
       setPreviewUrls(prev => prev.filter((_, i) => i !== indexToRemove));
       if (indexToRemove >= (previewUrls.length - selectedFiles.length)) {
-          setSelectedFiles(prev => {
-              const newFiles = [...prev];
-              newFiles.pop(); 
-              return newFiles;
-          });
+         setSelectedFiles(prev => {
+            const newFiles = [...prev];
+            newFiles.pop();
+            return newFiles;
+         });
       }
    };
 
    const handleSubmit = async (e) => {
       e.preventDefault();
-      
+
       if (isVictory === null) {
          if (showToast) showToast("Sélectionnez Victoire ou Défaite.", "error");
          return;
@@ -160,9 +169,9 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
 
             {/* HEADER */}
             <div className="relative h-28 sm:h-32 shrink-0 bg-stone-900 overflow-hidden z-10 border-b border-stone-800">
-               <img 
-                  src={game.image_url || game.thumbnail_url} 
-                  alt="" 
+               <img
+                  src={game.image_url || game.thumbnail_url}
+                  alt=""
                   className="absolute inset-0 w-full h-full object-cover object-top opacity-40 blur-[1px]"
                />
                <div className="absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/60 to-transparent"></div>
@@ -198,7 +207,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                      onClick={() => setIsVictory(true)}
                      className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 group shadow-sm
                         ${isVictory === true
-                           ? 'bg-white border-amber-400 ring-2 ring-amber-100' 
+                           ? 'bg-white border-amber-400 ring-2 ring-amber-100'
                            : 'bg-white border-stone-200 hover:border-amber-300 hover:bg-amber-50/30'}`}
                   >
                      <span className={`text-2xl sm:text-3xl mb-2 drop-shadow-sm transition-transform duration-300 ${isVictory === true ? 'scale-110' : 'grayscale group-hover:grayscale-0'}`}>🏆</span>
@@ -210,7 +219,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                      onClick={() => setIsVictory(false)}
                      className={`relative flex flex-col items-center justify-center p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 group shadow-sm
                         ${isVictory === false
-                           ? 'bg-stone-800 border-stone-900 ring-2 ring-stone-200' 
+                           ? 'bg-stone-800 border-stone-900 ring-2 ring-stone-200'
                            : 'bg-white border-stone-200 hover:border-stone-400 hover:bg-stone-50'}`}
                   >
                      <span className={`text-2xl sm:text-3xl mb-2 drop-shadow-sm transition-transform duration-300 ${isVictory === false ? 'scale-110' : 'grayscale group-hover:grayscale-0'}`}>💀</span>
@@ -227,8 +236,8 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                   <div className="space-y-1">
                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest pl-1">Date</label>
-                     <input 
-                        type="date" required value={date} 
+                     <input
+                        type="date" required value={date}
                         onChange={(e) => setDate(e.target.value)}
                         className="w-full bg-white border border-stone-200 text-stone-800 font-bold rounded-lg px-3 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all cursor-pointer shadow-sm text-sm"
                      />
@@ -239,17 +248,19 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                      <div className="flex gap-2 sm:gap-3">
                         <div className="relative flex-1">
                            {/* Padding droit réduit pour éviter l'écrasement sur mobile */}
-                           <input 
-                              type="number" min="0" value={hours} 
+                           <input
+                              type="number" min="0" value={hours}
                               onChange={handleHoursChange}
+                              onFocus={(e) => e.target.select()}
                               className="w-full bg-white border border-stone-200 text-stone-800 font-bold rounded-lg pl-3 pr-8 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all shadow-sm text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                            />
                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-stone-400 pointer-events-none bg-white pl-1">H</span>
                         </div>
                         <div className="relative flex-1">
-                           <input 
-                              type="number" min="0" max="59" value={minutes} 
+                           <input
+                              type="number" min="0" max="59" value={minutes}
                               onChange={handleMinutesChange}
+                              onFocus={(e) => e.target.select()}
                               className="w-full bg-white border border-stone-200 text-stone-800 font-bold rounded-lg pl-3 pr-10 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none transition-all shadow-sm text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                            />
                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-stone-400 pointer-events-none bg-white pl-1">MIN</span>
@@ -268,12 +279,12 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                      {Array.from({ length: 3 }).map((_, index) => {
                         const hasImage = index < previewUrls.length;
                         const isNextAvailable = index === previewUrls.length;
-                        
+
                         if (hasImage) {
                            return (
                               <div key={index} className="aspect-[4/3] rounded-lg border border-stone-200 bg-white p-1 relative group shadow-sm">
                                  <img src={previewUrls[index]} alt="Souvenir" className="w-full h-full object-cover rounded" />
-                                 <button 
+                                 <button
                                     type="button" onClick={() => removeImage(index)}
                                     className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md z-10"
                                  >
