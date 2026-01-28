@@ -135,7 +135,7 @@ export default function GameDetailsModal({ game, isOpen, onClose }) {
                      }}
                      className="px-5 py-3 bg-stone-800 text-amber-50 rounded-xl text-xs font-bold uppercase tracking-widest hover:bg-black hover:scale-105 transition-all flex items-center gap-2 shadow-lg cursor-pointer"
                   >
-                     Ouvrir le Grimoire
+                     Ouvrir les archives
                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                   </button>
                </div>
