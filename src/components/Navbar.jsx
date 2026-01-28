@@ -63,7 +63,7 @@ export default function Navbar() {
 
    return (
       <nav ref={menuRef} className="fixed top-0 left-0 w-full z-[100] bg-[#FDFBF7]/95 backdrop-blur-xl border-b border-stone-200 shadow-sm transition-all duration-300">
-         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
+         <div className="max-w-[90rem] mx-auto px-6 md:px-12 py-3 sm:py-4 flex items-center justify-between">
 
             {/* PARTIE GAUCHE : LOGO & TITRE */}
             <div className="flex items-center relative z-[120]">
