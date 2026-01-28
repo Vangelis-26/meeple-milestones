@@ -1,7 +1,15 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChallenge } from '../hooks/useChallenge';
-import { ResponsiveContainer, ComposedChart, Bar, Line, XAxis, Tooltip, CartesianGrid } from 'recharts';
+import { 
+  ResponsiveContainer, 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  Tooltip, 
+  CartesianGrid 
+} from 'recharts';
 
 export default function GlobalStats() {
    const navigate = useNavigate();
@@ -16,7 +24,7 @@ export default function GlobalStats() {
       });
    }, [getAllPlays]);
 
-   // --- LOGIQUE (INCHANGÉE) ---
+   // --- LOGIQUE DE PROGRESSION ---
    const progression = useMemo(() => {
       const totalPlays = plays.length;
       const levels = [
@@ -52,6 +60,7 @@ export default function GlobalStats() {
       };
    }, [plays]);
 
+   // --- LOGIQUE DES KPIs ---
    const kpi = useMemo(() => {
       if (plays.length === 0) return { wins: 0, rate: 0, totalHours: 0, total: 0 };
       const wins = plays.filter(p => p.is_victory).length;
@@ -64,6 +73,7 @@ export default function GlobalStats() {
       };
    }, [plays]);
 
+   // --- PRÉPARATION DES DONNÉES DU GRAPHIQUE ---
    const chartData = useMemo(() => {
       const groups = {};
       plays.forEach(play => {
@@ -77,7 +87,8 @@ export default function GlobalStats() {
          return {
             dateStr: new Date(year, month - 1).toLocaleDateString('fr-FR', { month: 'short' }),
             fullDate: new Date(year, month - 1).toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' }),
-            count, cumulative
+            count, 
+            cumulative
          };
       });
    }, [plays]);
@@ -91,7 +102,7 @@ export default function GlobalStats() {
    return (
       <div className="flex-1 flex flex-col w-full max-w-[90rem] mx-auto px-4 md:px-8 py-8 font-sans text-stone-900 mt-[64px]">
 
-         {/* HEADER (Épuré : Sans bouton retour) */}
+         {/* HEADER */}
          <div className="max-w-7xl w-full flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
             <div>
                <h1 className="text-4xl md:text-5xl font-serif font-black tracking-tight text-stone-900">Sanctuaire des Statistiques</h1>
@@ -129,7 +140,6 @@ export default function GlobalStats() {
                               className="h-full bg-gradient-to-r from-amber-700 via-amber-500 to-amber-300 transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(245,158,11,0.5)] rounded-full relative overflow-hidden"
                               style={{ width: `${progression.progress}%` }}
                            >
-                              {/* Effet Brillance */}
                               <div className="absolute top-0 bottom-0 left-0 w-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"></div>
                            </div>
                         </div>
@@ -138,7 +148,6 @@ export default function GlobalStats() {
                   <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-amber-500/5 rounded-full blur-3xl group-hover:bg-amber-500/10 transition-all"></div>
                </div>
 
-               {/* CARTES KPI */}
                <StatCard title="Ratio de Triomphe" value={`${kpi.rate}%`} sub={`${kpi.wins} succès / ${kpi.total}`} color="stone" icon="⚔️" />
                <StatCard title="Heures Perdues" value={kpi.totalHours} sub="Dans les méandres du jeu" color="stone" icon="⌛" />
                <StatCard title="Parties Gravées" value={kpi.total} sub="Lignes inscrites au grimoire" color="amber" icon="📜" />
@@ -147,26 +156,70 @@ export default function GlobalStats() {
             {/* SECTION GRAPHIQUE & LISTE */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-12">
 
-               {/* GRAPHIQUE */}
-               <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] shadow-xl border border-stone-100">
-                  <h3 className="text-xl font-serif font-bold mb-8 flex items-center gap-2 text-stone-800">
-                     <span className="w-2.5 h-2.5 bg-amber-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(245,158,11,0.4)]"></span>
-                     Rythme des Épopées
-                  </h3>
-                  <div className="h-80 w-full">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <ComposedChart data={chartData}>
-                           <CartesianGrid strokeDasharray="3 3" stroke="#f5f5f4" vertical={false} />
-                           <XAxis dataKey="dateStr" tick={{ fill: '#a8a29e', fontSize: 10, fontWeight: 700 }} axisLine={false} tickLine={false} />
-                           <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f5f5f4' }} />
-                           <Bar dataKey="count" fill="#fcd34d" radius={[6, 6, 0, 0]} barSize={30} />
-                           <Line type="monotone" dataKey="cumulative" stroke="#292524" strokeWidth={4} dot={{ r: 6, fill: '#292524', strokeWidth: 2, stroke: '#fff' }} />
-                        </ComposedChart>
-                     </ResponsiveContainer>
+               {/* --- BLOC : RYTHME DES ÉPOPÉES --- */}
+               <div className="bg-white p-8 rounded-[2.5rem] border border-stone-100 shadow-sm col-span-1 lg:col-span-2">
+                  <div className="flex items-center justify-between mb-8">
+                     <h3 className="font-serif text-xl font-bold text-stone-800 flex items-center gap-3">
+                        <span className="w-2 h-6 bg-amber-500 rounded-full"></span>
+                        Rythme des Épopées
+                     </h3>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-stone-400">
+                        Parties par mois
+                     </p>
+                  </div>
+
+                  <div className="h-[350px] w-full">
+                     {chartData && chartData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                           <AreaChart
+                              data={chartData}
+                              margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                           >
+                              <defs>
+                                 <linearGradient id="colorAmber" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.3}/>
+                                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0}/>
+                                 </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f1f1" />
+                              <XAxis 
+                                 dataKey="dateStr" 
+                                 axisLine={false}
+                                 tickLine={false}
+                                 tick={{ fill: '#a8a29e', fontSize: 10, fontWeight: 700 }}
+                                 dy={10}
+                              />
+                              <YAxis 
+                                 axisLine={false}
+                                 tickLine={false}
+                                 tick={{ fill: '#a8a29e', fontSize: 10, fontWeight: 700 }}
+                              />
+                              <Tooltip content={<CustomTooltip />} />
+                              <Area 
+                                 type="monotone" 
+                                 dataKey="count" 
+                                 stroke="#d97706" 
+                                 strokeWidth={3}
+                                 fillOpacity={1} 
+                                 fill="url(#colorAmber)" 
+                                 animationDuration={2000}
+                              />
+                           </AreaChart>
+                        </ResponsiveContainer>
+                     ) : (
+                        <div className="h-full w-full flex flex-col items-center justify-center border-2 border-dashed border-stone-50 rounded-[2rem]">
+                           <div className="w-12 h-12 bg-stone-50 rounded-full flex items-center justify-center mb-3">
+                              <svg className="w-6 h-6 text-stone-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                              </svg>
+                           </div>
+                           <p className="text-stone-300 font-serif italic text-sm">Les chroniques sont encore vierges...</p>
+                        </div>
+                     )}
                   </div>
                </div>
 
-               {/* LISTE DERNIÈRES PARTIES (Style Timeline - Icônes nettes) */}
+               {/* LISTE DERNIÈRES PARTIES */}
                <div className="bg-stone-900 text-white p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden flex flex-col">
                   <div className="absolute -right-10 -top-10 w-40 h-40 bg-amber-500/10 rounded-full blur-3xl"></div>
                   <h3 className="text-xl font-serif font-bold mb-6 relative z-10 italic text-amber-50 flex items-center gap-2">
@@ -174,23 +227,16 @@ export default function GlobalStats() {
                   </h3>
 
                   <div className="space-y-0 relative z-10 overflow-y-auto no-scrollbar pr-2 h-full">
-                     {/* Ligne verticale */}
                      <div className="absolute left-[19px] top-2 bottom-4 w-px bg-stone-700/50"></div>
-
-                     {plays.slice(-6).reverse().map((play, i) => (
+                     {plays.slice(-6).reverse().map((play) => (
                         <div key={play.id} className="group relative pl-10 py-3 first:pt-0">
-                           {/* Point sur la ligne (Or pour victoire, Pierre pour défaite) */}
                            <div className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 rounded-full border-2 border-stone-900 z-20 transition-transform group-hover:scale-125 ${play.is_victory ? 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]' : 'bg-stone-600'}`}></div>
-
                            <div className="flex items-center justify-between p-3 bg-white/5 rounded-xl border border-white/5 hover:bg-white/10 hover:border-amber-500/30 transition-all hover:translate-x-1 cursor-default">
                               <div className="min-w-0">
-                                 <p className="font-bold text-sm leading-tight truncate text-stone-100 group-hover:text-amber-200 transition-colors">{play.game?.name}</p>
+                                 <p className="font-bold text-sm leading-tight truncate text-stone-100 group-hover:text-amber-200 transition-colors">{play.games?.name}</p>
                                  <p className="text-[10px] text-stone-500 font-bold uppercase tracking-widest mt-0.5">{new Date(play.played_on).toLocaleDateString()}</p>
                               </div>
-                              {/* Icône nette et visible */}
-                              <span className="text-xl drop-shadow-md">
-                                 {play.is_victory ? '🏆' : '💀'}
-                              </span>
+                              <span className="text-xl drop-shadow-md">{play.is_victory ? '🏆' : '💀'}</span>
                            </div>
                         </div>
                      ))}
@@ -205,12 +251,8 @@ export default function GlobalStats() {
 function StatCard({ title, value, sub, color, icon }) {
    const isAmber = color === 'amber';
    return (
-      <div
-         className={`${isAmber ? 'bg-stone-900 text-white shadow-[0_20px_50px_rgba(0,0,0,0.15)]' : 'bg-white text-stone-900 shadow-sm'} p-8 rounded-[2.5rem] border border-stone-100/50 relative group overflow-hidden transition-all duration-500 hover:-translate-y-2`}
-      >
-         <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-6xl transition-all duration-700 pointer-events-none select-none
-            ${isAmber ? 'opacity-40 group-hover:opacity-60 text-amber-500' : 'opacity-30 group-hover:opacity-50 text-stone-200'} 
-            group-hover:scale-110 group-hover:rotate-6`}>
+      <div className={`${isAmber ? 'bg-stone-900 text-white shadow-[0_20px_50px_rgba(0,0,0,0.15)]' : 'bg-white text-stone-900 shadow-sm'} p-8 rounded-[2.5rem] border border-stone-100/50 relative group overflow-hidden transition-all duration-500 hover:-translate-y-2`}>
+         <span className={`absolute right-4 top-1/2 -translate-y-1/2 text-6xl transition-all duration-700 pointer-events-none select-none ${isAmber ? 'opacity-40 group-hover:opacity-60 text-amber-500' : 'opacity-30 group-hover:opacity-50 text-stone-200'} group-hover:scale-110 group-hover:rotate-6`}>
             {icon}
          </span>
          <div className="relative z-10">
@@ -224,11 +266,12 @@ function StatCard({ title, value, sub, color, icon }) {
 
 const CustomTooltip = ({ active, payload }) => {
    if (active && payload && payload.length) {
+      const { fullDate, count, cumulative } = payload[0].payload;
       return (
          <div className="bg-stone-900/95 backdrop-blur-sm p-4 rounded-2xl border border-amber-500/30 shadow-2xl">
-            <p className="text-amber-400 font-serif font-bold mb-1 text-xs uppercase tracking-widest">{payload[0].payload.fullDate}</p>
-            <p className="text-white font-bold text-sm">⚔️ {payload[0].payload.count} parties disputées</p>
-            <p className="text-stone-400 text-[10px] mt-1 italic">Total cumulé : {payload[0].payload.cumulative}</p>
+            <p className="text-amber-400 font-serif font-bold mb-1 text-xs uppercase tracking-widest">{fullDate}</p>
+            <p className="text-white font-bold text-sm">⚔️ {count} parties disputées</p>
+            <p className="text-stone-400 text-[10px] mt-1 italic">Total cumulé : {cumulative}</p>
          </div>
       );
    }

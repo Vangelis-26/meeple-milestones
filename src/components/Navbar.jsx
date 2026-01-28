@@ -30,7 +30,7 @@ export default function Navbar() {
    const fetchUserGames = useCallback(async () => {
       if (!user) return;
       try {
-         const { data: challengeData } = await supabase.from('challenges').select('id').eq('user_id', user.id).single();
+         const { data: challengeData } = await supabase.from('challenges').select('id').eq('user_id', user.id).maybeSingle();
          if (!challengeData) return;
 
          const { data: itemsData } = await supabase
