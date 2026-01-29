@@ -61,10 +61,9 @@ export default function Navbar() {
    return (
       <nav ref={menuRef} className="fixed top-0 left-0 w-full z-[100] bg-[#FDFBF7]/95 backdrop-blur-xl border-b border-stone-200/60 shadow-sm transition-all duration-300">
 
-         {/* HEADER PRINCIPAL : Grille 3 colonnes sur mobile pour un centrage parfait */}
+         {/* HEADER PRINCIPAL */}
          <div className="max-w-[90rem] mx-auto px-4 md:px-12 py-3 sm:py-4 grid grid-cols-[48px_1fr_48px] lg:flex lg:items-center lg:justify-between items-center">
 
-            {/* 1. ESPACEUR (Mobile) */}
             <div className="lg:hidden" aria-hidden="true"></div>
 
             {/* 2. BLOC CENTRAL : LOGO & TITRE */}
@@ -76,7 +75,6 @@ export default function Navbar() {
                   <div className="flex flex-col items-center lg:items-start mt-1.5 lg:mt-0">
                      <h1 className="font-serif font-black text-[17px] lg:text-2xl tracking-tighter text-stone-900 leading-none uppercase"> Meeple & Milestones </h1>
                      <div className="flex items-center gap-2 lg:gap-3 mt-1 lg:mt-1.5">
-                        {/* LISERÉ DORÉ : PC Uniquement */}
                         <div className="hidden lg:block h-[1px] w-10 bg-gradient-to-r from-amber-600 to-transparent"></div>
                         <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-[0.25em] lg:tracking-[0.4em] text-amber-700 whitespace-nowrap">
                            Marquez votre histoire.
@@ -89,16 +87,16 @@ export default function Navbar() {
             {/* 3. NAVIGATION PC & HAMBURGER MOBILE */}
             <div className="flex items-center justify-end relative z-[120]">
 
-               {/* GUEST PC (Inchangé) */}
+               {/* GUEST PC : LIENS CORRIGÉS */}
                {!user && (
                   <div className="hidden lg:flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.3em]">
-                     <Link to="/login" className="text-stone-400 hover:text-stone-900 transition-colors">Connexion</Link>
+                     <Link to="/login" className="text-stone-400 hover:text-stone-900 transition-colors">Accèder à mon Héritage</Link>
                      <div className="h-3 w-px bg-stone-200"></div>
-                     <Link to="/login?mode=signup" className="text-stone-400 hover:text-amber-700 transition-colors">Graver sa Légende</Link>
+                     <Link to="/login?mode=signup" className="text-stone-400 hover:text-amber-700 transition-colors">Rejoindre la Quête</Link>
                   </div>
                )}
 
-               {/* CONNECTÉ PC (Inchangé) */}
+               {/* CONNECTÉ PC */}
                {user && (
                   <div className="hidden lg:flex items-center gap-6 text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mr-4">
                      <Link to="/dashboard" className={`hover:text-stone-900 transition-colors py-2 ${location.pathname === '/dashboard' ? 'text-stone-900 border-b-2 border-amber-500' : ''}`}>Dashboard</Link>
@@ -109,12 +107,12 @@ export default function Navbar() {
                         Mes Archives <svg className={`w-3 h-3 transition-transform duration-300 ${isOpen ? 'rotate-180 text-amber-600' : 'text-stone-300'}`} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
                      </button>
                      <button onClick={() => signOut()} className="ml-4 p-2 text-stone-300 hover:text-red-500 transition-colors">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 01-3-3h4a3 3 0 013 3v1" /></svg>
                      </button>
                   </div>
                )}
 
-               {/* BOUTON HAMBURGER MOBILE */}
+               {/* BOUTON HAMBURGER */}
                <button onClick={() => setIsMobileOpen(!isMobileOpen)} className="lg:hidden w-12 h-12 flex items-center justify-center text-stone-800 transition-transform active:scale-90">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                      {isMobileOpen ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M4 6h16M4 12h16M4 18h16" />}
@@ -123,7 +121,7 @@ export default function Navbar() {
             </div>
          </div>
 
-         {/* --- TIROIR MOBILE : DESIGN "HÉRITAGE" --- */}
+         {/* TIROIR MOBILE */}
          {isMobileOpen && (
             <div className="lg:hidden absolute top-full left-0 w-full bg-white border-b border-stone-200 shadow-2xl animate-in slide-in-from-top-2 duration-300 overflow-hidden">
                <div className="flex flex-col p-6">
@@ -156,14 +154,14 @@ export default function Navbar() {
                         </button>
                      </div>
                   ) : (
-                     /* GUEST MOBILE : ALIGNEMENT & COHÉRENCE */
+                     /* GUEST MOBILE : LIENS CORRIGÉS */
                      <div className="flex flex-col gap-6 py-6 items-center">
-                        <Link to="/login" className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-600 py-2 hover:text-stone-900 transition-colors">
-                           Connexion
+                        <Link to="/login" className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-600 py-2">
+                           Accèder à mon Héritage
                         </Link>
                         <div className="h-px w-8 bg-stone-100"></div>
-                        <Link to="/login?mode=signup" className="w-full bg-stone-900 text-amber-50 text-center py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl active:scale-[0.98] transition-all">
-                           Graver sa Légende
+                        <Link to="/login?mode=signup" className="w-full bg-stone-900 text-amber-50 text-center py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl">
+                           Rejoindre la Quête
                         </Link>
                      </div>
                   )}
@@ -171,7 +169,7 @@ export default function Navbar() {
             </div>
          )}
 
-         {/* DROPDOWN DESKTOP (Inchangé) */}
+         {/* DROPDOWN DESKTOP */}
          {user && isOpen && !isMobileOpen && (
             <div className="hidden lg:block absolute top-full left-0 w-full bg-white border-b border-stone-200/50 shadow-2xl animate-in slide-in-from-top-2 duration-300 rounded-b-[2.5rem] overflow-hidden">
                <div className="max-w-7xl mx-auto px-8 py-10 grid grid-cols-4 gap-6">
