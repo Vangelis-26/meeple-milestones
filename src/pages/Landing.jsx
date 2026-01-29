@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/static-components */
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 

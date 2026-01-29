@@ -17,6 +17,14 @@ export default function GameCard({ item, gameInfo, onRemove, onClickDetails, onR
       onRequestAddPlay(item, playsCount + 1);
    };
 
+   // --- COULEUR DYNAMIQUE (ROUGE -> VERT) ---
+   const getProgressColor = () => {
+      if (playsCount >= 10) return 'text-emerald-600';
+      if (playsCount >= 7) return 'text-emerald-500';
+      if (playsCount >= 4) return 'text-amber-500';
+      return 'text-red-500'; // Démarrage en rouge
+   };
+
    return (
       <div className="aspect-[3/4] w-full bg-white rounded-2xl shadow-lg ring-1 ring-black/5 flex flex-col relative group hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
 
@@ -43,8 +51,6 @@ export default function GameCard({ item, gameInfo, onRemove, onClickDetails, onR
                      alt={gameInfo.name}
                      className="w-full h-full object-cover object-top transition-transform duration-700 group-hover/image:scale-105"
                   />
-
-                  {/* BANDEAU SOMBRE AU BAS DE L'IMAGE (Lisibilité Garanti) */}
                   <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent pt-8 pb-3 px-4">
                      <h3 className="text-white font-serif font-black text-lg leading-tight line-clamp-1 mb-1 drop-shadow-sm">
                         {gameInfo.name}
@@ -65,38 +71,54 @@ export default function GameCard({ item, gameInfo, onRemove, onClickDetails, onR
          {/* 2. ZONE CONTENU (45% Hauteur - Fond Blanc) */}
          <div className="flex-1 flex flex-col px-4 py-3 bg-white relative">
 
-            {/* BARRE D'ACTION */}
-            <div className="flex justify-between items-center mb-3 pb-2 border-b border-stone-100">
+            {/* BARRE D'ACTION (MODIFIÉE : Juste les chiffres colorés) */}
+            <div className="flex justify-between items-end mb-3 pb-2 border-b border-stone-100">
+
+               {/* SCORE : Coloration Dynamique */}
                <div className="flex flex-col">
-                  <span className="text-[9px] font-bold text-stone-400 uppercase tracking-wider">Score</span>
-                  <span className={`text-base font-black font-serif leading-none ${playsCount === 10 ? 'text-green-600' : 'text-stone-700'}`}>
-                     {playsCount}<span className="text-stone-300 text-xs font-normal">/10</span>
-                  </span>
+                  <span className="text-[9px] font-black text-stone-400 uppercase tracking-[0.2em] mb-1">Maîtrise</span>
+
+                  {/* Chiffre qui change de couleur selon la progression */}
+                  <div className="flex items-baseline gap-1">
+                     <span className={`text-2xl font-serif font-black leading-none transition-colors duration-500 ${getProgressColor()}`}>
+                        {playsCount}
+                     </span>
+                     <span className="text-stone-300 text-xs font-bold">/10</span>
+                  </div>
                </div>
 
+               {/* DUO DE BOUTONS "IVOIRE" */}
                <div className="flex items-center gap-2">
+                  {/* Bouton Historique (Style Ivoire) */}
                   <button
                      onClick={(e) => { e.stopPropagation(); onOpenHistory(item); }}
-                     className="p-2 rounded-lg text-stone-300 hover:text-stone-600 hover:bg-stone-50 transition-colors"
-                     title="Gérer l'historique"
+                     className="flex items-center justify-center w-9 h-9 bg-white border border-stone-200/80 rounded-xl shadow-sm hover:border-amber-400 hover:text-amber-700 hover:shadow-md transition-all text-stone-400 group/hist"
+                     title="Consulter l'historique"
                   >
-                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                      </svg>
                   </button>
 
+                  {/* Bouton Ajout (+1 Dé Vectoriel) */}
                   <button
                      onClick={handleAddClick}
-                     className="flex items-center justify-center w-9 h-9 rounded-xl bg-white border border-stone-200 text-stone-400 shadow-sm hover:border-amber-400 hover:text-amber-600 hover:shadow-md active:translate-y-0.5 transition-all group/dice cursor-pointer"
-                     title="Lancer une partie (+1)"
+                     className="flex items-center gap-2 px-3 py-2 bg-white border border-stone-200/80 rounded-xl shadow-sm hover:border-amber-400 hover:text-amber-700 hover:shadow-md active:scale-95 transition-all group/dice cursor-pointer"
+                     title="Ajouter une maîtrise"
                   >
-                     <span className="text-xl group-hover/dice:rotate-12 transition-transform duration-300 leading-none pb-0.5">🎲</span>
+                     <div className="w-4 h-4 text-amber-600 group-hover/dice:rotate-12 transition-transform">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                           <rect x="3" y="3" width="18" height="18" rx="3.5" />
+                           <circle cx="8.5" cy="8.5" r="1.2" fill="currentColor" />
+                           <circle cx="15.5" cy="15.5" r="1.2" fill="currentColor" />
+                        </svg>
+                     </div>
+                     <span className="text-[10px] font-black uppercase tracking-widest text-stone-500 group-hover/dice:text-amber-700">+1</span>
                   </button>
                </div>
             </div>
 
-            {/* GRILLE MEEPLES - HAUTEUR FIXE POUR ALIGNEMENT */}
-            {/* flex-1 assure que ce bloc prend tout l'espace restant jusqu'en bas */}
+            {/* GRILLE MEEPLES (INCHANGÉE) */}
             <div className="flex-1 bg-stone-100 w-full rounded-xl p-3 shadow-inner grid grid-cols-5 gap-3 border border-stone-200/50 content-center">
                {Array.from({ length: 10 }).map((_, index) => {
                   const boxNumber = index + 1;

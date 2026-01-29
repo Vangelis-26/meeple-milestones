@@ -1,7 +1,6 @@
 import { createBrowserRouter } from 'react-router-dom';
 import App from './App';
-import Landing from './pages/Landing'; // 1. On importe la nouvelle page
-import Home from './pages/Home';
+import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import GameStats from './pages/GameStats';
@@ -15,7 +14,6 @@ export const router = createBrowserRouter([
       children: [
          {
             index: true,
-            // 2. On remplace Home par Landing pour tester le rendu
             element: <Landing />
          },
          {

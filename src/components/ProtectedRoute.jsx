@@ -13,10 +13,8 @@ export default function ProtectedRoute({ children }) {
    }
 
    if (!user) {
-      // Si pas connecté, on renvoie vers le login
-      return <Navigate to="/login" />;
+      return <Navigate to="/" />;
    }
 
-   // Si connecté, on affiche la page demandée (Dashboard)
    return children;
 }
