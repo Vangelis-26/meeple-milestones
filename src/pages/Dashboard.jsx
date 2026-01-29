@@ -119,18 +119,6 @@ export default function Dashboard() {
          <main className="w-full flex-grow space-y-8">
             <div className="space-y-6">
 
-               {/* EN-TÊTE AVEC NAVIGATION STATS */}
-               <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
-                  <div>
-                     <h1 className="text-4xl md:text-5xl font-serif font-black text-stone-800 mb-2">
-                        Mon Grimoire Ludique
-                     </h1>
-                     <p className="text-stone-500 font-serif italic">
-                        Challenge 10x10 • Édition {new Date().getFullYear()}
-                     </p>
-                  </div>
-               </div>
-
                <DashboardHeader
                   totalGames={totalGames}
                   totalPlays={totalPlays}
