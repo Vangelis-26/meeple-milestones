@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Ajouté pour la navigation
+import { useNavigate } from 'react-router-dom';
 import { useChallenge } from '../hooks/useChallenge';
 
 // Composants
