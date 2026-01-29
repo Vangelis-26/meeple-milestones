@@ -1,11 +1,13 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { Link, useLocation, useParams } from 'react-router-dom';
+// ==========================================
+// 1. IMPORTS & LOGIQUE (Inchangés)
+// ==========================================
+import { useEffect, useLayoutEffect, useState, useRef, useCallback } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../hooks/useAuth';
 
 export default function Navbar() {
    const location = useLocation();
-   const { id: currentGameId } = useParams();
    const { user, signOut } = useAuth();
    const [games, setGames] = useState([]);
    const [isOpen, setIsOpen] = useState(false);
@@ -13,79 +15,90 @@ export default function Navbar() {
    const menuRef = useRef(null);
 
    useEffect(() => {
-      function handleClickOutside(event) {
+      const handleClickOutside = (event) => {
          if (menuRef.current && !menuRef.current.contains(event.target)) {
             setIsOpen(false);
+            setIsMobileOpen(false);
          }
-      }
+      };
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
    }, []);
 
-   useEffect(() => {
-      setIsMobileOpen(false);
+   useLayoutEffect(() => {
       setIsOpen(false);
-   }, [location]);
+      setIsMobileOpen(false);
+   }, [location.pathname]);
 
    const fetchUserGames = useCallback(async () => {
       if (!user) return;
       try {
          const { data: challengeData } = await supabase.from('challenges').select('id').eq('user_id', user.id).maybeSingle();
          if (!challengeData) return;
-
-         const { data: itemsData } = await supabase
-            .from('challenge_items')
-            .select(`game_id, progress, games ( id, name, thumbnail_url )`)
-            .eq('challenge_id', challengeData.id);
-
-         const formattedGames = itemsData
-            .filter(item => item.games)
-            .map(item => ({
-               id: item.games.id,
-               name: item.games.name,
-               thumb: item.games.thumbnail_url,
-               playCount: item.progress || 0
-            }));
-
+         const { data: itemsData } = await supabase.from('challenge_items').select(`game_id, progress, games ( id, name, thumbnail_url )`).eq('challenge_id', challengeData.id);
+         if (!itemsData) return;
+         const formattedGames = itemsData.filter(item => item.games).map(item => ({
+            id: item.games.id,
+            name: item.games.name,
+            thumb: item.games.thumbnail_url,
+            playCount: item.progress || 0
+         }));
          setGames(formattedGames.sort((a, b) => a.name.localeCompare(b.name)));
-      } catch (error) { console.error(error); }
+      } catch (error) { console.error("Erreur archives:", error); }
    }, [user]);
 
    useEffect(() => {
-      fetchUserGames();
-      const handleUpdate = () => fetchUserGames();
+      let isMounted = true;
+      fetchUserGames().catch(err => { if (isMounted) console.error(err); });
+      const handleUpdate = () => { fetchUserGames().catch(console.error); };
       window.addEventListener('challengeUpdated', handleUpdate);
-      return () => window.removeEventListener('challengeUpdated', handleUpdate);
+      return () => {
+         isMounted = false;
+         window.removeEventListener('challengeUpdated', handleUpdate);
+      };
    }, [fetchUserGames]);
 
-   const isGamePage = location.pathname.includes('/game/');
-   const currentGame = games.find(g => g.id == currentGameId);
-
    return (
-      <nav ref={menuRef} className="fixed top-0 left-0 w-full z-[100] bg-[#FDFBF7]/95 backdrop-blur-xl border-b border-stone-200 shadow-sm transition-all duration-300">
-         <div className="max-w-[90rem] mx-auto px-6 md:px-12 py-3 sm:py-4 flex items-center justify-between">
+      <nav ref={menuRef} className="fixed top-0 left-0 w-full z-[100] bg-[#FDFBF7]/95 backdrop-blur-xl border-b border-stone-200/60 shadow-sm transition-all duration-300">
 
-            {/* PARTIE GAUCHE : LOGO & TITRE */}
-            <div className="flex items-center relative z-[120]">
-               <Link to="/" className="flex items-center gap-5 group">
-                  <div className="relative w-16 h-16 drop-shadow-[0_5px_15px_rgba(217,119,6,0.4)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3">
-                     <img src="/logo.png" alt="Sceau Meeple & Milestones" className="w-full h-full object-contain" />
-                     <div className="absolute inset-0 bg-amber-400 rounded-full blur-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-700 -z-10"></div>
+         {/* HEADER PRINCIPAL : Grille 3 colonnes sur mobile pour un centrage parfait */}
+         <div className="max-w-[90rem] mx-auto px-4 md:px-12 py-3 sm:py-4 grid grid-cols-[48px_1fr_48px] lg:flex lg:items-center lg:justify-between items-center">
+
+            {/* 1. ESPACEUR (Mobile) */}
+            <div className="lg:hidden" aria-hidden="true"></div>
+
+            {/* 2. BLOC CENTRAL : LOGO & TITRE */}
+            <div className="flex justify-center lg:justify-start relative z-[120]">
+               <Link to="/" className="flex flex-col items-center lg:items-start lg:flex-row lg:gap-5 group">
+                  <div className="relative w-11 h-11 lg:w-16 lg:h-16 transition-transform duration-500 group-hover:scale-105">
+                     <img src="/logo.png" alt="Sceau" className="w-full h-full object-contain" />
                   </div>
-                  <div className="flex flex-col">
-                     <h1 className="font-serif font-black text-2xl tracking-tighter text-stone-900 leading-none"> Meeple & Milestones </h1>
-                     <div className="flex items-center gap-3 mt-1.5">
-                        <div className="h-[1px] w-10 bg-gradient-to-r from-amber-600 to-transparent"></div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.4em] text-amber-700"> Marquez votre histoire. </span>
+                  <div className="flex flex-col items-center lg:items-start mt-1.5 lg:mt-0">
+                     <h1 className="font-serif font-black text-[17px] lg:text-2xl tracking-tighter text-stone-900 leading-none uppercase"> Meeple & Milestones </h1>
+                     <div className="flex items-center gap-2 lg:gap-3 mt-1 lg:mt-1.5">
+                        {/* LISERÉ DORÉ : PC Uniquement */}
+                        <div className="hidden lg:block h-[1px] w-10 bg-gradient-to-r from-amber-600 to-transparent"></div>
+                        <span className="text-[8px] lg:text-[10px] font-black uppercase tracking-[0.25em] lg:tracking-[0.4em] text-amber-700 whitespace-nowrap">
+                           Marquez votre histoire.
+                        </span>
                      </div>
                   </div>
                </Link>
             </div>
 
-            {/* PARTIE DROITE : NAVIGATION & ACTIONS */}
-            <div className="flex items-center gap-6 lg:gap-10 relative z-[120]">
+            {/* 3. NAVIGATION PC & HAMBURGER MOBILE */}
+            <div className="flex items-center justify-end relative z-[120]">
 
-               {/* LINKS DESKTOP (Déplacés ici pour aérer l'espace central) */}
+               {/* GUEST PC (Inchangé) */}
+               {!user && (
+                  <div className="hidden lg:flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.3em]">
+                     <Link to="/login" className="text-stone-400 hover:text-stone-900 transition-colors">Connexion</Link>
+                     <div className="h-3 w-px bg-stone-200"></div>
+                     <Link to="/login?mode=signup" className="text-stone-400 hover:text-amber-700 transition-colors">Graver sa Légende</Link>
+                  </div>
+               )}
+
+               {/* CONNECTÉ PC (Inchangé) */}
                {user && (
                   <div className="hidden lg:flex items-center gap-6 text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mr-4">
                      <Link to="/dashboard" className={`hover:text-stone-900 transition-colors py-2 ${location.pathname === '/dashboard' ? 'text-stone-900 border-b-2 border-amber-500' : ''}`}>Dashboard</Link>
@@ -93,37 +106,73 @@ export default function Navbar() {
                      <Link to="/stats" className={`hover:text-stone-900 transition-colors py-2 ${location.pathname === '/stats' ? 'text-stone-900 border-b-2 border-amber-500' : ''}`}>Sanctuaire</Link>
                      <span className="text-amber-600/30">/</span>
                      <button onClick={() => setIsOpen(!isOpen)} className={`group flex items-center gap-2 py-2 transition-colors ${isOpen ? 'text-stone-900' : 'hover:text-stone-900'}`}>
-                        Mes Archives
-                        <svg className={`w-3 h-3 transition-transform duration-300 ${isOpen ? 'rotate-180 text-amber-600' : 'text-stone-300'}`} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
+                        Mes Archives <svg className={`w-3 h-3 transition-transform duration-300 ${isOpen ? 'rotate-180 text-amber-600' : 'text-stone-300'}`} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
+                     </button>
+                     <button onClick={() => signOut()} className="ml-4 p-2 text-stone-300 hover:text-red-500 transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                      </button>
                   </div>
                )}
 
-               {user ? (
-                  <button onClick={() => signOut()} className="group p-2 rounded-full hover:bg-red-50 transition-colors" title="Déconnexion">
-                     <svg className="w-5 h-5 text-stone-400 group-hover:text-red-600" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                  </button>
-               ) : (
-                  <Link
-                     to="/login"
-                     className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-500 hover:text-amber-600 transition-all border border-stone-200 px-4 py-2 rounded-lg hover:border-amber-200 shadow-sm"
-                  >
-                     Connexion
-                  </Link>
-               )}
-
-               {user && (
-                  <div className="lg:hidden">
-                     <button onClick={() => setIsMobileOpen(!isMobileOpen)} className="p-2 text-stone-800">
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d={isMobileOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} /></svg>
-                     </button>
-                  </div>
-               )}
+               {/* BOUTON HAMBURGER MOBILE */}
+               <button onClick={() => setIsMobileOpen(!isMobileOpen)} className="lg:hidden w-12 h-12 flex items-center justify-center text-stone-800 transition-transform active:scale-90">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                     {isMobileOpen ? <path d="M6 18L18 6M6 6l12 12" /> : <path d="M4 6h16M4 12h16M4 18h16" />}
+                  </svg>
+               </button>
             </div>
          </div>
 
-         {/* --- DROPDOWN DESKTOP --- */}
-         {user && isOpen && (
+         {/* --- TIROIR MOBILE : DESIGN "HÉRITAGE" --- */}
+         {isMobileOpen && (
+            <div className="lg:hidden absolute top-full left-0 w-full bg-white border-b border-stone-200 shadow-2xl animate-in slide-in-from-top-2 duration-300 overflow-hidden">
+               <div className="flex flex-col p-6">
+                  {user ? (
+                     <div className="space-y-1">
+                        <Link to="/dashboard" className="text-[11px] font-black uppercase tracking-widest text-stone-600 py-4 border-b border-stone-50 flex justify-between items-center"> Dashboard <span>→</span> </Link>
+                        <Link to="/stats" className="text-[11px] font-black uppercase tracking-widest text-stone-600 py-4 border-b border-stone-50 flex justify-between items-center"> Sanctuaire <span>→</span> </Link>
+                        <div className="py-4 border-b border-stone-50">
+                           <button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center text-[11px] font-black uppercase tracking-widest text-amber-600">
+                              Mes Archives <svg className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
+                           </button>
+                           {isOpen && (
+                              <div className="mt-4 grid grid-cols-1 gap-3 max-h-[40vh] overflow-y-auto pr-2">
+                                 {games.map(game => (
+                                    <Link key={game.id} to={`/game/${game.id}`} className="flex items-center gap-3 p-2 bg-stone-50 rounded-xl">
+                                       <img src={game.thumb} className="w-10 h-10 rounded-lg object-cover" alt="" />
+                                       <div className="flex-1 min-w-0">
+                                          <p className="text-[10px] font-bold text-stone-800 truncate">{game.name}</p>
+                                          <div className="h-1 w-full bg-stone-200 rounded-full mt-1 overflow-hidden">
+                                             <div className={`h-full ${game.playCount >= 10 ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${(game.playCount / 10) * 100}%` }} />
+                                          </div>
+                                       </div>
+                                    </Link>
+                                 ))}
+                              </div>
+                           )}
+                        </div>
+                        <button onClick={() => signOut()} className="mt-8 pt-4 border-t border-stone-100 text-[10px] font-black uppercase tracking-[0.2em] text-red-500 flex items-center gap-2">
+                           <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg> Se déconnecter
+                        </button>
+                     </div>
+                  ) : (
+                     /* GUEST MOBILE : ALIGNEMENT & COHÉRENCE */
+                     <div className="flex flex-col gap-6 py-6 items-center">
+                        <Link to="/login" className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-600 py-2 hover:text-stone-900 transition-colors">
+                           Connexion
+                        </Link>
+                        <div className="h-px w-8 bg-stone-100"></div>
+                        <Link to="/login?mode=signup" className="w-full bg-stone-900 text-amber-50 text-center py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl active:scale-[0.98] transition-all">
+                           Graver sa Légende
+                        </Link>
+                     </div>
+                  )}
+               </div>
+            </div>
+         )}
+
+         {/* DROPDOWN DESKTOP (Inchangé) */}
+         {user && isOpen && !isMobileOpen && (
             <div className="hidden lg:block absolute top-full left-0 w-full bg-white border-b border-stone-200/50 shadow-2xl animate-in slide-in-from-top-2 duration-300 rounded-b-[2.5rem] overflow-hidden">
                <div className="max-w-7xl mx-auto px-8 py-10 grid grid-cols-4 gap-6">
                   {games.map((game) => (
@@ -132,8 +181,15 @@ export default function Navbar() {
                            {game.thumb ? <img src={game.thumb} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-stone-300">?</div>}
                         </div>
                         <div className="flex-grow min-w-0">
-                           <span className="text-sm font-serif font-bold text-stone-800 truncate block group-hover:text-amber-700">{game.name}</span>
-                           <span className="text-[10px] font-black text-stone-400">{game.playCount}/10</span>
+                           <div className="flex justify-between items-baseline mb-1">
+                              <span className="text-sm font-serif font-bold text-stone-800 truncate group-hover:text-amber-700 transition-colors">{game.name}</span>
+                              <span className={`text-[10px] font-bold ${game.playCount >= 10 ? 'text-emerald-600' : 'text-amber-600'}`}>
+                                 {game.playCount}<span className="text-stone-300">/10</span>
+                              </span>
+                           </div>
+                           <div className="h-1.5 w-full bg-stone-100 rounded-full overflow-hidden">
+                              <div className={`h-full transition-all duration-1000 ease-out ${game.playCount >= 10 ? 'bg-emerald-500' : 'bg-amber-500'}`} style={{ width: `${Math.min((game.playCount / 10) * 100, 100)}%` }} />
+                           </div>
                         </div>
                      </Link>
                   ))}

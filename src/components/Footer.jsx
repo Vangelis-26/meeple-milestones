@@ -2,16 +2,16 @@ import { Link } from 'react-router-dom';
 
 export default function Footer() {
    return (
-      <footer className="w-full mt-24 pb-12 border-t border-stone-200 bg-[#FDFBF7]/50 relative z-10">
+      <footer className="w-full mt-auto pt-20 pb-12 border-t border-stone-200/60 bg-[#FDFBF7] relative z-10">
          <div className="max-w-[90rem] mx-auto px-6 md:px-12">
 
             {/* --- SECTION PRINCIPALE : 4 COLONNES --- */}
-            <div className="py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
 
                {/* 1. IDENTITÉ & MISSION */}
-               <div className="space-y-6">
+               <div className="space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
                   <div className="flex items-center gap-4">
-                     <div className="w-12 h-12 drop-shadow-md">
+                     <div className="w-12 h-12 drop-shadow-sm">
                         <img src="/logo.png" alt="Sceau Meeple & Milestones" className="w-full h-full object-contain" />
                      </div>
                      <div className="flex flex-col">
@@ -29,32 +29,32 @@ export default function Footer() {
                </div>
 
                {/* 2. NAVIGATION RAPIDE */}
-               <div className="space-y-6">
+               <div className="space-y-6 flex flex-col items-center md:items-start">
                   <h5 className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-900 border-b border-amber-500/30 pb-2 w-fit">
                      Navigation
                   </h5>
-                  <ul className="space-y-3 text-[10px] font-bold uppercase tracking-widest text-stone-400">
+                  <ul className="space-y-3 text-[10px] font-bold uppercase tracking-widest text-stone-400 text-center md:text-left">
                      <li><Link to="/dashboard" className="hover:text-amber-700 transition-colors">Dashboard</Link></li>
                      <li><Link to="/stats" className="hover:text-amber-700 transition-colors">Le Sanctuaire</Link></li>
-                     <li><Link to="/archives" className="hover:text-amber-700 transition-colors">Mes Archives</Link></li>
+                     <li><Link to="/" className="hover:text-amber-700 transition-colors">Mes Archives</Link></li>
                   </ul>
                </div>
 
                {/* 3. FORGE TECHNIQUE & CRÉDITS */}
-               <div className="space-y-6">
+               <div className="space-y-6 flex flex-col items-center md:items-start">
                   <h5 className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-900 border-b border-amber-500/30 pb-2 w-fit">
                      La Forge
                   </h5>
-                  <ul className="space-y-4 text-[10px] font-bold text-stone-500 uppercase tracking-wider">
-                     <li className="flex items-start gap-2">
+                  <ul className="space-y-4 text-[10px] font-bold text-stone-500 uppercase tracking-wider text-center md:text-left">
+                     <li className="flex items-start gap-2 justify-center md:justify-start">
                         <span className="text-amber-600 mt-0.5">✦</span>
-                        <span>Données : <a href="https://boardgamegeek.com" className="underline hover:text-amber-700">BoardGameGeek API</a></span>
+                        <span>Données : <a href="https://boardgamegeek.com" target="_blank" rel="noreferrer" className="underline hover:text-amber-700">BoardGameGeek API</a></span>
                      </li>
-                     <li className="flex items-start gap-2">
+                     <li className="flex items-start gap-2 justify-center md:justify-start">
                         <span className="text-amber-600 mt-0.5">✦</span>
                         <span>Design : <span className="text-stone-400">Gemini AI Assisted</span></span>
                      </li>
-                     <li className="flex items-start gap-2">
+                     <li className="flex items-start gap-2 justify-center md:justify-start">
                         <span className="text-amber-600 mt-0.5">✦</span>
                         <span>Infrastructure : <span className="text-stone-400">React & Supabase</span></span>
                      </li>
@@ -62,7 +62,7 @@ export default function Footer() {
                </div>
 
                {/* 4. DISPOSITIONS LÉGALES */}
-               <div className="space-y-6">
+               <div className="space-y-6 flex flex-col items-center md:items-start text-center md:text-left">
                   <h5 className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-900 border-b border-amber-500/30 pb-2 w-fit">
                      Légal
                   </h5>
@@ -81,8 +81,8 @@ export default function Footer() {
             </div>
 
             {/* --- BARRE DE COPYRIGHT FINALE --- */}
-            <div className="pt-8 border-t border-stone-200 flex flex-col md:flex-row items-center justify-between gap-6">
-               <div className="text-[10px] font-black text-stone-600 uppercase tracking-[0.4em]">
+            <div className="pt-8 border-t border-stone-200/60 flex flex-col md:flex-row items-center justify-between gap-6">
+               <div className="text-[10px] font-black text-stone-600 uppercase tracking-[0.4em] text-center md:text-left">
                   © 2026 — Meeple & Milestones • <span className="text-stone-400">Édition de Prestige</span>
                </div>
 
