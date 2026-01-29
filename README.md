@@ -5,7 +5,7 @@
   <p><strong>"L'Âge d'Or — Gravez vos épopées ludiques dans le marbre numérique."</strong></p>
 
   <p>
-    <img src="https://img.shields.io/badge/Status-V1_Gold_Edition-amber?style=for-the-badge" alt="Status" />
+    <img src="https://img.shields.io/badge/Status-V1-amber?style=for-the-badge" alt="Status" />
     <img src="https://img.shields.io/badge/Design-Stone_%26_Amber-92400E?style=for-the-badge" alt="Design" />
     <img src="https://img.shields.io/badge/Stack-React_18_%7C_Supabase-blueviolet?style=for-the-badge" alt="Stack" />
   </p>
