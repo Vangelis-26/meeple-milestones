@@ -3,7 +3,6 @@
 // L'Antre des Légendes - Version Master Validée
 // ============================================================
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 
@@ -115,14 +114,7 @@ export default function Login() {
                   <div className="space-y-2 text-left">
                      <div className="flex justify-between items-center px-4">
                         <label className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Sceau (Password)</label>
-                        {!isSignUp && (
-                           <Link
-                              to="/forgot-password"
-                              className="text-[9px] font-bold text-amber-700 uppercase opacity-60 hover:opacity-100 transition-opacity"
-                           >
-                              Perdu ?
-                           </Link>
-                        )}
+                        {!isSignUp && <button type="button" className="text-[9px] font-bold text-amber-700 uppercase opacity-60 hover:opacity-100 transition-opacity">Perdu ?</button>}
                      </div>
                      <input
                         type="password" value={password} onChange={(e) => setPassword(e.target.value)}

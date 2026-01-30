@@ -1,6 +1,5 @@
 // ==========================================
-// COMPOSANT : NAVBAR (MASTER)
-// Design : Minimaliste, Premium, Espacé
+// 1. IMPORTS & LOGIQUE (Inchangés)
 // ==========================================
 import { useEffect, useLayoutEffect, useState, useRef, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
@@ -60,13 +59,14 @@ export default function Navbar() {
    }, [fetchUserGames]);
 
    return (
-      <nav ref={menuRef} className="fixed top-0 left-0 w-full z-[100] bg-[#FDFBF7]/95 backdrop-blur-xl border-b border-stone-200/60 shadow-sm transition-all duration-300 font-sans">
+      <nav ref={menuRef} className="fixed top-0 left-0 w-full z-[100] bg-[#FDFBF7]/95 backdrop-blur-xl border-b border-stone-200/60 shadow-sm transition-all duration-300">
 
+         {/* HEADER PRINCIPAL */}
          <div className="max-w-[90rem] mx-auto px-4 md:px-12 py-3 sm:py-4 grid grid-cols-[48px_1fr_48px] lg:flex lg:items-center lg:justify-between items-center">
 
             <div className="lg:hidden" aria-hidden="true"></div>
 
-            {/* LOGO & TITRE */}
+            {/* 2. BLOC CENTRAL : LOGO & TITRE */}
             <div className="flex justify-center lg:justify-start relative z-[120]">
                <Link to="/" className="flex flex-col items-center lg:items-start lg:flex-row lg:gap-5 group">
                   <div className="relative w-11 h-11 lg:w-16 lg:h-16 transition-transform duration-500 group-hover:scale-105">
@@ -84,35 +84,30 @@ export default function Navbar() {
                </Link>
             </div>
 
-            {/* NAVIGATION ACTIONS */}
+            {/* 3. NAVIGATION PC & HAMBURGER MOBILE */}
             <div className="flex items-center justify-end relative z-[120]">
 
-               {/* GUEST */}
+               {/* GUEST PC : LIENS CORRIGÉS */}
                {!user && (
-                  <div className="hidden lg:flex items-center gap-8 text-[10px] font-black uppercase tracking-[0.3em]">
-                     <Link to="/login" className="text-stone-400 hover:text-stone-900 transition-colors">Accéder à mon Héritage</Link>
+                  <div className="hidden lg:flex items-center gap-6 text-[10px] font-black uppercase tracking-[0.3em]">
+                     <Link to="/login" className="text-stone-400 hover:text-stone-900 transition-colors">Accèder à mon Héritage</Link>
                      <div className="h-3 w-px bg-stone-200"></div>
                      <Link to="/login?mode=signup" className="text-stone-400 hover:text-amber-700 transition-colors">Rejoindre la Quête</Link>
                   </div>
                )}
 
-               {/* CONNECTÉ - Espacement gap-8 validé pour effet Premium */}
+               {/* CONNECTÉ PC */}
                {user && (
-                  <div className="hidden lg:flex items-center gap-8 text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mr-2">
+                  <div className="hidden lg:flex items-center gap-6 text-[10px] font-bold uppercase tracking-[0.3em] text-stone-400 mr-4">
                      <Link to="/dashboard" className={`hover:text-stone-900 transition-colors py-2 ${location.pathname === '/dashboard' ? 'text-stone-900 border-b-2 border-amber-500' : ''}`}>Dashboard</Link>
                      <span className="text-amber-600/30">/</span>
                      <Link to="/stats" className={`hover:text-stone-900 transition-colors py-2 ${location.pathname === '/stats' ? 'text-stone-900 border-b-2 border-amber-500' : ''}`}>Sanctuaire</Link>
                      <span className="text-amber-600/30">/</span>
-                     <Link to="/profile" className={`hover:text-stone-900 transition-colors py-2 ${location.pathname === '/profile' ? 'text-stone-900 border-b-2 border-amber-500' : ''}`}>Mon Héritage</Link>
-                     <span className="text-amber-600/30">/</span>
-
                      <button onClick={() => setIsOpen(!isOpen)} className={`group flex items-center gap-2 py-2 transition-colors ${isOpen ? 'text-stone-900' : 'hover:text-stone-900'}`}>
                         Mes Archives <svg className={`w-3 h-3 transition-transform duration-300 ${isOpen ? 'rotate-180 text-amber-600' : 'text-stone-300'}`} fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
                      </button>
-
-                     {/* ICÔNE DE SORTIE : Validée (SVG) */}
-                     <button onClick={() => signOut()} className="ml-6 p-2 text-stone-300 hover:text-red-500 transition-colors" title="Se déconnecter">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                     <button onClick={() => signOut()} className="ml-4 p-2 text-stone-300 hover:text-red-500 transition-colors">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 01-3-3h4a3 3 0 013 3v1" /></svg>
                      </button>
                   </div>
                )}
@@ -134,8 +129,6 @@ export default function Navbar() {
                      <div className="space-y-1">
                         <Link to="/dashboard" className="text-[11px] font-black uppercase tracking-widest text-stone-600 py-4 border-b border-stone-50 flex justify-between items-center"> Dashboard <span>→</span> </Link>
                         <Link to="/stats" className="text-[11px] font-black uppercase tracking-widest text-stone-600 py-4 border-b border-stone-50 flex justify-between items-center"> Sanctuaire <span>→</span> </Link>
-                        <Link to="/profile" className="text-[11px] font-black uppercase tracking-widest text-stone-600 py-4 border-b border-stone-50 flex justify-between items-center"> Mon Héritage <span>→</span> </Link>
-
                         <div className="py-4 border-b border-stone-50">
                            <button onClick={() => setIsOpen(!isOpen)} className="w-full flex justify-between items-center text-[11px] font-black uppercase tracking-widest text-amber-600">
                               Mes Archives <svg className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 9l-7 7-7-7" /></svg>
@@ -161,9 +154,10 @@ export default function Navbar() {
                         </button>
                      </div>
                   ) : (
+                     /* GUEST MOBILE : LIENS CORRIGÉS */
                      <div className="flex flex-col gap-6 py-6 items-center">
                         <Link to="/login" className="text-[11px] font-black uppercase tracking-[0.3em] text-stone-600 py-2">
-                           Accéder à mon Héritage
+                           Accèder à mon Héritage
                         </Link>
                         <div className="h-px w-8 bg-stone-100"></div>
                         <Link to="/login?mode=signup" className="w-full bg-stone-900 text-amber-50 text-center py-5 rounded-2xl text-[11px] font-black uppercase tracking-[0.3em] shadow-xl">
