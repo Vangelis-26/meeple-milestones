@@ -1,143 +1,84 @@
-<div align="center">
-  <br />
-  <img src="public/logo.png" width="160" height="160" alt="Meeple & Milestones Logo" />
-  <h1>Meeple & Milestones</h1>
-  <p><strong>"L'Âge d'Or — Gravez vos épopées ludiques dans le marbre numérique."</strong></p>
+# 🎲 Meeple & Milestones - L'Antre des Légendes
 
-  <p>
-    <img src="https://img.shields.io/badge/Status-V1-amber?style=for-the-badge" alt="Status" />
-    <img src="https://img.shields.io/badge/Design-Stone_%26_Amber-92400E?style=for-the-badge" alt="Design" />
-    <img src="https://img.shields.io/badge/Stack-React_18_%7C_Supabase-blueviolet?style=for-the-badge" alt="Stack" />
-  </p>
-</div>
+> **Une application "Premium" de suivi de challenges ludiques (10x10), conçue pour les passionnés de jeux de société modernes.**
 
----
+![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=for-the-badge&logo=tailwindcss)
+![Supabase](https://img.shields.io/badge/Supabase-Database-3ecf8e?style=for-the-badge&logo=supabase)
+![Vite](https://img.shields.io/badge/Vite-Fast-646cff?style=for-the-badge&logo=vite)
 
-## 🏛️ L'Esthétique de Prestige
+## 🌟 La Vision du Projet
 
-Ce projet refuse la froideur des outils de gestion classiques au profit d'une interface de **Haute Héraldique**. Chaque pixel a été pensé pour sacraliser l'acte de jouer et immortaliser la persévérance des joueurs.
-
-### 🛡️ Le Sceau de l'Architecte
-
-L'identité visuelle est portée par un blason d'orfèvre unique : un médaillon d'**Or Poli** incrusté dans de l'**Obsidienne**, représentant la porte d'un sanctuaire où le Meeple trône en souverain. C'est le sceau authentique de cette édition de prestige.
-
-### 🎨 Palette & Typographies
-
-- **Stone & Amber** : Un mariage de gris ardoise profonds et d'éclats ambrés simulant le relief et la lumière du cuir ancien.
-- **Serif Majesty** : Utilisation de polices à empattements pour les titres, évoquant les manuscrits anciens, contrastée par une navigation minimaliste aérée sur une largeur monumentale de **90rem** (1440px), offrant une assise architecturale à l'interface.
+Ce projet n'est pas un simple "tracker". C'est une tentative de repenser l'expérience utilisateur dans le monde du jeu de société, souvent dominé par des interfaces datées.
+L'objectif : **Fusionner l'utile (statistiques) et l'agréable (immersion visuelle)**, avec une direction artistique inspirée des grimoires anciens et du design "Luxe".
 
 ---
 
-## 💎 Le Grimoire des Fonctionnalités
+## ✨ Fonctionnalités Clés
 
-### 📖 Chroniques Immersives (Tracking)
+### 🛡️ Authentification & Profil
 
-- **Le Sceau du Destin** : Chaque partie génère une carte narrative avec un feedback visuel fort. Victoire éclatante ou défaite amère, l'histoire est gravée.
-- **Preuve par l'Image** : Immortalisez vos sessions avec un système d'upload multi-photos (via Supabase Storage) pour transformer vos scores en souvenirs tangibles.
-- **Timeline Organique** : Vos parties s'affichent sous forme de cartes héraldiques, créant un historique visuel élégant et structuré.
+- **Grimoire d'accès :** Système de Login/Sign-up entièrement sécurisé via Supabase Auth.
+- **Mon Héritage :** Gestion de profil avancée avec possibilité de reforger son sceau (mot de passe) et zone de danger sécurisée (RPC Function) pour la suppression de compte.
+- **Persistance :** Session utilisateur maintenue et protégée par `ProtectedRoute`.
 
-### 🛡️ Le Sanctuaire (Statistiques)
+### ⚔️ Le Challenge 10x10
 
-- **KPIs de Prestige** : Suivi du taux de victoire, calcul des "Heures Perdues" (temps de jeu total cumulé) et jauges de challenge circulaires dorées.
-- **Visualisation Dynamique** : Graphiques de progression intégrés pour mesurer votre ascension vers la complétion du challenge 10x10.
+- **Dashboard Immersif :** Vue d'ensemble de la progression avec barres dynamiques et design épuré.
+- **Moteur de Recherche :** Connexion à une base de données locale de jeux (pré-fetchée depuis BGG) pour une recherche instantanée.
+- **Gestion de Collection :** Ajout/Suppression de jeux au challenge, avec gestion automatique des doublons.
 
-### 🔍 Bibliothèque & Immersion
+### 📜 Le Sanctuaire (Statistiques)
 
-- **Extraction BGG Directe** : Importation chirurgicale des métadonnées BoardGameGeek (Note globale, Complexité, Année de parution).
-- **Modales d'Orfèvre** : Des fiches de jeux épurées, affichant l'essentiel des statistiques dans un design "Gold" (Temps, Note, Année, Poids).
-- **Interface Monolithique** : Un alignement chirurgical entre la Navbar, le Dashboard et le Footer pour une stabilité visuelle totale sur grand écran.
-
----
-
-## 🏆 Hiérarchie du Sanctuaire (Rangs)
-
-Votre légende s'écrit au fil des parties. Le système de progression débloque des titres honorifiques basés sur votre persévérance ludique :
-
-| Niveau | Titre Royal              | Parties Requises | Icône |
-| :----- | :----------------------- | :--------------- | :---- |
-| **1**  | Vagabond des Plateaux    | 0+               | 🥾    |
-| **2**  | Aventurier Novice        | 5+               | 🎒    |
-| **3**  | Chasseur de Reliques     | 15+              | 🔍    |
-| **4**  | Stratège Reconnu         | 30+              | 📜    |
-| **5**  | **Gardien des Savoirs**  | **50+**          | 🕯️    |
-| **6**  | Érudit des Mécaniques    | 65+              | 🏺    |
-| **7**  | Maître de la Table       | 80+              | 👑    |
-| **8**  | Commandeur Ludique       | 90+              | ⚔️    |
-| **10** | **Maître de l'Olympe**   | **100**          | ⚡    |
-| **11** | **Architecte du Destin** | **110+**         | 🌌    |
+- **Data Visualization :** KPI en temps réel (H-Index, Total de parties, Victoires).
+- **Historique :** Journal des quêtes (parties) détaillé avec filtres et tris.
+- **Interface Réactive :** Mises à jour en temps réel grâce aux souscriptions Supabase Realtime (Websockets).
 
 ---
 
-## 💾 La Voûte des Données (Structure)
+## 🏗️ Architecture Technique
 
-Le projet repose sur quatre piliers relationnels dans **Supabase** pour une synchronisation instantanée :
+### Front-End (UX/UI First)
 
-1. **`games`** : Le registre universel des jeux (Unique par BGG ID), enrichi par l'API BoardGameGeek.
-2. **`challenges`** : Le réceptacle des objectifs annuels par utilisateur.
-3. **`challenge_items`** : La collection personnelle (Progression, Cible, Couleur du Meeple).
-4. **`plays`** : L'archive historique des parties (Images, Durée, Victoire, Notes narratives).
+- **React + Vite :** Pour une performance optimale et un rechargement instantané.
+- **Tailwind CSS :** Utilisation d'un système de design tokenisé (couleurs `stone`, `amber`, `emerald`) pour une cohérence visuelle parfaite.
+- **Framer Motion / CSS Transitions :** Micro-interactions soignées (survol des cartes, apparitions modales, feedback boutons).
+- **Responsive Design :** Interface totalement adaptative (Mobile First), avec menu "Tiroir" pour les petits écrans.
 
----
+### Back-End (Supabase)
 
-## 🛠 Forge Technique
+- **PostgreSQL :** Base de données relationnelle robuste.
+- **Row Level Security (RLS) :** Chaque donnée est isolée. Un utilisateur ne peut voir et modifier que SON challenge (bien que la bibliothèque de jeux soit publique).
+- **RPC Functions :** Logique métier complexe (ex: suppression de compte en cascade) déportée côté serveur pour la sécurité.
+- **Realtime :** Synchronisation instantanée des états entre plusieurs onglets/appareils.
 
-L'infrastructure a été choisie pour sa robustesse et sa capacité à traiter vos données en temps réel dans un environnement sécurisé.
+### Challenges Techniques Résolus
 
-- **Front-end** : React 18 (Vite), Tailwind CSS v3, Recharts.
-- **Back-end** : **Supabase** (Database PostgreSQL, Auth, Realtime, Storage).
-- **API** : Intégration de la XML API2 de **BoardGameGeek**.
-- **Sécurité** : Isolation stricte via **Row Level Security (RLS)** pour protéger chaque grimoire personnel.
-
----
-
-## 🌳 Workflow de l'Architecte
-
-Pour maintenir l'intégrité de la **Gold Edition**, nous suivons un protocole de branchement (Feature Branching) rigoureux :
-
-1. **`main`** : Le Sanctuaire Sacré. Source de vérité absolue, toujours fonctionnelle et alignée.
-2. **Branches `feat/`** : Pour chaque nouvelle quête, une branche dédiée est créée (ex: `feat/alignement-navbar`).
-3. **Le Rituel de Fusion** :
-   - Développement et commits sur la branche locale.
-   - Push vers le dépôt distant.
-   - Création d'une **Pull Request (PR)** sur GitHub vers `main`.
-   - Fusion après validation des tests visuels et de l'alignement à 90rem.
+1.  **Sync Auth & URL :** Gestion fine de la synchronisation entre l'état de l'authentification et les paramètres d'URL pour éviter les boucles de redirection au login.
+2.  **Performance BGG :** Mise en cache des données BoardGameGeek pour éviter les latences d'API externes.
+3.  **Sécurité des Données :** Implémentation d'une fonction SQL `security definer` pour permettre à un utilisateur de supprimer ses propres données (y compris Auth) sans compromettre la base globale.
 
 ---
 
-## 💻 Installation du Grimoire
+## 🚀 Installation & Démarrage
 
-1. **Invocation du Code**
-   ```bash
-   git clone [https://github.com/Vangelis-26/meeple-milestones.git](https://github.com/Vangelis-26/meeple-milestones.git)
-   cd meeple-milestones
-   ```
-2. **Préparation de la Forge Installez les dépendances nécessaires à la stabilité du manuscrit :**
+```bash
+# 1. Cloner le grimoire
+git clone [https://github.com/votre-username/meeple-milestones.git](https://github.com/votre-username/meeple-milestones.git)
 
-   ```bash
-   npm install
-   ```
+# 2. Entrer dans le sanctuaire
+cd meeple-milestones
 
-3. **Sceaux d'Environnement Créez un fichier .env.local à la racine de votre projet et insérez-y vos clés secrètes pour lier le sanctuaire à votre base de données :**
-   Créez un fichier `.env.local` à la racine avec vos clés Supabase :
+# 3. Invoquer les dépendances
+npm install
 
-   ```env
-   VITE_SUPABASE_URL=votre_url_supabase
-   VITE_SUPABASE_ANON_KEY=votre_cle_anon
-   ```
+# 4. Configurer les variables d'environnement
+# Créer un fichier .env avec :
+# VITE_SUPABASE_URL=votre_url
+# VITE_SUPABASE_ANON_KEY=votre_cle
 
-4. **Lancement du Sanctuaire Démarrez le serveur de développement pour voir le grimoire s'animer :**
-   ```bash
-   npm run dev
-   ```
-
----
-
-## ⚖️ Dispositions Légales & Crédits
-
-- **Propriété Intellectuelle** : "Meeple" est une marque déposée de **Hans im Glück**. Ce sanctuaire numérique est une œuvre indépendante réalisée à des fins communautaires et n'est pas affilié à l'éditeur.
-- **Données & Sources** : Les métadonnées ludiques (statistiques, historiques, descriptions) sont extraites via l'API de **BoardGameGeek**. Les jaquettes et noms de jeux originaux restent la propriété exclusive de leurs éditeurs respectifs.
-- **Design & IA** : Les assets visuels, l'identité **"L'Âge d'Or"** et le sceau héraldique de l'Architecte ont été conçus avec l'assistance créative de **Gemini AI**.
-- **RGPD & Confidentialité** : Vos données de chroniqueur sont privées et sécurisées par l'infrastructure Supabase. Vous disposez d'un droit total d'accès, de modification et de suppression de vos informations via votre profil.
+# 5. Lancer le sortilège de développement
+npm run dev
 
 ---
 
@@ -146,3 +87,4 @@ Pour maintenir l'intégrité de la **Gold Edition**, nous suivons un protocole d
 **Vangelis** — _Architecte du Destin_ Projet réalisé avec passion pour la communauté ludique.
 
 > _"Le silence est d'or, mais une victoire écrite est éternelle."_
+```
