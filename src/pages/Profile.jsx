@@ -63,10 +63,20 @@ export default function Profile() {
    const handleDeleteAccount = async () => {
       setLoading(true);
       try {
-         alert("La procédure de dissolution a été enclenchée (Nécessite Backend Admin).");
+         // 1. Appel de la fonction RPC créée dans Supabase
+         const { error } = await supabase.rpc('delete_own_account');
+
+         if (error) throw error;
+
+         // 2. Si succès, on déconnecte proprement côté client
          await signOut();
+
+         // 3. Redirection forcée (au cas où le signOut ne le fasse pas instantanément)
+         window.location.href = '/';
+
       } catch (error) {
-         console.error(error);
+         console.error("Erreur lors de la dissolution :", error);
+         setMessage({ type: 'error', text: "La dissolution a échoué. Contactez l'architecte." });
       } finally {
          setLoading(false);
       }
