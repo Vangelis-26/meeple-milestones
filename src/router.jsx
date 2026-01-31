@@ -3,6 +3,7 @@ import App from './App';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
+import Legal from './pages/Legal';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import GameStats from './pages/GameStats';
@@ -57,6 +58,11 @@ export const router = createBrowserRouter([
                   <GameStats />
                </ProtectedRoute>
             ),
+         },
+         {
+            path: "legal",
+            element:
+               <Legal />
          },
       ],
    },
