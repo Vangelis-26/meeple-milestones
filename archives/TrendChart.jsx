@@ -8,7 +8,6 @@ export default function TrendChart({ plays }) {
       return { winRate: Math.round((winsSoFar / playsSoFar.length) * 100) };
    });
 
-   if (data.length < 2) return null;
 
    return (
       <div className="w-full h-8 mt-4 opacity-70" style={{ minWidth: '0px', minHeight: '32px' }}>
