@@ -100,7 +100,7 @@ export default function Login() {
                      </div>
                   )}
 
-                  {/* IDENTIFIANT : CADRE PLUS FONCÉ (border-stone-300) */}
+                  {/* IDENTIFIANT */}
                   <div className="space-y-2 text-left">
                      <label className="text-[10px] font-black text-stone-500 uppercase tracking-widest ml-4 block">Grimoire (Email)</label>
                      <input
@@ -111,7 +111,7 @@ export default function Login() {
                      />
                   </div>
 
-                  {/* SECRET : CADRE PLUS FONCÉ (border-stone-300) */}
+                  {/* SECRET */}
                   <div className="space-y-2 text-left">
                      <div className="flex justify-between items-center px-4">
                         <label className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Sceau (Password)</label>
@@ -132,7 +132,7 @@ export default function Login() {
                      />
                   </div>
 
-                  {/* BOUTON MASTER : FLÈCHE SUPPRIMÉE */}
+                  {/* BOUTON ACTION */}
                   <button
                      type="submit" disabled={loading}
                      className="w-full bg-stone-900 hover:bg-black text-amber-50 rounded-2xl py-5 font-serif font-black uppercase tracking-[0.25em] shadow-xl hover:-translate-y-0.5 active:translate-y-0 transition-all group relative overflow-hidden"
@@ -148,7 +148,7 @@ export default function Login() {
                   </button>
                </form>
 
-               {/* BASCULE */}
+               {/* BASCULE DE MODE */}
                <div className="mt-10 pt-8 border-t border-stone-100 flex flex-col items-center gap-3 relative z-20">
                   <p className="text-[10px] font-bold text-stone-400 uppercase tracking-widest opacity-60 text-center">
                      {isSignUp ? "Déjà membre ?" : "Nouveau voyageur ?"}

@@ -2,7 +2,6 @@
 // 1. IMPORTS & DÉPENDANCES
 // ==========================================
 import { useState, useEffect, useMemo } from 'react';
-// useNavigate supprimé car inutilisé ici
 import { useChallenge } from '../hooks/useChallenge';
 import {
    ResponsiveContainer,
@@ -19,7 +18,6 @@ export default function GlobalStats() {
    // ==========================================
    // 2. INITIALISATION & ÉTAT (STATE)
    // ==========================================
-   // const navigate = useNavigate(); <-- Supprimé pour nettoyer la console
    const { getAllPlays } = useChallenge();
    const [plays, setPlays] = useState([]);
    const [loading, setLoading] = useState(true);
