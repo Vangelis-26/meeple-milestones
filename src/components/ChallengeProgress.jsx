@@ -1,8 +1,23 @@
 // =================================================================================
 // COMPOSANT : CHALLENGE PROGRESS
-// Rôle : Barre de progression gamifiée avec système de grades (Vagabond -> Architecte)
+// Rôle : Barre de progression gamifiée avec système de grades (Images PNG)
 // =================================================================================
 import React, { useMemo } from 'react';
+
+// --- 1. IMPORTS DES IMAGES DE RANGS ---
+// Assurez-vous que les fichiers existent dans src/assets/ranks/
+// Modifiez les noms de fichiers si nécessaire.
+import rank0 from '../assets/ranks/rank-0.png';   // Vagabond
+import rank5 from '../assets/ranks/rank-5.png';   // Aventurier
+import rank15 from '../assets/ranks/rank-15.png'; // Chasseur
+import rank30 from '../assets/ranks/rank-30.png'; // Stratège
+import rank50 from '../assets/ranks/rank-50.png'; // Gardien
+import rank65 from '../assets/ranks/rank-65.png'; // Maître de Guerre
+import rank78 from '../assets/ranks/rank-78.png'; // Seigneur
+import rank88 from '../assets/ranks/rank-88.png'; // Oracle
+import rank95 from '../assets/ranks/rank-95.png'; // Légende
+import rank100 from '../assets/ranks/rank-100.png';// Maître Olympe
+import rank110 from '../assets/ranks/rank-110.png';// Architecte
 
 export default function ChallengeProgress({ totalPlays }) {
    // Plafonne la barre visuelle à 100%
@@ -10,18 +25,19 @@ export default function ChallengeProgress({ totalPlays }) {
 
    // Logique des Rangs (Memoized pour la performance)
    const rankData = useMemo(() => {
+      // --- 2. TABLEAU DES NIVEAUX ---
       const levels = [
-         { min: 0, title: "Vagabond des Plateaux", icon: "🥾" },
-         { min: 5, title: "Aventurier Novice", icon: "🎒" },
-         { min: 15, title: "Chasseur de Reliques", icon: "🔍" },
-         { min: 30, title: "Stratège Reconnu", icon: "📜" },
-         { min: 50, title: "Gardien des Savoirs", icon: "🕯️" },
-         { min: 65, title: "Maître de Guerre", icon: "⚔️" },
-         { min: 78, title: "Seigneur du Grimoire", icon: "🏰" },
-         { min: 88, title: "Oracle Ludique", icon: "✨" },
-         { min: 95, title: "Légende Vivante", icon: "👑" },
-         { min: 100, title: "Maître de l'Olympe", icon: "⚡" },
-         { min: 110, title: "Architecte du Destin", icon: "🌌" }
+         { min: 0, title: "Vagabond des Plateaux", icon: rank0 },
+         { min: 5, title: "Aventurier Novice", icon: rank5 },
+         { min: 15, title: "Chasseur de Reliques", icon: rank15 },
+         { min: 30, title: "Stratège Reconnu", icon: rank30 },
+         { min: 50, title: "Gardien des Savoirs", icon: rank50 },
+         { min: 65, title: "Maître de Guerre", icon: rank65 },
+         { min: 78, title: "Seigneur du Grimoire", icon: rank78 },
+         { min: 88, title: "Oracle Ludique", icon: rank88 },
+         { min: 95, title: "Légende Vivante", icon: rank95 },
+         { min: 100, title: "Maître de l'Olympe", icon: rank100 },
+         { min: 110, title: "Architecte du Destin", icon: rank110 }
       ];
       return {
          current: levels.slice().reverse().find(l => totalPlays >= l.min) || levels[0],
@@ -57,11 +73,15 @@ export default function ChallengeProgress({ totalPlays }) {
                         <span className="text-[9px] font-black text-stone-500 uppercase tracking-[0.4em]">Rang Actuel</span>
                         <div className={`h-1.5 w-1.5 rounded-full animate-pulse ${totalPlays >= 50 ? 'bg-amber-500' : 'bg-orange-700'}`}></div>
                      </div>
-                     <div className="flex items-center gap-3 mt-4 md:mt-0">
+                     <div className="flex items-center gap-4 mt-4 md:mt-0">
                         <h2 className={`text-2xl md:text-4xl font-serif font-black tracking-tight ${totalPlays >= 50 ? 'text-amber-600' : 'text-orange-900'} leading-none`}>
                            {rankData.current.title}
                         </h2>
-                        <span className="text-2xl md:text-4xl filter drop-shadow-sm transform -translate-y-0.5">{rankData.current.icon}</span>
+                        <img
+                           src={rankData.current.icon}
+                           alt={rankData.current.title}
+                           className="w-12 h-12 md:w-16 md:h-16 object-contain filter drop-shadow-sm transform -translate-y-1"
+                        />
                      </div>
                   </div>
 
