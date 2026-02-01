@@ -1,3 +1,9 @@
+// =================================================================================
+// COMPOSANT : ADD PLAY MODAL
+// Rôle : Formulaire de saisie d'une partie (Création ou Modification).
+//        Gestion du résultat, durée, photos et notes de partie.
+// =================================================================================
+
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../services/supabase';
 import { useAuth } from '../hooks/useAuth';
@@ -6,24 +12,30 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
    const { user } = useAuth();
    const fileInputRef = useRef(null);
 
-   // --- ÉTATS ---
+   // =========================================================================
+   // 1. GESTION DES ÉTATS (STATE MANAGEMENT)
+   // =========================================================================
    const [loading, setLoading] = useState(false);
 
-   // Données Formulaire
+   // --- États du formulaire (Données de partie) ---
    const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
    const [hours, setHours] = useState(0);
    const [minutes, setMinutes] = useState(0);
    const [isVictory, setIsVictory] = useState(null);
    const [notes, setNotes] = useState('');
 
-   // Gestion Photos
+   // --- États de gestion des photos (Upload et Aperçus) ---
    const [selectedFiles, setSelectedFiles] = useState([]);
    const [previewUrls, setPreviewUrls] = useState([]);
 
-   // --- INITIALISATION ---
+   // =========================================================================
+   // 2. INITIALISATION & RÉINITIALISATION DU FORMULAIRE
+   // =========================================================================
+   // Préremplissage des champs selon le mode (Création / Édition)
    useEffect(() => {
       if (isOpen) {
          if (playToEdit) {
+            // Mode Édition : Charger les données existantes
             setDate(playToEdit.played_on.split('T')[0]);
             setHours(Math.floor(playToEdit.duration_minutes / 60));
             setMinutes(playToEdit.duration_minutes % 60);
@@ -32,6 +44,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
             setPreviewUrls(playToEdit.image_urls || []);
             setSelectedFiles([]);
          } else {
+            // Mode Création : Initialiser avec les valeurs par défaut
             setDate(new Date().toISOString().split('T')[0]);
             const defaultTime = game?.playing_time || 0;
             setHours(Math.floor(defaultTime / 60));
@@ -44,7 +57,9 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
       }
    }, [isOpen, game, playToEdit]);
 
-   // --- LOGIQUE METIER ---
+   // =========================================================================
+   // 3. HANDLERS & LOGIQUE MÉTIER
+   // =========================================================================
    const handleHoursChange = (e) => {
       const val = e.target.value;
       if (val === '') {
@@ -55,6 +70,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
       setHours(isNaN(num) || num < 0 ? 0 : num);
    };
 
+   // Gestion intelligente du champ "Minutes" (boucle entre 0 et 59)
    const handleMinutesChange = (e) => {
       const val = e.target.value;
       if (val === '') {
@@ -67,21 +83,25 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
       else setMinutes(num);
    };
 
+   // Gestion de la sélection de photos (max 3, 5MB chacune)
    const handleFileSelect = (e) => {
       const files = Array.from(e.target.files);
       const totalSlotsUsed = previewUrls.length + files.length;
 
+      // Vérification de la limite de 3 photos
       if (totalSlotsUsed > 3) {
          if (showToast) showToast("Maximum 3 photos.", "error");
          return;
       }
 
+      // Filtrage des fichiers (5MB max par photo)
       const validFiles = files.filter(file => file.size <= 5 * 1024 * 1024);
       setSelectedFiles(prev => [...prev, ...validFiles]);
       const newPreviews = validFiles.map(file => URL.createObjectURL(file));
       setPreviewUrls(prev => [...prev, ...newPreviews]);
    };
 
+   // Suppression d'une photo (ancienne ou nouvelle)
    const removeImage = (indexToRemove) => {
       setPreviewUrls(prev => prev.filter((_, i) => i !== indexToRemove));
       if (indexToRemove >= (previewUrls.length - selectedFiles.length)) {
@@ -93,9 +113,13 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
       }
    };
 
+   // =========================================================================
+   // 4. SOUMISSION DU FORMULAIRE (Création ou Édition de partie)
+   // =========================================================================
    const handleSubmit = async (e) => {
       e.preventDefault();
 
+      // Validation : Le résultat (Victoire/Défaite) doit être sélectionné
       if (isVictory === null) {
          if (showToast) showToast("Sélectionnez Victoire ou Défaite.", "error");
          return;
@@ -104,9 +128,10 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
       setLoading(true);
 
       try {
+         // Calcul de la durée totale en minutes
          const totalMinutes = (parseInt(hours || 0) * 60) + parseInt(minutes || 0);
 
-         // Upload
+         // Upload des nouvelles photos vers Supabase Storage
          const uploadPromises = selectedFiles.map(async (file) => {
             const fileExt = file.name.split('.').pop();
             const fileName = `${user.id}/${game.bgg_id}/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
@@ -116,10 +141,13 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
             return data.publicUrl;
          });
 
+         // Récupération de toutes les URLs uploadées
          const newUploadedUrls = await Promise.all(uploadPromises);
+         // Fusion des URLs existantes et nouvellement uploadées
          const existingUrls = previewUrls.filter(url => url.startsWith('http'));
          const finalImageUrls = [...existingUrls, ...newUploadedUrls];
 
+         // Construction de l'objet de données pour l'insert/update
          const playData = {
             user_id: user.id,
             game_id: game.id,
@@ -130,14 +158,18 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
             image_urls: finalImageUrls
          };
 
+         // Mise à jour ou création de la partie dans la base de données
          if (playToEdit) {
+            // Mode Édition : Update
             const { error } = await supabase.from('plays').update(playData).eq('id', playToEdit.id);
             if (error) throw error;
          } else {
+            // Mode Création : Insert
             const { error } = await supabase.from('plays').insert(playData);
             if (error) throw error;
          }
 
+         // Notification de succès et fermeture de la modale
          if (showToast) showToast(playToEdit ? "Récit mis à jour." : "Récit enregistré !", "success");
          if (onPlayAdded) onPlayAdded();
          onClose();
@@ -150,10 +182,16 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
       }
    };
 
+   // =========================================================================
+   // 5. RENDU DU COMPOSANT
+   // =========================================================================
+
+   // Si la modale n'est pas ouverte ou qu'il n'y a pas de jeu, ne rien afficher
    if (!isOpen || !game) return null;
 
    return (
       <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4">
+         {/* Styles inline pour masquer les scrollbars et afficher les spinners */}
          <style>{`
             .no-scrollbar::-webkit-scrollbar { display: none; }
             .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -161,13 +199,13 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
             input[type=number]::-webkit-outer-spin-button { opacity: 1; }
          `}</style>
 
-         {/* Backdrop */}
+         {/* --- BACKDROP (Fond sombre avec effet de flou) --- */}
          <div className="absolute inset-0 bg-stone-950/80 backdrop-blur-sm transition-opacity" onClick={onClose}></div>
 
-         {/* MODALE : Marges internes ajustées pour le mobile */}
+         {/* --- CONTENEUR PRINCIPAL DE LA MODALE --- */}
          <div className="relative bg-[#FDFBF7] w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300 flex flex-col shadow-2xl rounded-2xl ring-1 ring-white/10 max-h-[95vh]">
 
-            {/* HEADER */}
+            {/* --- HEADER (Image de fond + Titre de la modale) --- */}
             <div className="relative h-28 sm:h-32 shrink-0 bg-stone-900 overflow-hidden z-10 border-b border-stone-800">
                <img
                   src={game.image_url || game.thumbnail_url}
@@ -197,10 +235,10 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                </button>
             </div>
 
-            {/* FORMULAIRE : Padding réduit sur mobile (p-4) vs desktop (p-6) */}
+            {/* --- FORMULAIRE PRINCIPAL (Champs de saisie) --- */}
             <form onSubmit={handleSubmit} className="p-4 sm:p-6 pt-4 sm:pt-5 space-y-4 sm:space-y-5 relative z-10 overflow-y-auto no-scrollbar">
 
-               {/* 1. RÉSULTAT */}
+               {/* --- 1. SÉLECTION DU RÉSULTAT (Victoire / Défaite) --- */}
                <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <button
                      type="button"
@@ -232,7 +270,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                   </button>
                </div>
 
-               {/* 2. DATE & DURÉE */}
+               {/* --- 2. DATE ET DURÉE DE LA PARTIE --- */}
                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
                   <div className="space-y-1">
                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest pl-1">Date</label>
@@ -247,7 +285,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                      <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest pl-1">Durée</label>
                      <div className="flex gap-2 sm:gap-3">
                         <div className="relative flex-1">
-                           {/* Padding droit réduit pour éviter l'écrasement sur mobile */}
+                           {/* Champ Heures avec label "H" */}
                            <input
                               type="number" min="0" value={hours}
                               onChange={handleHoursChange}
@@ -257,6 +295,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-stone-400 pointer-events-none bg-white pl-1">H</span>
                         </div>
                         <div className="relative flex-1">
+                           {/* Champ Minutes avec label "MIN" */}
                            <input
                               type="number" min="0" max="59" value={minutes}
                               onChange={handleMinutesChange}
@@ -269,7 +308,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                   </div>
                </div>
 
-               {/* 3. PREUVE EN IMAGE */}
+               {/* --- 3. GESTION DES PHOTOS (Upload et Aperçus) --- */}
                <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest pl-1">
                      Preuve en image(s) <span className="font-normal text-stone-300 ml-1 tracking-normal normal-case">(Max 3)</span>
@@ -318,7 +357,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                   </div>
                </div>
 
-               {/* 4. NOTES */}
+               {/* --- 4. NOTES DE PARTIE (Journal de bord) --- */}
                <div className="space-y-1.5">
                   <label className="text-[10px] font-black text-stone-400 uppercase tracking-widest pl-1">Journal de bord</label>
                   <textarea
@@ -330,7 +369,7 @@ export default function AddPlayModal({ isOpen, game, targetProgress, playToEdit,
                   ></textarea>
                </div>
 
-               {/* FOOTER ACTIONS */}
+               {/* --- 5. BOUTONS D'ACTION (Annuler / Enregistrer) --- */}
                <div className="pt-2 flex gap-3 sm:gap-4">
                   <button
                      type="button"

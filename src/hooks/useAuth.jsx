@@ -1,16 +1,22 @@
+// =================================================================================
+// HOOK : USE AUTH
+// Rôle : Gestionnaire global de l'authentification (Context).
+// Fournit l'utilisateur courant et les méthodes (signIn, signUp, signOut) à toute l'app.
+// =================================================================================
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../services/supabase';
 
-// 1. Création du contexte (la mémoire partagée)
+// 1. Création du contexte (Mémoire partagée)
 const AuthContext = createContext({});
 
-// 2. Le Fournisseur (le composant qui enveloppe l'app)
+// 2. Provider (Composant enveloppe)
 export const AuthProvider = ({ children }) => {
    const [user, setUser] = useState(null);
    const [loading, setLoading] = useState(true);
 
    useEffect(() => {
-      // Vérifier la session au démarrage
+      // A. Vérification initiale de la session au chargement
       const checkSession = async () => {
          const { data: { session } } = await supabase.auth.getSession();
          setUser(session?.user ?? null);
@@ -19,16 +25,17 @@ export const AuthProvider = ({ children }) => {
 
       checkSession();
 
-      // Écouter les changements (connexion/déconnexion)
+      // B. Écouteur de changements (Connexion / Déconnexion en temps réel)
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
          setUser(session?.user ?? null);
          setLoading(false);
       });
 
+      // Nettoyage de l'écouteur
       return () => subscription.unsubscribe();
    }, []);
 
-   // --- LES FONCTIONS QUE "LOGIN.JSX" ATTEND ---
+   // --- MÉTHODES D'AUTHENTIFICATION ---
 
    const signUp = async (email, password) => {
       return await supabase.auth.signUp({ email, password });
@@ -42,7 +49,7 @@ export const AuthProvider = ({ children }) => {
       return await supabase.auth.signOut();
    };
 
-   // On expose tout ça au reste de l'app
+   // Valeurs exposées aux composants
    const value = {
       user,
       loading,
@@ -58,6 +65,7 @@ export const AuthProvider = ({ children }) => {
    );
 };
 
+// 3. Hook personnalisé pour utiliser le contexte facilement
 // eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
    return useContext(AuthContext);

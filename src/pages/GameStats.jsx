@@ -8,6 +8,7 @@ export default function GameStats() {
    const [plays, setPlays] = useState([]);
    const [loading, setLoading] = useState(true);
 
+   // Charger les données du jeu
    useEffect(() => {
       const fetchData = async () => {
          try {
@@ -25,15 +26,15 @@ export default function GameStats() {
    const wins = plays.filter(p => p.is_victory).length;
    const winRate = totalPlays > 0 ? Math.round((wins / totalPlays) * 100) : 0;
    const complexity = game?.complexity ? parseFloat(game.complexity) : 0;
-   const totalMinutes = plays.reduce((acc, curr) => acc + (curr.duration_minutes || 0), 0);
-   const totalHours = Math.floor(totalMinutes / 60);
 
+   // Helper pour la couleur de complexité
    const getComplexityColor = (c) => {
       if (c <= 2.0) return "bg-emerald-600";
       if (c <= 3.5) return "bg-amber-500";
       return "bg-rose-700";
    };
 
+   // Helper pour les légendes photo amusantes
    const getCaption = (isVictory, playId) => {
       const v = ["Victoire éclatante", "Stratégie pure", "Le maître du jeu", "Moment de gloire", "Triomphe absolu"];
       const d = ["Leçon d'humilité", "Le sort s'acharne", "Revanche bientôt", "Tactique douteuse", "L'expérience rentre"];
@@ -54,25 +55,21 @@ export default function GameStats() {
 
          {/* --- 1. HEADER HERO (IMMERSION TOTALE) --- */}
          <div className="relative h-[400px] md:h-[520px] shrink-0 bg-stone-900 overflow-hidden pt-20 md:pt-24 shadow-2xl z-10 border-b-[6px] border-stone-800">
-            {/* Image du jeu en plein écran avec opacité pour l'immersion */}
+            {/* Image du jeu */}
             <img
                src={game?.image_url || game?.thumbnail_url}
                className="absolute inset-0 w-full h-full object-cover object-center opacity-60 saturate-[0.8]"
                alt=""
             />
 
-            {/* Dégradés stratégiques pour la lisibilité du texte */}
+            {/* Dégradés */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80"></div>
             <div className="absolute inset-0 bg-gradient-to-t from-[#FDFBF7] via-transparent to-transparent"></div>
 
             <div className="absolute inset-0 flex flex-col items-center justify-center p-6 z-10 text-center mt-10 md:mt-16">
-
-               {/* TITRE BLANC & PUISSANT (Style Affiche de Film) */}
                <h1 className="font-serif font-black text-6xl md:text-8xl lg:text-9xl leading-none mb-6 tracking-tight text-white drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">
                   {game?.name}
                </h1>
-
-               {/* Sous-titre sobre (Sans date) */}
                <div className="flex items-center gap-4 opacity-90">
                   <div className="h-px w-8 bg-white/70 shadow-sm"></div>
                   <p className="text-white font-bold tracking-[0.4em] uppercase text-[10px] md:text-xs drop-shadow-md">
@@ -88,8 +85,7 @@ export default function GameStats() {
 
             {/* --- COLONNE DE GAUCHE : WIDGETS --- */}
             <div className="lg:col-span-4 space-y-8 sticky top-24">
-
-               {/* TAUX DE SUCCÈS (Police ajustée pour 100%) */}
+               {/* TAUX DE SUCCÈS */}
                <div className={`${monolithStyle} border-stone-100 p-8 flex flex-col items-center text-center group`}>
                   <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mb-6">Taux de Succès</h4>
                   <div className="relative w-40 h-40 mb-6 transition-transform duration-500 group-hover:scale-105">
@@ -102,7 +98,6 @@ export default function GameStats() {
                         />
                      </svg>
                      <div className="absolute inset-0 flex items-center justify-center flex-col">
-                        {/* CORRECTION : text-4xl au lieu de 5xl pour que 100% rentre */}
                         <span className="text-4xl font-serif font-black text-stone-900 tracking-tight">{winRate}%</span>
                      </div>
                   </div>
@@ -110,19 +105,6 @@ export default function GameStats() {
                      <div><span className="block text-2xl font-serif font-bold text-stone-800">{wins}</span><span className="text-[9px] font-black uppercase text-stone-400">Victoires</span></div>
                      <div className="w-px bg-stone-100"></div>
                      <div><span className="block text-2xl font-serif font-bold text-stone-800">{totalPlays - wins}</span><span className="text-[9px] font-black uppercase text-stone-400">Défaites</span></div>
-                  </div>
-               </div>
-
-               {/* CHALLENGE BAR */}
-               <div className={`${monolithStyle} border-stone-100 p-8`}>
-                  <div className="flex justify-between items-baseline mb-4">
-                     <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em]">Challenge</h4>
-                     <span className="text-sm font-bold text-stone-800">{totalPlays} <span className="text-stone-300">/ 10</span></span>
-                  </div>
-                  <div className="h-3 bg-stone-100 rounded-full overflow-hidden border border-stone-100 shadow-inner">
-                     <div className="h-full bg-gradient-to-r from-amber-400 to-amber-600 transition-all duration-1000 relative" style={{ width: `${Math.min((totalPlays / 10) * 100, 100)}%` }}>
-                        <div className="absolute top-0 right-0 bottom-0 w-full bg-white/20 animate-pulse"></div>
-                     </div>
                   </div>
                </div>
 
@@ -158,14 +140,12 @@ export default function GameStats() {
 
             {/* --- DROITE : TIMELINE VERTICALE --- */}
             <div className="lg:col-span-8 relative">
-
-               {/* TITRE DE SECTION */}
                <div className="mb-12 pl-8 border-l-4 border-amber-500">
                   <h3 className="text-3xl font-serif font-black text-stone-900 mb-1">Chroniques du Jeu</h3>
                   <p className="text-stone-500 italic">"Chaque partie forge la légende."</p>
                </div>
 
-               {/* Ligne Verticale Continue */}
+               {/* Ligne Verticale */}
                <div className="absolute left-[39px] top-24 bottom-0 w-0.5 bg-stone-200"></div>
 
                <div className="space-y-12">
@@ -173,40 +153,23 @@ export default function GameStats() {
                      const isVictory = play.is_victory;
                      const borderColor = isVictory ? 'border-amber-400/60' : 'border-stone-300';
                      const shadowRelief = isVictory ? 'rgba(217,119,6,0.08)' : 'rgba(28,25,23,0.05)';
-                     const badgeText = isVictory ? 'Glorieuse Victoire' : 'Lamentable Défaite';
-                     const badgeClass = isVictory ? 'bg-amber-100 text-amber-800 border-amber-200' : 'bg-stone-100 text-stone-600 border-stone-200';
-                     const iconBg = isVictory ? 'bg-amber-500 text-white shadow-amber-200 shadow-lg' : 'bg-stone-200 text-stone-400';
 
                      return (
                         <div key={play.id} className="relative group">
-
-                           {/* ICONE RONDE (Sur la ligne) */}
-                           <div className={`absolute left-10 top-8 -translate-x-1/2 w-14 h-14 rounded-full border-[6px] border-[#FDFBF7] z-20 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${iconBg}`}>
+                           {/* ICONE RONDE */}
+                           <div className={`absolute left-10 top-8 -translate-x-1/2 w-14 h-14 rounded-full border-[6px] border-[#FDFBF7] z-20 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 ${isVictory ? 'bg-amber-500 text-white shadow-amber-200 shadow-lg' : 'bg-stone-200 text-stone-400'}`}>
                               <span className="text-2xl drop-shadow-sm">{isVictory ? '🏆' : '💀'}</span>
                            </div>
 
-                           {/* CARTE CONTENU */}
+                           {/* CARTE */}
                            <div className="ml-24 flex flex-col xl:flex-row gap-6 items-start">
-
-                              {/* 1. CARTE TEXTE (Animée au survol) */}
                               <div
                                  className={`${monolithStyle} ${borderColor} border-2 flex-1 p-8 relative overflow-hidden`}
                                  style={{ boxShadow: `8px 8px 0 0 ${shadowRelief}` }}
                               >
-                                 <div className="flex flex-wrap gap-3 items-center mb-4">
-                                    <span className={`px-3 py-1 rounded-md text-[10px] font-black uppercase tracking-widest border ${badgeClass}`}>
-                                       {badgeText}
-                                    </span>
-                                    <span className="text-[10px] font-bold text-stone-400 uppercase tracking-widest flex items-center gap-1">
-                                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                       {play.duration_minutes} min
-                                    </span>
-                                 </div>
-
                                  <h3 className="font-serif font-bold text-2xl text-stone-900 mb-1 capitalize">
                                     {new Date(play.played_on).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                                  </h3>
-
                                  <div className="mt-6 relative pl-6">
                                     <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-full ${isVictory ? 'bg-amber-300' : 'bg-stone-300'}`}></div>
                                     <p className="text-stone-600 font-serif italic text-lg leading-relaxed">
@@ -215,39 +178,26 @@ export default function GameStats() {
                                  </div>
                               </div>
 
-                              {/* 2. POLAROID (TOTALEMENT STATIQUE & CORRIGÉ) */}
+                              {/* POLAROID */}
                               {play.image_urls?.length > 0 && (
                                  <div className="w-full xl:w-64 shrink-0 mt-4 xl:mt-0 flex justify-center xl:block">
                                     <div className="bg-white p-3 pb-8 shadow-[0_10px_20px_rgba(0,0,0,0.15)] rotate-2 border border-stone-200 max-w-[220px] mx-auto relative">
-                                       {/* SCOTCH */}
                                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-20 h-6 bg-stone-100/50 backdrop-blur-[1px] -rotate-1 shadow-sm border-l border-white/50 z-10"></div>
-
                                        <div className="aspect-square bg-stone-100 overflow-hidden mb-2 shadow-inner border border-stone-100">
                                           <img src={play.image_urls[0]} alt="Souvenir" className="w-full h-full object-cover" />
                                        </div>
                                        <div className="text-center pt-2">
-                                          <span className="font-handwriting text-xs text-stone-400 italic">
-                                             {getCaption(isVictory, play.id)}
-                                          </span>
+                                          <span className="font-handwriting text-xs text-stone-400 italic">{getCaption(isVictory, play.id)}</span>
                                        </div>
                                     </div>
                                  </div>
                               )}
-
                            </div>
                         </div>
                      );
                   })}
-
-                  {plays.length === 0 && (
-                     <div className="ml-24 p-12 text-center bg-white rounded-[2rem] border border-dashed border-stone-300">
-                        <p className="text-stone-400 font-serif italic text-xl mb-4">"Ce livre est encore vierge..."</p>
-                        <p className="text-stone-500 text-sm">Jouez votre première partie pour commencer à écrire l'histoire.</p>
-                     </div>
-                  )}
                </div>
             </div>
-
          </div>
       </div>
    );
