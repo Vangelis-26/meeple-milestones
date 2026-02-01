@@ -1,3 +1,8 @@
+// =================================================================================
+// COMPOSANT : DELETE GAME MODAL
+// Rôle : Confirmation ultime avant suppression d'un jeu (Irréversible).
+// =================================================================================
+
 export default function DeleteGameModal({ isOpen, game, onClose, onConfirm }) {
    if (!isOpen || !game) return null;
 
@@ -7,7 +12,7 @@ export default function DeleteGameModal({ isOpen, game, onClose, onConfirm }) {
 
          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 p-6 flex flex-col items-center text-center border border-stone-200">
 
-            {/* Icône Danger Thématique */}
+            {/* Icône Danger */}
             <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mb-4 border-2 border-red-100 shadow-inner">
                <span className="text-3xl">🔥</span>
             </div>
@@ -22,8 +27,6 @@ export default function DeleteGameModal({ isOpen, game, onClose, onConfirm }) {
                </p>
                <p className="text-xs text-red-800/80 leading-relaxed">
                   Voyageur, en retirant <span className="font-bold text-red-900">"{game.name}"</span> de votre quête, vous condamnerez toutes les parties et souvenirs associés à l'oubli éternel.
-                  <br /><br />
-                  <span className="italic">Les archives seront détruites et ne pourront être restaurées.</span>
                </p>
             </div>
 
@@ -36,7 +39,7 @@ export default function DeleteGameModal({ isOpen, game, onClose, onConfirm }) {
                </button>
                <button
                   onClick={onConfirm}
-                  className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all text-sm uppercase tracking-wide flex items-center justify-center gap-2 group"
+                  className="flex-1 py-3 px-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all text-sm uppercase tracking-wide"
                >
                   <span>Invoquer l'oubli</span>
                </button>

@@ -71,7 +71,7 @@ export default function Footer() {
                      </li>
                      <li className="flex items-center gap-2">
                         <span className="w-1 h-1 rounded-full bg-amber-500"></span>
-                        <span>Version : <span className="text-stone-800 font-mono text-[10px]">1.0 (Portfolio)</span></span>
+                        <span>Version : <span className="text-stone-800 font-mono text-[10px]">1.0 (Stable)</span></span>
                      </li>
                   </ul>
                </div>
@@ -93,7 +93,6 @@ export default function Footer() {
             {/* --- BOTTOM BAR --- */}
             <div className="pt-8 border-t border-stone-200 flex flex-col md:flex-row items-center justify-between gap-6">
                <div className="flex flex-col md:flex-row items-center gap-2 md:gap-6 text-[10px] font-medium text-stone-400 uppercase tracking-widest text-center md:text-left">
-                  {/* ICI : Remplacement par le pseudo */}
                   <span>© {currentYear} Vangelis-26.</span>
                   <span className="hidden md:inline w-px h-3 bg-stone-300"></span>
                   <span>Tous droits réservés.</span>
