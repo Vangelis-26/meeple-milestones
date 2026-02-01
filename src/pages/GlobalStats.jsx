@@ -1,10 +1,9 @@
-// ==========================================
+CartesianGrid// ==========================================
 // 1. IMPORTS & DÉPENDANCES
 // ==========================================
 import { useState, useEffect, useMemo } from 'react';
 import { useChallenge } from '../hooks/useChallenge';
 import {
-   ResponsiveContainer,
    ComposedChart,
    Area,
    Bar,
@@ -13,6 +12,19 @@ import {
    Tooltip,
    CartesianGrid
 } from 'recharts';
+
+// --- IMPORTS DES IMAGES DE RANGS (Nomenclature ChallengeProgress) ---
+import rank0 from '../assets/ranks/rank-0.png';
+import rank5 from '../assets/ranks/rank-5.png';
+import rank15 from '../assets/ranks/rank-15.png';
+import rank30 from '../assets/ranks/rank-30.png';
+import rank50 from '../assets/ranks/rank-50.png';
+import rank65 from '../assets/ranks/rank-65.png';
+import rank78 from '../assets/ranks/rank-78.png';
+import rank88 from '../assets/ranks/rank-88.png';
+import rank95 from '../assets/ranks/rank-95.png';
+import rank100 from '../assets/ranks/rank-100.png';
+import rank110 from '../assets/ranks/rank-110.png';
 
 export default function GlobalStats() {
    // ==========================================
@@ -37,22 +49,22 @@ export default function GlobalStats() {
    const progression = useMemo(() => {
       const totalPlays = plays.length;
       const levels = [
-         { min: 0, title: "Vagabond des Plateaux", icon: "🥾" },
-         { min: 5, title: "Aventurier Novice", icon: "🎒" },
-         { min: 15, title: "Chasseur de Reliques", icon: "🔍" },
-         { min: 30, title: "Stratège Reconnu", icon: "📜" },
-         { min: 50, title: "Gardien des Savoirs", icon: "🕯️" },
-         { min: 65, title: "Maître de Guerre", icon: "⚔️" },
-         { min: 78, title: "Seigneur du Grimoire", icon: "🏰" },
-         { min: 88, title: "Oracle Ludique", icon: "✨" },
-         { min: 95, title: "Légende Vivante", icon: "👑" },
-         { min: 100, title: "Maître de l'Olympe", icon: "⚡" },
-         { min: 110, title: "Architecte du Destin", icon: "🌌" }
+         { min: 0, title: "Vagabond des Plateaux", icon: rank0 },
+         { min: 5, title: "Aventurier Novice", icon: rank5 },
+         { min: 15, title: "Chasseur de Reliques", icon: rank15 },
+         { min: 30, title: "Stratège Reconnu", icon: rank30 },
+         { min: 50, title: "Gardien des Savoirs", icon: rank50 },
+         { min: 65, title: "Maître de Guerre", icon: rank65 },
+         { min: 78, title: "Seigneur du Grimoire", icon: rank78 },
+         { min: 88, title: "Oracle Ludique", icon: rank88 },
+         { min: 95, title: "Légende Vivante", icon: rank95 },
+         { min: 100, title: "Maître de l'Olympe", icon: rank100 },
+         { min: 110, title: "Architecte du Destin", icon: rank110 }
       ];
       const currentLevelIndex = [...levels].reverse().findIndex(l => totalPlays >= l.min);
       const levelIdx = currentLevelIndex !== -1 ? levels.length - 1 - currentLevelIndex : 0;
       const currentLevel = levels[levelIdx];
-      const nextLevel = levels[levelIdx + 1] || { min: totalPlays + 15, title: "Éternité", icon: "♾️" };
+      const nextLevel = levels[levelIdx + 1] || { min: totalPlays + 15, title: "Éternité", icon: rank110 };
       const range = nextLevel.min - currentLevel.min;
       const progressInLevel = totalPlays - currentLevel.min;
       const percent = Math.min(Math.round((progressInLevel / range) * 100), 100);
@@ -147,8 +159,9 @@ export default function GlobalStats() {
                <div className="bg-stone-900 text-white p-8 rounded-[2.5rem] border border-stone-800 relative group overflow-hidden transition-all duration-500 hover:-translate-y-2 shadow-2xl">
                   <div className="relative z-10 flex flex-col h-full">
                      <div className="flex items-center gap-4 mb-4">
-                        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/5 border border-white/10 text-3xl transition-transform duration-500 group-hover:scale-110">
-                           {progression.icon}
+                        {/* Container Image mis à jour */}
+                        <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-white/5 border border-white/10 overflow-hidden transition-transform duration-500 group-hover:scale-110">
+                           <img src={progression.icon} alt={progression.title} className="w-full h-full object-contain p-1" />
                         </div>
                         <div>
                            <p className="text-amber-500 text-[9px] font-black uppercase tracking-[0.2em]">Grade {progression.level}</p>
