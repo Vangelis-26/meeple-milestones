@@ -40,7 +40,7 @@ export default function Legal() {
                <div className="text-sm text-stone-600 space-y-4 leading-relaxed pl-8 border-l-2 border-stone-100">
                   <p>Le présent site est édité à titre personnel par :</p>
 
-                  <p className="font-bold text-stone-800 bg-stone-50 inline-block px-2 py-1 rounded border border-stone-200 text-xs text-stone-500">
+                  <p className="font-bold text-stone-800 bg-stone-50 inline-block px-2 py-1 rounded border border-stone-200 text-xs">
                      [IDENTITÉ DE L'ÉDITEUR]
                   </p>
 
