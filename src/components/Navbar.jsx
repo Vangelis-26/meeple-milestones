@@ -35,6 +35,7 @@ export default function Navbar() {
 
    // 2. Fermeture au changement de page
    useLayoutEffect(() => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsOpen(false);
       setIsMobileOpen(false);
    }, [location.pathname]);
@@ -78,6 +79,7 @@ export default function Navbar() {
       let isMounted = true;
 
       // Chargement initial
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchUserGames().catch(err => { if (isMounted) console.error(err); });
 
       // Écouteur d'événement custom
