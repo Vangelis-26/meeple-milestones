@@ -1,0 +1,10 @@
+# =============================================================
+# MEEPLE & MILESTONES - ACCÈS PRIVÉ
+# Empêche l'indexation par les moteurs de recherche
+# =============================================================
+
+User-agent: *
+Disallow: /
+
+# Aucune archive ou cache ne doit être conservé
+Noindex: /
