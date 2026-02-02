@@ -1,64 +1,110 @@
-# 🏰 Meeple & Milestones
+# 🎲 Meeple & Milestones - L'Antre des Légendes
 
-> **Forgez votre légende, une partie après l'autre.**
+![License](https://img.shields.io/badge/license-Proprietary-red?style=for-the-badge)
 
-**Meeple & Milestones** est une application web sophistiquée de suivi de collection et de progression pour les passionnés de jeux de société. Plus qu'un simple tracker, c'est un sanctuaire numérique qui transforme chaque partie en une étape vers un rang légendaire.
+> **Une application "Premium" de suivi de challenges ludiques (10x10), conçue pour les passionnés de jeux de société modernes.**
 
----
+![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=for-the-badge&logo=tailwindcss)
+![Supabase](https://img.shields.io/badge/Supabase-Database-3ecf8e?style=for-the-badge&logo=supabase)
+![Vite](https://img.shields.io/badge/Vite-Fast-646cff?style=for-the-badge&logo=vite)
 
-## 💎 Vision & Design
+## 🌟 La Vision du Projet
 
-L'application adopte une esthétique "Grimoire Moderne", mêlant une typographie serif élégante à une interface minimaliste et réactive.
-
-### Points forts du design :
-
-- **Heroic Progression :** Un système de grades évolutif (de "Vagabond" à "Architecte du Destin") basé sur des illustrations PNG personnalisées.
-- **Dashboard Analytique :** Visualisation des données de jeu via des graphiques complexes (Recharts).
-- **Interface "Premium" :** Utilisation de textures subtiles, d'effets de verre dépoli (Glassmorphism) et d'animations fluides au survol.
+Ce projet n'est pas un simple "tracker". C'est une tentative de repenser l'expérience utilisateur dans le monde du jeu de société, souvent dominé par des interfaces datées.
+L'objectif : **Fusionner l'utile (statistiques) et l'agréable (immersion visuelle)**, avec une direction artistique inspirée des grimoires anciens et du design "Luxe".
 
 ---
 
-## 🛠 Stack Technique
+## 📸 Aperçu du Sanctuaire
 
-| Technologie      | Usage                                                     |
-| :--------------- | :-------------------------------------------------------- |
-| **React 18**     | Architecture composant et gestion d'état UI.              |
-| **Tailwind CSS** | Design system sur-mesure et responsive.                   |
-| **Supabase**     | Authentification sécurisée et base de données PostgreSQL. |
-| **Recharts**     | Moteur de rendu des statistiques de progression.          |
-| **BGG API**      | Intégration et parsing des données de BoardGameGeek.      |
+| Dashboard Mobile                          | Grimoire d'un Jeu                         | Statistiques Globales             |
+| :---------------------------------------- | :---------------------------------------- | :-------------------------------- |
+| ![Dashboard](./screenshots/Dashboard.png) | ![GameStats](./screenshots/GameStats.png) | ![Stats](./screenshots/Stats.png) |
 
----
+## ✨ Fonctionnalités Clés
 
-## 🚀 Défis Techniques Relevés
+### 🛡️ Authentification & Profil
 
-### 1. Synchronisation avec BoardGameGeek (XML/JSON)
+- **Grimoire d'accès :** Système de Login/Sign-up entièrement sécurisé via Supabase Auth.
+- **Mon Héritage :** Gestion de profil avancée avec possibilité de reforger son sceau (mot de passe) et zone de danger sécurisée (RPC Function) pour la suppression de compte.
+- **Persistance :** Session utilisateur maintenue et protégée par `ProtectedRoute`.
 
-L'un des défis majeurs a été de consommer l'API de BoardGameGeek (BGG). J'ai implémenté une logique de parsing robuste pour transformer les flux XML de BGG en données JSON exploitables, permettant une récupération fluide des couvertures et des métadonnées des jeux.
+### ⚔️ Le Challenge 10x10
 
-### 2. Système de Progression Dynamique
+- **Dashboard Immersif :** Vue d'ensemble de la progression avec barres dynamiques et design épuré.
+- **Moteur de Recherche :** Connexion à une base de données locale de jeux (pré-fetchée depuis BGG) pour une recherche instantanée.
+- **Gestion de Collection :** Ajout/Suppression de jeux au challenge, avec gestion automatique des doublons.
 
-Conception d'un algorithme mémorisé (`useMemo`) calculant en temps réel le niveau de l'utilisateur, son pourcentage de progression vers le rang suivant et l'attribution des icônes de rangs en fonction du volume de parties enregistrées.
+### 📜 Le Sanctuaire (Statistiques)
 
-### 3. Architecture "Private by Design"
-
-Pour garantir la confidentialité des données, l'application est verrouillée par un système d'invitation strict via Supabase Auth. L'inscription publique est désactivée, faisant de chaque instance un espace privé et sécurisé.
-
----
-
-## 🛡 Confidentialité & Sécurité
-
-- **Accès Restreint :** Authentification obligatoire via liste d'invitation.
-- **RGPD :** Option de suppression totale du compte et des données en un clic (Droit à l'oubli).
-- **Visibilité :** Fichier `robots.txt` configuré pour interdire l'indexation par les moteurs de recherche.
+- **Data Visualization :** KPI en temps réel (H-Index, Total de parties, Victoires).
+- **Historique :** Journal des quêtes (parties) détaillé avec filtres et tris.
+- **Interface Réactive :** Mises à jour en temps réel grâce aux souscriptions Supabase Realtime (Websockets).
 
 ---
 
-## 📚 Crédits
+## 🏗️ Architecture Technique
 
-- **Données :** Un immense merci à **BoardGameGeek** pour leur API inestimable.
-- **Concept :** Meeple & Milestones est un projet indépendant créé par et pour des passionnés de jeux de plateau.
+### Front-End (UX/UI First)
+
+- **React + Vite :** Pour une performance optimale et un rechargement instantané.
+- **Tailwind CSS :** Utilisation d'un système de design tokenisé (couleurs `stone`, `amber`, `emerald`) pour une cohérence visuelle parfaite.
+- **Framer Motion / CSS Transitions :** Micro-interactions soignées (survol des cartes, apparitions modales, feedback boutons).
+- **Responsive Design :** Interface totalement adaptative (Mobile First), avec menu "Tiroir" pour les petits écrans.
+
+### Back-End (Supabase)
+
+- **PostgreSQL :** Base de données relationnelle robuste.
+- **Row Level Security (RLS) :** Chaque donnée est isolée. Un utilisateur ne peut voir et modifier que ses données (bien que la bibliothèque de jeux soit publique).
+- **RPC Functions :** Logique métier complexe (ex: suppression de compte en cascade) déportée côté serveur pour la sécurité.
+- **Realtime :** Synchronisation instantanée des états entre plusieurs onglets/appareils.
+
+### Challenges Techniques Résolus
+
+1.  **Sync Auth & URL :** Gestion fine de la synchronisation entre l'état de l'authentification et les paramètres d'URL pour éviter les boucles de redirection au login.
+2.  **Performance BGG :** Mise en cache des données BoardGameGeek pour éviter les latences d'API externes.
+3.  **Sécurité des Données :** Implémentation d'une fonction SQL `security definer` pour permettre à un utilisateur de supprimer ses propres données (y compris Auth) sans compromettre la base globale.
 
 ---
 
-_Note : Le code source de ce projet est privé. Une démonstration vidéo ou un accès temporaire peut être fourni sur demande pour examen technique._
+## 🚀 Installation & Démarrage
+
+```bash
+# 1. Cloner le grimoire
+git clone [https://github.com/Vangelis-26/meeple-milestones.git](https://github.com/Vangelis-26/meeple-milestones.git)
+
+# 2. Entrer dans le sanctuaire
+cd meeple-milestones
+
+
+# 3. Invoquer les dépendances
+npm install
+
+# 4. Configurer les variables d'environnement
+# Créer un fichier .env avec :
+# VITE_SUPABASE_URL=votre_url
+# VITE_SUPABASE_ANON_KEY=votre_cle
+
+# 5. Lancer le sortilège de développement
+npm run dev
+```
+
+## 👤 Auteur
+
+**Vangelis** — _Architecte du Destin_ Projet réalisé avec passion pour la communauté ludique.
+
+> _"Le silence est d'or, mais une victoire écrite est éternelle."_
+
+---
+
+## ⚖️ Licence & Propriété Intellectuelle
+
+Ce projet est sous **Licence Propriétaire**.
+
+- **Consultation :** Le code est ouvert à des fins d'audit technique et de démonstration de compétences pour les recruteurs.
+- **Interdictions :** Toute copie, distribution ou exploitation commerciale du code, du design ou du concept est strictement interdite sans l'accord explicite de l'auteur.
+
+---
+
+© 2026 Vangelis. Tous droits réservés. Ce projet est la propriété intellectuelle exclusive de son auteur.
