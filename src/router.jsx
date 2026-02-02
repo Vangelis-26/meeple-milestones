@@ -8,7 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
-import SetPassword from './pages/SetPassword';
+import SetPassword from './pages/SetPassword'; // <-- Vérifie que l'import est là
 import Legal from './pages/Legal';
 
 // --- PAGES PROTÉGÉES (Nécessitent Connexion) ---
@@ -20,7 +20,7 @@ import GameStats from './pages/GameStats';
 export const router = createBrowserRouter([
    {
       path: "/",
-      element: <App />, // Layout global (Navbar + Footer)
+      element: <App />,
       children: [
          // 1. Routes Publiques
          {
@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
             element: <ForgotPassword />
          },
          {
-            path: "set-password",
+            path: "set-password", // <-- AJOUT DE LA ROUTE ICI
             element: <SetPassword />
          },
          {
@@ -44,7 +44,7 @@ export const router = createBrowserRouter([
             element: <Legal />
          },
 
-         // 2. Routes Sécurisées (Wrapped in ProtectedRoute)
+         // 2. Routes Sécurisées
          {
             path: "dashboard",
             element: (
