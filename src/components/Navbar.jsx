@@ -217,6 +217,7 @@ export default function Navbar() {
             <div className="hidden lg:block absolute top-full left-0 w-full bg-white border-b border-stone-200/50 shadow-2xl animate-in slide-in-from-top-2 duration-300 rounded-b-[2.5rem] overflow-hidden">
                <div className="max-w-7xl mx-auto px-8 py-10 grid grid-cols-4 gap-6">
                   {games.map((game) => (
+                     /* Le lien mène directement à la page GameStats du jeu spécifique */
                      <Link key={game.id} to={`/game/${game.id}`} className="group flex items-center gap-4 p-3 bg-white rounded-2xl border border-stone-100 shadow-sm hover:border-amber-200 hover:-translate-y-1 transition-all duration-300">
                         <div className="w-14 h-14 shrink-0 rounded-xl overflow-hidden border-2 border-white shadow-sm bg-stone-100">
                            {game.thumb ? <img src={game.thumb} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-stone-300">?</div>}
@@ -234,11 +235,6 @@ export default function Navbar() {
                         </div>
                      </Link>
                   ))}
-                  {games.length === 0 && (
-                     <div className="col-span-4 text-center py-4 text-stone-400 font-serif italic text-sm">
-                        Votre collection est vide. Ajoutez un jeu via le Dashboard pour le voir apparaître ici.
-                     </div>
-                  )}
                </div>
             </div>
          )}
