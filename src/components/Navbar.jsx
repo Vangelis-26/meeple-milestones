@@ -40,7 +40,22 @@ export default function Navbar() {
       setIsMobileOpen(false);
    }, [location.pathname]);
 
-   // 3. Récupération des jeux (Pour le menu Archives)
+   // 3. Fermeture automatique au Scroll (Amélioration UX Mobile/Desktop)
+   useEffect(() => {
+      const handleScroll = () => {
+         // On ne déclenche la fermeture que si l'un des menus est réellement ouvert
+         if (isOpen || isMobileOpen) {
+            setIsOpen(false);
+            setIsMobileOpen(false);
+         }
+      };
+
+      // L'option { passive: true } optimise les performances de scroll
+      window.addEventListener("scroll", handleScroll, { passive: true });
+      return () => window.removeEventListener("scroll", handleScroll);
+   }, [isOpen, isMobileOpen]);
+
+   // 4. Récupération des jeux (Pour le menu Archives)
    const fetchUserGames = useCallback(async () => {
       if (!user) return;
       try {
@@ -74,11 +89,10 @@ export default function Navbar() {
       }
    }, [user]);
 
-   // 4. Abonnement aux mises à jour globales (Déclenché par useChallenge)
+   // 5. Abonnement aux mises à jour globales
    useEffect(() => {
       let isMounted = true;
 
-      // Chargement initial
       // eslint-disable-next-line react-hooks/set-state-in-effect
       fetchUserGames().catch(err => { if (isMounted) console.error(err); });
 
