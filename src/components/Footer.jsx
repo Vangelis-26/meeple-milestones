@@ -75,8 +75,8 @@ export default function Footer() {
                   <h5 className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400">Juridique</h5>
                   <ul className="space-y-3 text-[10px] font-bold text-stone-500 uppercase tracking-wider">
                      <li><Link to="/legal#editor" className="hover:text-stone-900 transition-colors">Mentions Légales</Link></li>
-                     <li><Link to="/legal#privacy" className="hover:text-stone-900 transition-colors">Données & RGPD</Link></li>
                      <li><Link to="/legal#copyright" className="hover:text-stone-900 transition-colors">Propriété</Link></li>
+                     <li><Link to="/legal#privacy" className="hover:text-stone-900 transition-colors">Données & RGPD</Link></li>
                   </ul>
                </div>
             </div>

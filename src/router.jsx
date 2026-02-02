@@ -8,6 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
+import SetPassword from './pages/SetPassword';
 import Legal from './pages/Legal';
 
 // --- PAGES PROTÉGÉES (Nécessitent Connexion) ---
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
          {
             path: "forgot-password",
             element: <ForgotPassword />
+         },
+         {
+            path: "set-password",
+            element: <SetPassword />
          },
          {
             path: "legal",

@@ -37,7 +37,7 @@ export default function Legal() {
             </div>
 
             {/* --- 01. L'ÉDITEUR --- */}
-            <section className="space-y-3 relative z-10">
+            <section id="editor" className="space-y-3 relative z-10 scroll-mt-32">
                <h2 className="text-xs font-black uppercase tracking-widest text-amber-700">Éditeur du Service</h2>
                <div className="text-sm text-stone-600 leading-relaxed border-l-2 border-stone-100 pl-6">
                   <p>
@@ -56,7 +56,7 @@ export default function Legal() {
             </section>
 
             {/* --- 03. PROTECTION & COPYRIGHT --- */}
-            <section className="space-y-3 relative z-10">
+            <section id="copyright" className="space-y-3 relative z-10 scroll-mt-32">
                <h2 className="text-xs font-black uppercase tracking-widest text-amber-700">Propriété Intellectuelle</h2>
                <div className="text-sm text-stone-600 leading-relaxed border-l-2 border-amber-100 space-y-4">
                   <p className="font-bold text-stone-900 uppercase tracking-tight">© 2026 Meeple & Milestones. Tous droits réservés.</p>
@@ -93,9 +93,9 @@ export default function Legal() {
             </section>
 
             {/* --- 05. CONFIDENTIALITÉ --- */}
-            <section className="space-y-3 relative z-10">
+            <section id="privacy" className="space-y-3 relative z-10 scroll-mt-32">
                <h2 className="text-xs font-black uppercase tracking-widest text-amber-700">Confidentialité</h2>
-               <div className="text-sm text-stone-600 leading-relaxed border-l-2 border-amber-100">
+               <div className="text-sm text-stone-600 leading-relaxed border-l-2 border-stone-100">
                   <p>L'accès est privé et s'effectue uniquement sur invitation.</p>
                   <ul className="list-disc pl-5 mt-2 space-y-1 marker:text-amber-500">
                      <li><strong>Email :</strong> Utilisé uniquement pour sécuriser votre accès.</li>
